@@ -34,7 +34,11 @@ func main() {
 	}
 
 	// Log file
-	logFile, err := os.OpenFile("logs/app.log", os.O_WRONLY|os.O_APPEND, 0666)
+	err = os.MkdirAll("logs", os.ModePerm)
+	if err != nil {
+		log.Fatal("Nose pudo crear la carpeta de los logs: ", err)
+	}
+	logFile, err := os.OpenFile("logs/app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal("No se pudo abrir el archivo de log: ", err)
 	}
