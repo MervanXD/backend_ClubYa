@@ -25,7 +25,6 @@ go.work.sum
 *.toml
 tmp/
 #lo que es con respecto al log de errores
-logs/
 *.log
 
 #en cuanto a los datos de la bd
