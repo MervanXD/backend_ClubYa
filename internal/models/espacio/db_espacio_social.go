@@ -6,8 +6,8 @@ import (
 )
 
 func InsertarEspacioSocial(es EspacioSocial) error {
-	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?)"
-	_, err := database.DB.Exec(query, es.Nombre, es.Codigo, es.Ubicacion, es.Capacidad, es.Costo, es.Actividad.String())
+	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?,?,?)"
+	_, err := database.DB.Exec(query, es.Nombre, es.Codigo, es.Ubicacion, es.Capacidad, es.Costo, es.Imagen, es.Reglamento, es.Actividad.String())
 	if err != nil {
 		logs.Logger.Fatal("Error al insertar espacio social: ", err)
 		return err
@@ -27,7 +27,7 @@ func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 	for rows.Next() {
 		var es EspacioSocial
 		//var actividad string
-		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Actividad); err != nil {
+		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad); err != nil {
 			logs.Logger.Fatal("Error al escanear espacio social: ", err)
 			return nil, err
 		}
