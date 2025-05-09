@@ -18,7 +18,7 @@ var (
 )
 
 func LoadConfig() string {
-	err := godotenv.Load()
+	err := godotenv.Load("../../.env")
 	if err != nil {
 		logs.Logger.Fatal("Error cargando .env")
 	}
@@ -51,5 +51,6 @@ func LoadConfig() string {
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
 		DBUser, DBPassword, DBHost, DBPort, DBName)
+	fmt.Println("DSN: ", dsn)
 	return dsn
 }

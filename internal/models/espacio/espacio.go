@@ -5,10 +5,10 @@ import (
 )
 
 type Espacio struct {
-	Id            int             `json:"id"`
-	Nombre        string          `json:"nombre"`
-	Ubicacion     tipos.Ubicacion `json:"ubicacion"`
-	Capacidad     int             `json:"capacidad"`
-	Restricciones []string        `json:"restricciones"`
-	Costo         float64         `json:"costo"`
+	Id        int             `json:"id"`
+	Nombre    string          `json:"nombre"`
+	Ubicacion tipos.Ubicacion `json:"ubicacion"`
+	Capacidad int             `json:"capacidad"`
+	Codigo    string          `json:"codigo"`
+	Costo     float64         `json:"costo"`
 }
