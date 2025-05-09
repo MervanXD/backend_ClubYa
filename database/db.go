@@ -14,15 +14,17 @@ var DB *sql.DB
 func InitDB() {
 	// sacamos el .env
 	dsn := config.LoadConfig()
+	var err error
 
-	DB, err := sql.Open("mysql", dsn)
+	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("Error abriendo la conexion: %v", err)
 	}
 	//hacemos ping para ver si la conexion esta bien
-	if err := DB.Ping(); err != nil {
+	if err = DB.Ping(); err != nil {
 		logs.Logger.Fatalf("No se pudo conectar a la base de datos: %v", err)
 	}
+
 }
 
 func CloseDB() {
@@ -37,5 +39,9 @@ func CloseDB() {
 
 func IsHealthy() bool {
 	// para saber si la conexion sigue activa
+	if DB == nil {
+		logs.Logger.Print("DB is nil")
+		return false
+	}
 	return DB.Ping() == nil
 }

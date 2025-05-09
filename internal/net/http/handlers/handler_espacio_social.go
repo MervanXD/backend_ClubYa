@@ -1,0 +1,33 @@
+package handlers
+
+import (
+	"github.com/MervanXD/backend_ClubYa/internal/api/models"
+	"github.com/MervanXD/backend_ClubYa/internal/models/espacio"
+	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/gofiber/fiber/v2"
+)
+
+func CrearEspacioSocial(c *fiber.Ctx) error {
+	var espacioSocial espacio.EspacioSocial
+
+	if err := c.BodyParser(&espacioSocial); err != nil {
+		logs.Logger.Fatal("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+	if err := espacio.InsertarEspacioSocial(espacioSocial); err != nil {
+		logs.Logger.Fatal("Error al insertar el espacio social: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar el espacio social", nil))
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Espacio social creado con éxito", nil))
+}
+
+func ListarEspaciosSociales(c *fiber.Ctx) error {
+	espacios, err := espacio.ObtenerEspaciosSociales()
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener los espacios sociales: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los espacios sociales", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Espacios sociales obtenidos con éxito", espacios))
+}
