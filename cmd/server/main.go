@@ -5,6 +5,7 @@ import (
 	"github.com/MervanXD/backend_ClubYa/internal/net/http/routes"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 
 	// esto es para crear una app y tener handlers y eso
 	app := fiber.New()
+	app.Use(cors.New())
 	routes.RutasEspacioSocial(app)
 
 	if err := app.Listen(":4000"); err != nil {
