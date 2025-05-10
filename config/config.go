@@ -51,6 +51,6 @@ func LoadConfig() string {
 	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
 		DBUser, DBPassword, DBHost, DBPort, DBName)
-	fmt.Println("DSN: ", dsn)
+	//fmt.Println("DSN: ", dsn)
 	return dsn
 }
