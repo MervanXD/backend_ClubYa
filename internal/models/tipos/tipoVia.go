@@ -19,7 +19,7 @@ const (
 )
 
 func (d TipoVia) String() string {
-	return [...]string{"Jr", "Av", "Calle", "Pasaje", "Plaza", "Mza", "Prolongacion"}[d]
+	return [...]string{"Jr.", "Av.", "Calle", "Pasaje", "Plaza", "Mza.", "Prolongacion"}[d]
 }
 
 func (d TipoVia) MarshalJSON() ([]byte, error) {
@@ -28,9 +28,9 @@ func (d TipoVia) MarshalJSON() ([]byte, error) {
 
 func (d *TipoVia) UnmarshalJSON(data []byte) error {
 	switch string(data) {
-	case `"Jr"`:
+	case `"Jr."`:
 		*d = Jr
-	case `"Av"`:
+	case `"Av."`:
 		*d = Av
 	case `"Calle"`:
 		*d = Calle
@@ -38,7 +38,7 @@ func (d *TipoVia) UnmarshalJSON(data []byte) error {
 		*d = Pasaje
 	case `"Plaza"`:
 		*d = Plaza
-	case `"Mza"`:
+	case `"Mza."`:
 		*d = Mza
 	case `"Prolongacion"`:
 		*d = Prolongacion
@@ -71,9 +71,9 @@ func (uc *TipoVia) Scan(value interface{}) error {
 	// Aquí tu lógica para convertir strValue ("Puerta 1") a un int
 	// Aquí tu lógica para convertir strValue ("Puerta 1") a un enum Ubicacion
 	switch strValue {
-	case "Jr":
+	case "Jr.":
 		*uc = Jr
-	case "Av":
+	case "Av.":
 		*uc = Av
 	case "Calle":
 		*uc = Calle
@@ -81,7 +81,7 @@ func (uc *TipoVia) Scan(value interface{}) error {
 		*uc = Pasaje
 	case "Plaza":
 		*uc = Plaza
-	case "Mza":
+	case "Mza.":
 		*uc = Mza
 	case "Prolongacion":
 		*uc = Prolongacion
