@@ -49,7 +49,7 @@ func (d Actividad) FromString(str string) (Actividad, error) {
 	}
 }
 
-// Scan implementa la interfaz sql.Scanner para UbicacionCustom.
+// Scan implementa la interfaz sql.Scanner para cada enum y asi funcione al momento de recibir de la bd.
 func (uc *Actividad) Scan(value interface{}) error {
 	if value == nil {
 		// Manejar el caso de NULL de la base de datos si es necesario
