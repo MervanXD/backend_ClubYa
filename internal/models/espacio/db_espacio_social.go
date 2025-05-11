@@ -31,11 +31,6 @@ func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 			logs.Logger.Fatal("Error al escanear espacio social: ", err)
 			return nil, err
 		}
-		/*es.Actividad, err = es.Actividad.FromString(actividad)
-		if err != nil {
-			logs.Logger.Fatal("Error al convertir actividad: ", err)
-			return nil, err
-		}*/
 		espacios = append(espacios, es)
 	}
 	return espacios, nil
