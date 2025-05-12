@@ -9,4 +9,5 @@ type Cuenta struct {
 	Email      string    `json:"email"`
 	Activo     bool      `json:"activo"`
 	Rol        tipos.Rol `json:"rol"`
+	IdPersona  int       `json:"id_persona"`
 }
