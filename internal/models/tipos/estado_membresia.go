@@ -56,8 +56,6 @@ func (uc *EstadoMembresia) Scan(value interface{}) error {
 		return fmt.Errorf("tipo de dato no soportado para EstadoMembresia: %T", value)
 	}
 
-	// Aquí tu lógica para convertir strValue ("Puerta 1") a un int
-	// Aquí tu lógica para convertir strValue ("Puerta 1") a un enum Ubicacion
 	switch strValue {
 	case "Vigente":
 		*uc = Vigente

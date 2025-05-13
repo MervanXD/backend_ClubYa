@@ -25,6 +25,7 @@ func main() {
 	app.Use(cors.New())
 	routes.RutasEspacioSocial(app)
 	routes.PersonaRoutes(app)
+	routes.RutasSolicitudMembresia(app)
 
 	if err := app.Listen(":4000"); err != nil {
 		logs.Logger.Fatal("Error al iniciar el servidor: ", err)
