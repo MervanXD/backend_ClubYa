@@ -49,8 +49,8 @@ func LoadConfig() string {
 	if err != nil {
 		logs.Logger.Fatal("Error al desencriptar los datos de la base de datos: ", err)
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		DBUser, DBPassword, DBHost, DBPort, DBName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?%s",
+		DBUser, DBPassword, DBHost, DBPort, DBName, "parseTime=true")
 	//fmt.Println("DSN: ", dsn)
 	return dsn
 }
