@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
+	"github.com/MervanXD/backend_ClubYa/internal/models/persona"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
-
 
 func ObtenerSolicitudesMembresia() ([]SolicitudDTO, error) {
 	query := "call ingesoft.obtenerSolicitudesConTitulares()"
@@ -49,4 +49,36 @@ func ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
 	}
 
 	return nil
+}
+
+func ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
+	query := "CALL ObtenerFamiliaresPorSolicitud(?)"
+	rows := database.DB.QueryRow(query, idSolicitud)
+	var solicitud SolicitudMembresia
+	err := rows.Scan(&solicitud.Id, &solicitud.Fecha, &solicitud.Estado)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedimiento:", err)
+		return nil, err
+	}
+	return &solicitud, nil
+}
+
+func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error) {
+	query := "CALL ObtenerDatosSolicitudPorId(?)"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener los datos de los familiares: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var familiares []persona.Familiar
+	for rows.Next() {
+		var familia persona.Familiar
+		if err := rows.Scan(&familia.Id, &familia.Nombre, &familia.Apellidos, &familia.Dni, &familia.TipoFamiliar); err != nil {
+			logs.Logger.Fatal("Error al escanear al familiar: ", err)
+			return nil, err
+		}
+		familiares = append(familiares, familia)
+	}
+	return familiares, nil
 }
