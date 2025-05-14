@@ -3,7 +3,6 @@ package handlers
 import (
 	"strconv"
 
-
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	solicitud "github.com/MervanXD/backend_ClubYa/internal/models/solicitud_membresia"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -45,4 +44,38 @@ func ActualizarEstadoSolicitud(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Estado actualizado correctamente", nil))
+}
+
+func DatosSolicitudId(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
+
+	solicitud, err := solicitud.ObtenerDatosSolicitudPorId(id)
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener la informacion de la solicitud", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la solicitud", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion obtenida con exito", solicitud))
+}
+
+func ListarFamiliaresSolicitudId(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
+
+	familiares, err := solicitud.ObtenerFamiliaresPorIdSolicitud(id)
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener la informacion del familiar", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de los familiares ", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion de los familiares obtenida con exito", familiares))
 }
