@@ -35,3 +35,4 @@ func ActualizarEstadoSolicitud(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Estado actualizado correctamente", nil))
 }
+

@@ -6,5 +6,5 @@ import (
 )
 
 func SolicitudMembresiaRoutes(app *fiber.App) {
-	app.Put("/solicitud-membresia/:id/estado", handlers.ActualizarEstadoSolicitud)
+	app.Put("/solicitud-membresia/:id/estado_solicitud", handlers.ActualizarEstadoSolicitud)
 }

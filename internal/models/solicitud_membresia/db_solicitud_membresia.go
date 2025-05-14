@@ -1,7 +1,6 @@
 package solicitud
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -10,9 +9,6 @@ import (
 
 func ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
 	estado := strings.Title(strings.ToLower(nuevoEstado))
-	if estado != "Aceptada" && estado != "Rechazada" && estado != "Pendiente" {
-		return errors.New("estado no válido")
-	}
 
 	query := `CALL ActualizarEstadoSolicitud(?, ?)`
 	result, err := database.DB.Exec(query, id, estado)
@@ -28,9 +24,8 @@ func ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("no se actualizó ninguna fila")
+		return err
 	}
 
 	return nil
 }
-
