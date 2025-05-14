@@ -52,7 +52,7 @@ func ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
 }
 
 func ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
-	query := "CALL ObtenerFamiliaresPorSolicitud(?)"
+	query := "CALL ObtenerDatosSolicitudPorId(?)"
 	rows := database.DB.QueryRow(query, idSolicitud)
 	var solicitud SolicitudMembresia
 	err := rows.Scan(&solicitud.Id, &solicitud.Fecha, &solicitud.Estado)
@@ -64,7 +64,7 @@ func ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
 }
 
 func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error) {
-	query := "CALL ObtenerDatosSolicitudPorId(?)"
+	query := "CALL ObtenerFamiliaresPorSolicitud(?)"
 	rows, err := database.DB.Query(query)
 	if err != nil {
 		logs.Logger.Fatal("Error al obtener los datos de los familiares: ", err)
@@ -81,4 +81,17 @@ func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error
 		familiares = append(familiares, familia)
 	}
 	return familiares, nil
+}
+
+func ObtenerDatosPersonaPorIdSolicitud(idSolicitud int) (*persona.Titular, error) {
+	query := "CALL ObtenerDatosPersonaPorIdSolicitud(?)"
+	rows := database.DB.QueryRow(query, idSolicitud)
+	var persona persona.Titular
+	err := rows.Scan(&persona.Nombre, &persona.Apellidos, &persona.Sexo, &persona.Dni, &persona.FechaNacimiento, &persona.TipoVia, &persona.Direccion, &persona.Ciudad, &persona.Pais, &persona.CodigoPostal, &persona.Telefono, &persona.Referencia, &persona.Ocupacion,
+		&persona.IngresoPromedio, &persona.NombreEmpresa, &persona.DireccionEmpresa)
+	if err != nil { //email lo estoy colocando en referencia , por ahora
+		logs.Logger.Println("Error al ejecutar el procedimiento:", err)
+		return nil, err
+	}
+	return &persona, nil
 }
