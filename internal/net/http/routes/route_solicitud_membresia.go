@@ -11,6 +11,7 @@ func RutasSolicitudMembresia(app *fiber.App) {
 	app.Put("/solicitud-membresia/:id/estado_solicitud", handlers.ActualizarEstadoSolicitud)
 	app.Get("/solicitud-membresia/:id", handlers.ObtenerEspacioSocialPorId)
 	app.Get("/solicitud-membresia/:id", handlers.ListarFamiliaresSolicitudId)
+	app.Get("/solicitud-membresia/:id", handlers.ObtenerPersonaPorSolicitudId)
 	//app.Put("/solicitud-membresia/:id", handlers.)
 	//app.Delete("/solicitud-membresia/:id", handlers.)
 }
