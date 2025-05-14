@@ -1,6 +1,9 @@
 package espacio
 
 import (
+	"context"
+	"time"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -34,4 +37,18 @@ func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 		espacios = append(espacios, es)
 	}
 	return espacios, nil
+}
+
+func ObtenerEspacioSocialPorID(ctx context.Context, id int) (*EspacioSocial, error) {
+	query := "call ingesoft.ObtenerEspacioSocialPorID(?)"
+
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
+	var es EspacioSocial
+	err := database.DB.QueryRowContext(ctx, query, id).Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad)
+	if err != nil {
+		return nil, err
+	}
+	return &es, nil
 }

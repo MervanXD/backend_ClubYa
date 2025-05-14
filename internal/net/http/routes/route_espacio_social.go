@@ -8,7 +8,7 @@ import (
 func RutasEspacioSocial(app *fiber.App) {
 	app.Post("/espacio-social", handlers.CrearEspacioSocial)
 	app.Get("/espacio-social", handlers.ListarEspaciosSociales)
-	//app.Get("/espacio-social/:id", handlers.ObtenerEspacioSocialPorId)
+	app.Get("/espacio-social/:id", handlers.ObtenerEspacioSocialPorId)
 	//app.Put("/espacio-social/:id", handlers.ActualizarEspacioSocial)
 	//app.Delete("/espacio-social/:id", handlers.EliminarEspacioSocial)
 }
