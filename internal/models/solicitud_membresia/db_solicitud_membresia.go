@@ -65,7 +65,7 @@ func ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
 
 func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error) {
 	query := "CALL ObtenerFamiliaresPorSolicitud(?)"
-	rows, err := database.DB.Query(query)
+	rows, err := database.DB.Query(query, idSolicitud)
 	if err != nil {
 		logs.Logger.Fatal("Error al obtener los datos de los familiares: ", err)
 		return nil, err
