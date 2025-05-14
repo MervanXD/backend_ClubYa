@@ -79,3 +79,20 @@ func ListarFamiliaresSolicitudId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion de los familiares obtenida con exito", familiares))
 }
+
+func ObtenerPersonaPorSolicitudId(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
+
+	persona, err := solicitud.ObtenerDatosPersonaPorIdSolicitud(id)
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener la informacion de la persona", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la persona", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion obtenida con exito", persona))
+}
