@@ -27,6 +27,7 @@ func main() {
 	routes.PersonaRoutes(app)
 	routes.RutasSolicitudMembresia(app)
 	routes.RutasMembresia(app)
+	routes.RutasPago(app)
 
 	if err := app.Listen(":4000"); err != nil {
 		logs.Logger.Fatal("Error al iniciar el servidor: ", err)
