@@ -32,3 +32,41 @@ func RegistrarFamiliares(req FamiliarResquest) error {
 	}
 	return nil
 }
+
+func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
+	rows, err := database.DB.Query("CALL ObtenerFamiliaresPorTitular(?)", idTitular)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar procedimiento: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var familiares []Familiar
+	for rows.Next() {
+		var fam Familiar
+		if err := rows.Scan(&fam.Id,
+		&fam.Nombre,
+		&fam.Apellidos,
+		&fam.Sexo,
+		&fam.Dni,
+		&fam.FechaNacimiento,
+		&fam.Telefono,
+		&fam.Pais,
+		&fam.Provincia,
+		&fam.Distrito,
+		&fam.Direccion,
+		&fam.TipoVia,
+		&fam.Referencia,
+		&fam.Ciudad,
+		&fam.CodigoPostal,
+		&fam.MismaDireccionPostulante,
+		&fam.EsConyuge,
+		&fam.TipoFamiliar); err != nil {
+			logs.Logger.Println("Error al escanear ID: ", err)
+			return nil, err
+		}
+		familiares = append(familiares, fam)
+	}
+
+	return familiares, nil
+}

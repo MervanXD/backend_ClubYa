@@ -7,6 +7,7 @@ import (
 
 func RutasFamiliar(app *fiber.App) {
 	app.Post("/familiar", handlers.InsertarFamiliares)
+	app.Get("/familiares/titular/:id", handlers.ObtenerFamiliaresPorTitular)
 	//app.Get("/persona", handlers.ListarPersonas)
 	//app.Get("/persona/:id", handlers.ObtenerPersonaPorID)
 	//app.Put("/persona/:id", handlers.ActualizarPersona)
