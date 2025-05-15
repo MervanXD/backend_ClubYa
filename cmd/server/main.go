@@ -24,8 +24,10 @@ func main() {
 	app := fiber.New()
 	app.Use(cors.New())
 	routes.RutasEspacioSocial(app)
-	routes.PersonaRoutes(app)
+	routes.TitularRoutes(app)
 	routes.RutasSolicitudMembresia(app)
+
+	routes.RutasFamiliar(app)
 
 	if err := app.Listen(":4000"); err != nil {
 		logs.Logger.Fatal("Error al iniciar el servidor: ", err)
