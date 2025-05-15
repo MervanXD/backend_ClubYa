@@ -26,6 +26,7 @@ func main() {
 	routes.RutasEspacioSocial(app)
 	routes.PersonaRoutes(app)
 	routes.RutasSolicitudMembresia(app)
+	routes.RutasMembresia(app)
 
 	if err := app.Listen(":4000"); err != nil {
 		logs.Logger.Fatal("Error al iniciar el servidor: ", err)
