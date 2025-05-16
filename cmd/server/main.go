@@ -33,6 +33,7 @@ func main() {
 	routes.RutasInscripcionEvento(app)
 	routes.RutasEvento(app)
 	routes.RutasReservaEspacio(app)
+	routes.RutasDisponibilidad(app)
 
 	routes.RutasFamiliar(app)
 
