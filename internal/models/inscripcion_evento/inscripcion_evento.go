@@ -11,4 +11,5 @@ type InscripcionEvento struct {
 	FechaInscripcion    time.Time    `json:"fecha_inscripcion"`
 	HoraInscripcion     time.Time    `json:"hora_inscripcion"`
 	Estado              tipos.Estado `json:"estado"`
+	CantidadInvitados   int          `json:"cantidad_invitados"`
 }
