@@ -10,7 +10,7 @@ import (
 func ListarEventos(c *fiber.Ctx) error {
 	eventos, err := evento.ListarEventos()
 	if err != nil {
-		logs.Logger.Fatal("Error al listar eventos: ", err)
+		logs.Logger.Println("Error al listar eventos: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al listar eventos", nil))
 	}
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Eventos obtenidos con éxito", eventos))

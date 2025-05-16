@@ -11,7 +11,7 @@ func ListarEventos() ([]Evento, error) {
 	query := "call ingesoft.ListarEventos()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
-		logs.Logger.Fatal("Error al listar eventos: ", err)
+		logs.Logger.Println("Error al listar eventos: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -21,17 +21,17 @@ func ListarEventos() ([]Evento, error) {
 		var horaInicio string
 		var horaFin string
 		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Precio, &e.Fecha, &horaInicio, &horaFin, &e.Imagen); err != nil {
-			logs.Logger.Fatal("Error al escanear evento: ", err)
+			logs.Logger.Println("Error al escanear evento: ", err)
 			return nil, err
 		}
 		e.HoraInicio, err = time.Parse("15:04:05", horaInicio)
 		if err != nil {
-			logs.Logger.Fatal("Error al parsear hora de inicio: ", err)
+			logs.Logger.Println("Error al parsear hora de inicio: ", err)
 			return nil, err
 		}
 		e.HoraFin, err = time.Parse("15:04:05", horaFin)
 		if err != nil {
-			logs.Logger.Fatal("Error al parsear hora de fin: ", err)
+			logs.Logger.Println("Error al parsear hora de fin: ", err)
 			return nil, err
 		}
 
