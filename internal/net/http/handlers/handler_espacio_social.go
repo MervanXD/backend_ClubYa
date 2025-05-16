@@ -52,3 +52,13 @@ func ObtenerEspacioSocialPorId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener el espacio social", espacio))
 }
+
+func ListarEspaciosSocialesHorarios(c *fiber.Ctx) error {
+	horariosEspacioSocial, err := espacio.ObtenerEspaciosSocialesHorarios()
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener los horarios espacios sociales: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los horarios espacios sociales", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Horarios de espacios sociales obtenidos con éxito", horariosEspacioSocial))
+}
