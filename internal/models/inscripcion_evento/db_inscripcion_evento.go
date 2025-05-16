@@ -1,4 +1,4 @@
-package evento
+package inscripcion_evento
 
 import (
 	"github.com/MervanXD/backend_ClubYa/database"

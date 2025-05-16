@@ -1,4 +1,4 @@
-package inscripcionevento
+package inscripcion_evento
 
 import (
 	"time"

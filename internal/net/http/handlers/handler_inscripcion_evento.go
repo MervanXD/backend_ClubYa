@@ -2,7 +2,7 @@ package handlers
 
 import (
     "github.com/MervanXD/backend_ClubYa/internal/api/models"
-    "github.com/MervanXD/backend_ClubYa/internal/models/evento"
+    inscripcion "github.com/MervanXD/backend_ClubYa/internal/models/inscripcion_evento"
     "github.com/MervanXD/backend_ClubYa/logs"
     "github.com/gofiber/fiber/v2"
 )
@@ -21,7 +21,7 @@ func RegistrarInscripcionEvento(c *fiber.Ctx) error {
         return c.Status(fiber.StatusBadRequest).JSON(models.Error("Datos inválidos", nil))
     }
 
-    if err := evento.RegistrarInscripcion(req.FidPersona, req.IdEvento, req.CantidadInvitados); err != nil {
+    if err := inscripcion.RegistrarInscripcion(req.FidPersona, req.IdEvento, req.CantidadInvitados); err != nil {
         logs.Logger.Println("Error al registrar inscripción:", err)
         return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción", nil))
     }

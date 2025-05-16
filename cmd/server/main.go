@@ -29,7 +29,7 @@ func main() {
 	routes.RutasMembresia(app)
 	routes.RutasPago(app)
 	routes.RutasCuota(app)
-	routes.RutasEvento(app)
+	routes.RutasInscripcionEvento(app)
 
 	routes.RutasFamiliar(app)
 
