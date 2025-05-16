@@ -34,6 +34,7 @@ func main() {
 	routes.RutasEvento(app)
 	routes.RouteCuenta(app)
 	routes.RutasReservaEspacio(app)
+	routes.RutasDisponibilidad(app)
 
 	routes.RutasFamiliar(app)
 
