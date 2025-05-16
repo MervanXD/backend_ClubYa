@@ -28,6 +28,7 @@ func main() {
 	routes.RutasSolicitudMembresia(app)
 	routes.RutasMembresia(app)
 	routes.RutasPago(app)
+	routes.RutasCuota(app)
 
 	routes.RutasFamiliar(app)
 
