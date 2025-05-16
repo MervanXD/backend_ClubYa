@@ -1,6 +1,8 @@
 package detalledisponibilidad
 
 import (
+	"errors"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -20,7 +22,7 @@ func ActualizarEstadoDetalleDisponibilidad(idHorarioDia int, idBloqueTiempo int,
 	}
 
 	if rowsAffected == 0 {
-		return err
+		return errors.New("columnas no fueron afectadas")
 	}
 
 	return nil
