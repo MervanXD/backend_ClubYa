@@ -32,7 +32,7 @@ func main() {
 
 	routes.RutasInscripcionEvento(app)
 	routes.RutasEvento(app)
-
+	routes.RouteCuenta(app)
 
 	routes.RutasFamiliar(app)
 
