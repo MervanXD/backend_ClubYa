@@ -61,7 +61,7 @@ func (uc *MetodoPago) Scan(value interface{}) error {
 	case `"Voucher"`:
 		*uc = Voucher
 	default:
-		return fmt.Errorf("Metodo de pago desconocido: %s", strValue)
+		return fmt.Errorf("metodo de pago desconocido: %s", strValue)
 	}
 	return nil
 }
