@@ -16,12 +16,13 @@ func InsertarFamiliares(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 
-	if err := persona.RegistrarFamiliares(req); err != nil {
+	idSolicitud, err := persona.RegistrarFamiliares(req)
+	if err != nil {
 		logs.Logger.Println("Error al registrar familiares: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar familiares", nil))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiares registrados correctamente", nil))
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiares registrados correctamente", idSolicitud))
 
 }
 
@@ -42,6 +43,3 @@ func ObtenerFamiliaresPorTitular(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiares obtenidos correctamente", familiares))
 }
-
-
-

@@ -16,21 +16,33 @@ func InsertarFamiliar(f Familiar, idTitular int) error {
 		f.Dni, f.FechaNacimiento, f.Telefono, f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(),
 		 f.Direccion, f.Referencia, f.EsConyuge, idTitular, f.MismaDireccionPostulante,f.Ciudad,f.CodigoPostal,f.TipoFamiliar.String())
 	if err != nil {
-		logs.Logger.Fatal("Error al insertar Familiar: ", err)
+		logs.Logger.Println("Error al insertar Familiar: ", err)
 		return err
 	}
 	return nil
 }
 
-func RegistrarFamiliares(req FamiliarResquest) error {
-	for _, familiar := range req.Familiares {
+func RegistrarFamiliares(req FamiliarResquest) (int,error) {
+	for _, familiar := range req.Familiares {	
 		err := InsertarFamiliar(familiar, req.IdTitular)
 		if err != nil {
 			logs.Logger.Println("Error al insertar familiar: ", err)
-			return err
+			return -1,err
 		}
 	}
-	return nil
+	query := "call ingesoft.InsertarSolicitudMembresia(?,@s_id_solicitud)"
+	_,err:=database.DB.Exec(query,req.IdTitular)
+	if err != nil {
+		logs.Logger.Println("Error al insertar solicitud de membresia: ", err)
+	}
+	var idSolicitud int
+	err = database.DB.QueryRow("SELECT @s_id_solicitud").Scan(&idSolicitud)
+	if err != nil {
+		logs.Logger.Fatal("Error al obtener idSolicitud: ", err)
+		return -1, err
+	}
+
+	return idSolicitud,nil
 }
 
 func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
