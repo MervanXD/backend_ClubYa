@@ -29,3 +29,5 @@ tmp/
 
 #en cuanto a los datos de la bd
 .env
+
+.DS_STORE

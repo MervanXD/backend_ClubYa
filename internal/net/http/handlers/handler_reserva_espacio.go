@@ -1,0 +1,30 @@
+package handlers
+
+import (
+	"github.com/MervanXD/backend_ClubYa/internal/api/models"
+	"github.com/MervanXD/backend_ClubYa/internal/models/reserva"
+	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/gofiber/fiber/v2"
+)
+
+type EstadoReservaEspacioRequest struct {
+	IdEspacio      int `json:"id_espacio"`
+	IdHorarioDia   int `json:"id_horario_dia"`
+	IdBloqueTiempo int `json:"id_bloque_tiempo"`
+}
+
+func ReservarEspacio(c *fiber.Ctx) (err error) {
+	var body EstadoReservaEspacioRequest
+	if err := c.BodyParser(&body); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	err = reserva.ReservarEspacio(body.IdEspacio, body.IdHorarioDia, body.IdBloqueTiempo)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar estado: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo actualizar el estado", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Estado actualizado correctamente", nil))
+}

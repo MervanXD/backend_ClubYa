@@ -15,6 +15,15 @@ func Succes(message string, data interface{}) ApiResponse {
 	}
 }
 
+// funcion para generar una respuesta de no encontrado
+func NotFound(message string) ApiResponse {
+	return ApiResponse{
+		Data:    nil,
+		Message: message,
+		Status:  404,
+	}
+}
+
 // funcion para generar una respuesta de error
 func Error(message string, data interface{}) ApiResponse {
 	return ApiResponse{

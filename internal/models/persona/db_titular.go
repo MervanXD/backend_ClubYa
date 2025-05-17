@@ -6,9 +6,10 @@ import (
 )
 
 func InsertarTitular(p Titular) (int, error) {
-	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
+	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
 	_, err := database.DB.Exec(query, p.Nombre, p.Apellidos, p.Sexo.String(),
-		p.Dni, p.FechaNacimiento, p.Telefono, p.Pais, p.Provincia, p.Distrito, p.TipoVia.String(), p.Direccion, p.Referencia, p.Ocupacion, p.NombreEmpresa, p.DireccionEmpresa, p.IngresoPromedio)
+		p.Dni, p.FechaNacimiento, p.Telefono, p.Pais, p.Provincia, p.Distrito, p.TipoVia.String(),
+		 p.Direccion, p.Referencia, p.Ocupacion, p.NombreEmpresa, p.DireccionEmpresa, p.IngresoPromedio,p.EsPostulante,p.Ciudad,p.CodigoPostal)
 	if err != nil {
 		logs.Logger.Fatal("Error al insertar Persona: ", err)
 		return -1, err

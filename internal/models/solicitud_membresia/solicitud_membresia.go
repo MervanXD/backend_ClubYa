@@ -8,8 +8,8 @@ import (
 )
 
 type SolicitudMembresia struct {
+	Titular persona.Titular
 	Id      int                   `json:"id"`
 	Fecha   time.Time             `json:"fecha"`
 	Estado  tipos.EstadoSolicitud `json:"estado_solicitud"`
-	Titular persona.Titular       `json:"titular"`
 }

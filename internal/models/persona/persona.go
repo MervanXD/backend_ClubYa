@@ -1,6 +1,8 @@
 package persona
 
-import "github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+import (
+	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+)
 
 type Persona struct {
 	Id              int           `json:"id"`
@@ -16,4 +18,6 @@ type Persona struct {
 	Direccion       string        `json:"direccion"`
 	TipoVia         tipos.TipoVia `json:"tipo_via"`
 	Referencia      string        `json:"referencia"`
+	Ciudad          string        `json:"ciudad"`
+	CodigoPostal    string        `json:"codigo_postal"`
 }

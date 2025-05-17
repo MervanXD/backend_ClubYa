@@ -4,7 +4,9 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"io"
 )
 
@@ -47,4 +49,9 @@ func bytesRepeat(b byte, count int) []byte {
 		buf[i] = b
 	}
 	return buf
+}
+
+func Hash256(text string) string {
+	hash := sha256.Sum256([]byte(text))
+	return hex.EncodeToString(hash[:])
 }
