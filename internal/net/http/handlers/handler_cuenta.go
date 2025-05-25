@@ -14,7 +14,7 @@ func CrearCuenta(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 	if err := cuenta.CrearCuenta(cuentaDTO); err != nil {
-		logs.Logger.Fatal("Error al insertar la cuenta: ", err)
+		logs.Logger.Println("Error al insertar la cuenta: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar la cuenta", nil))
 	}
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Cuenta creada con éxito", nil))
@@ -29,7 +29,7 @@ func LogIn(c *fiber.Ctx) error {
 	var cuentaMandar cuenta.DTOCuenta
 	cuentaMandar, err := cuenta.LogIn(cuentaDTO)
 	if err != nil {
-		logs.Logger.Fatal("Error al iniciar sesión: ", err)
+		logs.Logger.Println("Error al iniciar sesión: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al iniciar sesión", nil))
 	}
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inicio de sesión exitoso", cuentaMandar))
