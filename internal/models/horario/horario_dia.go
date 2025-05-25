@@ -11,6 +11,6 @@ type HorarioDia struct {
 	IdHorarioDia  int                   `json:"id_horario_dia"`
 	Fecha         time.Time             `json:"fecha"`
 	BloquesTiempo []bloque.BloqueTiempo `json:"bloques_tiempo"`
-	Cancha        espacio.Cancha
-	EspacioSocial espacio.EspacioSocial
+	Cancha        espacio.Cancha        `json:"cancha"`
+	EspacioSocial espacio.EspacioSocial `json:"espacio_social"`
 }

@@ -25,7 +25,6 @@ func LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	_, err := database.DB.Exec(query, usernameEncriptado, passwordEncriptado)
 	var cuentaDTO DTOCuenta
 	cuentaDTO.Username = cuenta.Username
-	cuentaDTO.Contrasena = cuenta.Contrasena
 	if err != nil {
 		logs.Logger.Println("Error al iniciar sesion: ", err)
 		return cuentaDTO, err
