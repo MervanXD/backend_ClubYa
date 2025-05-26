@@ -33,7 +33,7 @@ func ObtenerDisponibilidadEspacioSocialPorId(c *fiber.Ctx) error {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
 		}
-		logs.Logger.Fatal("Error al obtener el espacio social: ", err)
+		logs.Logger.Println("Error al obtener el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener el espacio social", nil))
 	}
 

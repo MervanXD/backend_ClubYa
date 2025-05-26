@@ -10,7 +10,7 @@ import (
 func CrearCuenta(c *fiber.Ctx) error {
 	var cuentaDTO cuenta.Cuenta
 	if err := c.BodyParser(&cuentaDTO); err != nil {
-		logs.Logger.Fatal("Error al parsear el cuerpo de la solicitud: ", err)
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 	if err := cuenta.CrearCuenta(cuentaDTO); err != nil {
@@ -23,7 +23,7 @@ func CrearCuenta(c *fiber.Ctx) error {
 func LogIn(c *fiber.Ctx) error {
 	var cuentaDTO cuenta.Cuenta
 	if err := c.BodyParser(&cuentaDTO); err != nil {
-		logs.Logger.Fatal("Error al parsear el cuerpo de la solicitud: ", err)
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 	var cuentaMandar cuenta.DTOCuenta

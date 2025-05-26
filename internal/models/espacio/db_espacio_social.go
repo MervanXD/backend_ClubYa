@@ -12,7 +12,7 @@ func InsertarEspacioSocial(es EspacioSocial) error {
 	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?,?,?)"
 	_, err := database.DB.Exec(query, es.Nombre, es.Codigo, es.Ubicacion, es.Capacidad, es.Costo, es.Imagen, es.Reglamento, es.Actividad.String())
 	if err != nil {
-		logs.Logger.Fatal("Error al insertar espacio social: ", err)
+		logs.Logger.Println("Error al insertar espacio social: ", err)
 		return err
 	}
 	return nil
@@ -22,7 +22,7 @@ func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 	query := "call ingesoft.ObtenerEspaciosSociales()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener espacios sociales: ", err)
+		logs.Logger.Println("Error al obtener espacios sociales: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -31,7 +31,7 @@ func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 		var es EspacioSocial
 		//var actividad string
 		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad); err != nil {
-			logs.Logger.Fatal("Error al escanear espacio social: ", err)
+			logs.Logger.Println("Error al escanear espacio social: ", err)
 			return nil, err
 		}
 		espacios = append(espacios, es)
@@ -57,7 +57,7 @@ func ObtenerEspaciosSocialesHorarios() ([]EspacioSocialHorarioDTO, error) {
 	query := "call ingesoft.listarEspaciosSocialesHorarios()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener los horarios de los espacios sociales: ", err)
+		logs.Logger.Println("Error al obtener los horarios de los espacios sociales: ", err)
 		return nil, err
 	}
 	defer rows.Close()

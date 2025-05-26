@@ -14,11 +14,11 @@ func CrearEspacioSocial(c *fiber.Ctx) error {
 	var espacioSocial espacio.EspacioSocial
 
 	if err := c.BodyParser(&espacioSocial); err != nil {
-		logs.Logger.Fatal("Error al parsear el cuerpo de la solicitud: ", err)
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 	if err := espacio.InsertarEspacioSocial(espacioSocial); err != nil {
-		logs.Logger.Fatal("Error al insertar el espacio social: ", err)
+		logs.Logger.Println("Error al insertar el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar el espacio social", nil))
 	}
 
@@ -28,7 +28,7 @@ func CrearEspacioSocial(c *fiber.Ctx) error {
 func ListarEspaciosSociales(c *fiber.Ctx) error {
 	espacios, err := espacio.ObtenerEspaciosSociales()
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener los espacios sociales: ", err)
+		logs.Logger.Println("Error al obtener los espacios sociales: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los espacios sociales", nil))
 	}
 
@@ -46,7 +46,7 @@ func ObtenerEspacioSocialPorId(c *fiber.Ctx) error {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
 		}
-		logs.Logger.Fatal("Error al obtener el espacio social: ", err)
+		logs.Logger.Println("Error al obtener el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener el espacio social", nil))
 	}
 
@@ -56,7 +56,7 @@ func ObtenerEspacioSocialPorId(c *fiber.Ctx) error {
 func ListarEspaciosSocialesHorarios(c *fiber.Ctx) error {
 	horariosEspacioSocial, err := espacio.ObtenerEspaciosSocialesHorarios()
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener los horarios espacios sociales: ", err)
+		logs.Logger.Println("Error al obtener los horarios espacios sociales: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los horarios espacios sociales", nil))
 	}
 
