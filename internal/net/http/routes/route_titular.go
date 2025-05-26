@@ -6,7 +6,7 @@ import (
 )
 
 func TitularRoutes(app *fiber.App) {
-	app.Post("/titular", handlers.CrearTitular)
+	app.Post("/titular/postulacion", handlers.RegistrarPostulante)
 	//app.Get("/persona", handlers.ListarPersonas)
 	//app.Get("/persona/:id", handlers.ObtenerPersonaPorID)
 	//app.Put("/persona/:id", handlers.ActualizarPersona)
