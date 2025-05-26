@@ -12,7 +12,7 @@ func ObtenerSolicitudesMembresia() ([]SolicitudDTO, error) {
 	query := "call ingesoft.obtenerSolicitudesConTitulares()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener las solicitudes de membresia: ", err)
+		logs.Logger.Println("Error al obtener las solicitudes de membresia: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -20,7 +20,7 @@ func ObtenerSolicitudesMembresia() ([]SolicitudDTO, error) {
 	for rows.Next() {
 		var solicitud SolicitudDTO
 		if err := rows.Scan(&solicitud.Id, &solicitud.Fecha, &solicitud.Estado, &solicitud.IdTitular, &solicitud.Nombres, &solicitud.Apellidos); err != nil {
-			logs.Logger.Fatal("Error al escanear solicitud de membresia: ", err)
+			logs.Logger.Println("Error al escanear solicitud de membresia: ", err)
 			return nil, err
 		}
 		solicitudes = append(solicitudes, solicitud)
@@ -67,7 +67,7 @@ func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error
 	query := "CALL ObtenerFamiliaresPorSolicitud(?)"
 	rows, err := database.DB.Query(query, idSolicitud)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener los datos de los familiares: ", err)
+		logs.Logger.Println("Error al obtener los datos de los familiares: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -75,7 +75,7 @@ func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error
 	for rows.Next() {
 		var familia persona.Familiar
 		if err := rows.Scan(&familia.Id, &familia.Nombre, &familia.Apellidos, &familia.Dni, &familia.TipoFamiliar); err != nil {
-			logs.Logger.Fatal("Error al escanear al familiar: ", err)
+			logs.Logger.Println("Error al escanear al familiar: ", err)
 			return nil, err
 		}
 		familiares = append(familiares, familia)

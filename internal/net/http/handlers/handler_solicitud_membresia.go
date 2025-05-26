@@ -12,7 +12,7 @@ import (
 func ListarSolicitudMembresia(c *fiber.Ctx) error {
 	solicitudes, err := solicitud.ObtenerSolicitudesMembresia()
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener las solicitudes de membresia: ", err)
+		logs.Logger.Println("Error al obtener las solicitudes de membresia: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las solicitudes de membresia", nil))
 	}
 
@@ -56,7 +56,7 @@ func DatosSolicitudId(c *fiber.Ctx) error {
 
 	solicitud, err := solicitud.ObtenerDatosSolicitudPorId(id)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener la informacion de la solicitud", err)
+		logs.Logger.Println("Error al obtener la informacion de la solicitud", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la solicitud", nil))
 	}
 
@@ -73,7 +73,7 @@ func ListarFamiliaresSolicitudId(c *fiber.Ctx) error {
 
 	familiares, err := solicitud.ObtenerFamiliaresPorIdSolicitud(id)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener la informacion del familiar", err)
+		logs.Logger.Println("Error al obtener la informacion del familiar", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de los familiares ", nil))
 	}
 
@@ -90,7 +90,7 @@ func ObtenerPersonaPorSolicitudId(c *fiber.Ctx) error {
 
 	persona, err := solicitud.ObtenerDatosPersonaPorIdSolicitud(id)
 	if err != nil {
-		logs.Logger.Fatal("Error al obtener la informacion de la persona", err)
+		logs.Logger.Println("Error al obtener la informacion de la persona", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la persona", nil))
 	}
 
