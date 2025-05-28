@@ -28,3 +28,18 @@ func ReservarEspacio(c *fiber.Ctx) (err error) {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Estado actualizado correctamente", nil))
 }
+
+func ReservarEspacioSocial(c *fiber.Ctx) error {
+	var reservaEspacioSocial reserva.ReservaEspacio
+
+	if err := c.BodyParser(&reservaEspacioSocial); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+	if err := reserva.ReservarEspacioSocial(reservaEspacioSocial); err != nil {
+		logs.Logger.Println("Error al reservar el espacio social: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al reservar el espacio social", nil))
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Espacio social reservado con exito", nil))
+}
