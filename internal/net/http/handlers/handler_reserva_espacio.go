@@ -13,6 +13,14 @@ type EstadoReservaEspacioRequest struct {
 	IdBloqueTiempo int `json:"id_bloque_tiempo"`
 }
 
+type AnulacionReservaRequest struct {
+	IdReserva      int    `json:"id_reserva"`
+	IdEspacio      int    `json:"id_espacio"`
+	IdHorarioDia   int    `json:"id_horario_dia"`
+	IdBloqueTiempo int    `json:"id_bloque_tiempo"`
+	Motivo         string `json:"motivo"`
+}
+
 func ReservarEspacio(c *fiber.Ctx) (err error) {
 	var body EstadoReservaEspacioRequest
 	if err := c.BodyParser(&body); err != nil {
@@ -42,4 +50,21 @@ func ReservarEspacioSocial(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Espacio social reservado con exito", nil))
+}
+
+func AnularReservarEspacioSocial(c *fiber.Ctx) error {
+	var reservaAnulada AnulacionReservaRequest
+
+	if err := c.BodyParser(&reservaAnulada); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	err := reserva.AnulacionReservaEspacioSocial(reservaAnulada.IdReserva, reservaAnulada.IdEspacio, reservaAnulada.IdHorarioDia,
+		reservaAnulada.IdBloqueTiempo, reservaAnulada.Motivo)
+	if err != nil {
+		logs.Logger.Println("Error al anular la reserva: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo anular la reserva", nil))
+	}
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Espacio social reservado anulado con exito", nil))
 }
