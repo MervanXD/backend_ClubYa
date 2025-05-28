@@ -31,5 +31,14 @@ func ReservarEspacioSocial(reserva ReservaEspacio) error {
 		return err
 	}
 	return nil
+}
 
+func AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia int, idBloque int, motivo string) error {
+	query := "call ingesoft.AnularReservaEspacioSocial(?, ?, ?, ?, ?)"
+	_, err := database.DB.Exec(query, idReserva, idEspacio, idHorarioDia, idBloque, motivo)
+	if err != nil {
+		logs.Logger.Println("Error al cancelar la reserva del espacio social ", err)
+		return err
+	}
+	return nil
 }

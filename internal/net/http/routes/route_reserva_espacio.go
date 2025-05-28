@@ -8,4 +8,5 @@ import (
 func RutasReservaEspacio(app *fiber.App) {
 	app.Put("/reserva-espacio", handlers.ReservarEspacio)
 	app.Post("/reserva-espacio-social", handlers.ReservarEspacioSocial)
+	app.Put("/anulacion-reserva-espacio-social", handlers.AnularReservarEspacioSocial)
 }
