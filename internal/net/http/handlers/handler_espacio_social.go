@@ -39,11 +39,13 @@ func ObtenerEspacioSocialPorId(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
 	}
 	espacio, err := espacio.ObtenerEspacioSocialPorID(c.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			logs.Logger.Println("No se encontró ningun espacio social con ese ID", err)
 			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
 		}
 		logs.Logger.Println("Error al obtener el espacio social: ", err)

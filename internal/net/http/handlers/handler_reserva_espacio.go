@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"database/sql"
+	"strconv"
+
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/reserva"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -67,4 +70,24 @@ func AnularReservarEspacioSocial(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo anular la reserva", nil))
 	}
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Espacio social reservado anulado con exito", nil))
+}
+
+func ListarEspaciosSocialesSocio(c *fiber.Ctx) error {
+	idStr := c.Params("idSocio")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
+	}
+	espaciosReserva, err := reserva.ObtenerReservasEspaciosSocialesSocio(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logs.Logger.Println("No se encontraron reservas con ese ID", err)
+			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
+		}
+		logs.Logger.Println("Error al obtener los espacios sociales del socio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las reservas del socio", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener el espacio social", espaciosReserva))
 }

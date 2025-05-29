@@ -42,3 +42,29 @@ func AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia in
 	}
 	return nil
 }
+
+func ObtenerReservasEspaciosSocialesSocio(idSocio int) ([]ReservaEspacioSocialRequest, error) {
+	query := "call ingesoft.ListarReservasEspaciosSocialesSocio(?)"
+	rows, err := database.DB.Query(query, idSocio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los horarios de los espacios sociales del socio: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var reservasSocio []ReservaEspacioSocialRequest
+	for rows.Next() {
+		var reserva ReservaEspacioSocialRequest
+		//var actividad string
+		if err := rows.Scan(
+			&reserva.Id, &reserva.FechaReserva, &reserva.Fecha, &reserva.HoraInicio, &reserva.HoraFin,
+			&reserva.Estado, &reserva.IdBloqueTiempo, &reserva.IdHorarioDia, &reserva.Espacio.Id,
+			&reserva.Espacio.Codigo, &reserva.Espacio.Nombre, &reserva.Espacio.Ubicacion,
+			&reserva.Espacio.Capacidad, &reserva.Espacio.Costo, &reserva.Espacio.Actividad); err != nil {
+			logs.Logger.Println("Error al escanear el horario del espacio social del socio: ", err)
+			return nil, err
+		}
+
+		reservasSocio = append(reservasSocio, reserva)
+	}
+	return reservasSocio, nil
+}
