@@ -82,7 +82,7 @@ func ListarEspaciosSocialesSocio(c *fiber.Ctx) error {
 	espaciosReserva, err := reserva.ObtenerReservasEspaciosSocialesSocio(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logs.Logger.Println("No se encontró ninguna reserva con ese ID", err)
+			logs.Logger.Println("No se encontraron reservas con ese ID", err)
 			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
 		}
 		logs.Logger.Println("Error al obtener los espacios sociales del socio: ", err)
