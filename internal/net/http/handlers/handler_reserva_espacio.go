@@ -91,3 +91,23 @@ func ListarEspaciosSocialesSocio(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener el espacio social", espaciosReserva))
 }
+
+func ListarCanchasSocio(c *fiber.Ctx) error {
+	idStr := c.Params("idSocio")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
+	}
+	canchaReserva, err := reserva.ObtenerReservasCanchasSocio(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logs.Logger.Println("No se encontraron reservas con ese ID", err)
+			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
+		}
+		logs.Logger.Println("Error al obtener los espacios sociales del socio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las reservas del socio", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener la loza deportiva", canchaReserva))
+}
