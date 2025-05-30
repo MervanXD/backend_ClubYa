@@ -23,11 +23,9 @@ func InsertarFamiliares(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiares registrados correctamente", idSolicitud))
-
 }
 
 func ObtenerFamiliaresPorTitular(c *fiber.Ctx) error {
-
 	idTitularStr := c.Params("id")
 	idTitular, err := strconv.Atoi(idTitularStr)
 	if err != nil {
@@ -42,4 +40,19 @@ func ObtenerFamiliaresPorTitular(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiares obtenidos correctamente", familiares))
+}
+
+func ObtenerFamiliarPorIdPersona(c *fiber.Ctx) error {
+	idPersonStr := c.Params("id")
+	idPersona, err := strconv.Atoi(idPersonStr)
+	if err != nil {
+		logs.Logger.Println("ID de persona inválido:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID invalido", nil))
+	}
+	familiar, err := persona.ObtenerFamiliarPorIDPersona(idPersona)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los datos del familiar:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo obtener los datos del familiar", nil))
+	}
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiar obtenido correctamente", familiar))
 }
