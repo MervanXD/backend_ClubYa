@@ -8,9 +8,8 @@ import (
 func RutasFamiliar(app *fiber.App) {
 	app.Post("/familiar", handlers.InsertarFamiliares)
 	app.Get("/familiar/titular/:id", handlers.ObtenerFamiliaresPorTitular)
-	// app.Get("/persona", handlers.ListarPersonas)
+	app.Get("/familiar/:id", handlers.ObtenerFamiliarPorIdPersona)
 	// app.Get("/persona/:id", handlers.ObtenerPersonaPorID)
 	// app.Put("/persona/:id", handlers.ActualizarPersona)
 	// app.Delete("/persona/:id", handlers.EliminarPersona)
 }
-

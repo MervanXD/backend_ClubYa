@@ -96,3 +96,32 @@ func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 
 	return familiares, nil
 }
+
+func ObtenerFamiliarPorIDPersona(idPersona int) (*Familiar, error) {
+	query := "call ingesoft.ObtenerFamiliarPorIdPersona(?)"
+	rows := database.DB.QueryRow(query, idPersona)
+	var f Familiar
+	err := rows.Scan(&f.Id,
+		&f.Nombre,
+		&f.Apellidos,
+		&f.Sexo,
+		&f.Dni,
+		&f.FechaNacimiento,
+		&f.Telefono,
+		&f.Pais,
+		&f.Provincia,
+		&f.Distrito,
+		&f.Direccion,
+		&f.TipoVia,
+		&f.Referencia,
+		&f.Ciudad,
+		&f.CodigoPostal,
+		&f.MismaDireccionPostulante,
+		&f.EsConyuge,
+		&f.TipoFamiliar)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los datos de los familiares de la BD:", err)
+		return nil, err
+	}
+	return &f, nil
+}
