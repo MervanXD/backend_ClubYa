@@ -32,3 +32,12 @@ func Error(message string, data interface{}) ApiResponse {
 		Status:  500,
 	}
 }
+
+// funcion para generar una respuesta de error
+func BadRequest(message string, data interface{}) ApiResponse {
+	return ApiResponse{
+		Data:    data,
+		Message: message,
+		Status:  400,
+	}
+}

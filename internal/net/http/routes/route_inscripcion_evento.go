@@ -6,5 +6,5 @@ import (
 )
 
 func RutasInscripcionEvento(app *fiber.App) {
-    app.Post("/inscripciones", handlers.RegistrarInscripcionEvento)
+	app.Post("/evento/inscripcion", handlers.RegistrarInscripcionEvento)
 }
