@@ -37,6 +37,8 @@ func main() {
 	routes.RutasDisponibilidad(app)
 
 	routes.RutasFamiliar(app)
+	
+	routes.RutasCancha(app)
 
 	if err := app.Listen(":4000"); err != nil {
 		logs.Logger.Fatal("Error al iniciar el servidor: ", err)

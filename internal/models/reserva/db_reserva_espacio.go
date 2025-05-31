@@ -68,3 +68,28 @@ func ObtenerReservasEspaciosSocialesSocio(idSocio int) ([]ReservaEspacioSocialRe
 	}
 	return reservasSocio, nil
 }
+
+func ObtenerReservasCanchasSocio(idSocio int) ([]ReservaCanchaRequest, error) {
+	query := "call ingesoft.ListarReservasCanchasSocio(?)"
+	rows, err := database.DB.Query(query, idSocio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los horarios de las lozas deportivas del socio: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var reservasSocio []ReservaCanchaRequest
+	for rows.Next() {
+		var reserva ReservaCanchaRequest
+		if err := rows.Scan(
+			&reserva.Id, &reserva.FechaReserva, &reserva.Fecha, &reserva.HoraInicio, &reserva.HoraFin,
+			&reserva.Estado, &reserva.IdBloqueTiempo, &reserva.IdHorarioDia, &reserva.Espacio.Id,
+			&reserva.Espacio.Codigo, &reserva.Espacio.Nombre, &reserva.Espacio.Ubicacion,
+			&reserva.Espacio.Capacidad, &reserva.Espacio.Costo, &reserva.Espacio.Deporte); err != nil {
+			logs.Logger.Println("Error al escanear el horario de la loza deportiva del socio: ", err)
+			return nil, err
+		}
+
+		reservasSocio = append(reservasSocio, reserva)
+	}
+	return reservasSocio, nil
+}
