@@ -7,8 +7,8 @@ import (
 
 func RutasEvento(app *fiber.App) {
 	//app.Post("/evento", handlers.CrearEvento)
-	app.Get("/evento", handlers.ListarEventos)
+	app.Get("/eventos", handlers.ListarEventos)
 	app.Get("/eventos/:id", handlers.ObtenerEventoPorId)
-	//app.Put("/evento/:id", handlers.ActualizarEvento)
-	//app.Delete("/evento/:id", handlers.EliminarEvento)
+	//app.Put("/eventos/:id", handlers.ActualizarEvento)
+	//app.Delete("/eventos/:id", handlers.EliminarEvento)
 }
