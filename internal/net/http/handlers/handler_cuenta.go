@@ -38,17 +38,4 @@ func LogIn(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inicio de sesión exitoso", cuentaMandar))
 }
 
-/*
-func CrearCuentaDummy(idTitular int) error {
-	var cuentaDTO cuenta.Cuenta
-	cuentaDTO.IdPersona = idTitular
-	cuentaDTO.Username = "dummy"
-	cuentaDTO.Contrasena = "dummy"
-	cuentaDTO.Email = "dummy@gmail.com"
-	err := cuenta.CrearCuenta(cuentaDTO)
-	if err != nil {
-		logs.Logger.Println("Error al crear cuenta dummy: ", err)
-		return fmt.Errorf("error al crear cuenta dummy")
-	}
-	return nil
-}*/
+
