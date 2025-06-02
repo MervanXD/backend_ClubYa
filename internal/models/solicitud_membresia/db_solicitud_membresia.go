@@ -1,6 +1,7 @@
 package solicitud
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -95,3 +96,25 @@ func ObtenerDatosPersonaPorIdSolicitud(idSolicitud int) (*persona.Titular, error
 	}
 	return &persona, nil
 }
+
+func ObtenerEstadoSolicitudPorID(idSolicitud int) (string, error) {
+	query := "CALL ObtenerEstadoSolicitud(?)"
+	rows, err := database.DB.Query(query, idSolicitud)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedure ObtenerEstadoSolicitud: ", err)
+		return "", err
+	}
+	defer rows.Close()
+
+	var estado string
+	if rows.Next() {
+		if err := rows.Scan(&estado); err != nil {
+			logs.Logger.Println("Error al escanear el resultado del estado: ", err)
+			return "", err
+		}
+		return estado, nil
+	}
+
+	return "", fmt.Errorf("no se encontró el estado para la solicitud con ID %d", idSolicitud)
+}
+

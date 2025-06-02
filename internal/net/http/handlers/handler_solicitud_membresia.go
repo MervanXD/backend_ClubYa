@@ -96,3 +96,20 @@ func ObtenerPersonaPorSolicitudId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion obtenida con exito", persona))
 }
+
+func ObtenerEstadoSolicitud(c *fiber.Ctx) error{
+	idParam := c.Params("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
+
+	estado, err := solicitud.ObtenerEstadoSolicitudPorID(id)
+	if err != nil {
+		logs.Logger.Println("Error al obtener la informacion de la solicitud", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la solicitud", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion obtenida con exito", estado))
+}

@@ -6,16 +6,20 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func CrearCuenta(cuenta Cuenta) error {
+func CrearCuenta(cuenta Cuenta) (int64, error) {
 	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	emailEncriptado := security.Hash256(cuenta.Email)
-	query := "call ingesoft.InsertarCuenta(?, ?, ?, ?)"
-	_, err := database.DB.Exec(query, usernameEncriptado, emailEncriptado, passwordEncriptado, cuenta.IdPersona)
+
+	query := "CALL ingesoft.InsertarCuenta(?, ?, ?)"
+	var idCuenta int64
+
+	err := database.DB.QueryRow(query, usernameEncriptado, emailEncriptado, passwordEncriptado).Scan(&idCuenta)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+
+	return idCuenta, nil
 }
 
 func LogIn(cuenta Cuenta) (DTOCuenta, error) {
