@@ -24,7 +24,7 @@ var tipoViaStr = [...]string{
 	"Pasaje",
 	"Plaza",
 	"Mza.",
-	"Prolongacion",
+	"Prolongación",
 }
 
 func (d TipoVia) String() string {

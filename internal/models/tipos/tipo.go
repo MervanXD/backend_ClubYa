@@ -14,7 +14,7 @@ const (
 
 var tipoStr = [...]string{
 	"Manual",
-	"Automatico",
+	"Automático",
 }
 
 func (d Tipo) String() string {

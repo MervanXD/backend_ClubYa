@@ -9,14 +9,14 @@ type TipoDocumento int
 
 const (
 	DNI TipoDocumento = iota
-	Pasaporte
-	Cedula
+	Acta_Matrimonio
+	Acta_Nacimiento
 )
 
 var tipoDocumentoStr = [...]string{
 	"DNI",
-	"Pasaporte",
-	"Cedula",
+	"Acta_Matrimonio",
+	"Acta_Nacimiento",
 }
 
 func (d TipoDocumento) String() string {
