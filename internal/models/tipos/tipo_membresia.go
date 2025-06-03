@@ -1,8 +1,7 @@
 package tipos
 
 import (
-	"fmt"
-
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -13,53 +12,42 @@ const (
 	Vitalicia
 )
 
+var tipoMembresiaStr = [...]string{
+	"Regular",
+	"Vitalicia",
+}
+
 func (d TipoMembresia) String() string {
-	return [...]string{"Regular", "Vitalicia"}[d]
+	if int(d) < 0 || int(d) >= len(tipoMembresiaStr) {
+		logs.Logger.Println("Error: TipoMembresia fuera de rango en String():", int(d))
+		return "Desconocido"
+	}
+	return tipoMembresiaStr[d]
 }
 
 func (d TipoMembresia) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + d.String() + `"`), nil
+	if int(d) < 0 || int(d) >= len(tipoMembresiaStr) {
+		logs.Logger.Println("Error: TipoMembresia fuera de rango en MarshalJSON():", int(d))
+	}
+	return utils.EnumMarshalJSON(int(d), tipoMembresiaStr[:])
 }
 
 func (d *TipoMembresia) UnmarshalJSON(data []byte) error {
-	switch string(data) {
-	case `"Regular"`:
-		*d = Regular
-	case `"Vitalicia"`:
-		*d = Vitalicia
-	default:
-		*d = -1
+	idx, err := utils.EnumUnmarshalJSON(data, tipoMembresiaStr[:])
+	*d = TipoMembresia(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling TipoMembresia:", err)
+		return err
 	}
-	return nil
+	return err
 }
 
-// Scan implementa la interfaz sql.Scanner para cada enum y asi funcione al momento de recibir de la bd.
-func (uc *TipoMembresia) Scan(value interface{}) error {
-	if value == nil {
-		// Manejar el caso de NULL de la base de datos si es necesario
-		// *uc = 0 // o algún valor por defecto
-		return nil
+func (d *TipoMembresia) Scan(value interface{}) error {
+	idx, err := utils.EnumScan(value, tipoMembresiaStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning TipoMembresia:", err)
+		return err
 	}
-
-	var strValue string
-	switch v := value.(type) {
-	case []byte:
-		strValue = string(v)
-	case string:
-		strValue = v
-	default:
-		// Manejar el caso de tipo de dato no soportado
-		logs.Logger.Fatalf("tipo de dato no soportado para TipoMembresia: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para TipoMembresia: %T", value)
-	}
-
-	switch strValue {
-	case "Regular":
-		*uc = Regular
-	case "Vitalicia":
-		*uc = Vitalicia
-	default:
-		return fmt.Errorf("TipoMembresia desconocido: %s", strValue)
-	}
-	return nil
+	*d = TipoMembresia(idx)
+	return err
 }

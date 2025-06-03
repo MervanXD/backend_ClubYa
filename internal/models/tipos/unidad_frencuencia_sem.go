@@ -1,69 +1,54 @@
 package tipos
 
 import (
-    "fmt"
-    "strings"
-
-    "github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
+	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
 type UnidadFrecuenciaSem int
 
 const (
-    Sesiones UnidadFrecuenciaSem = iota
-    Hora
+	Sesiones UnidadFrecuenciaSem = iota
+	Hora
 )
 
 var unidadFrecuenciaSemStr = [...]string{
-    "Sesiones",
-    "Hora",
+	"Sesiones",
+	"Hora",
 }
 
 func (u UnidadFrecuenciaSem) String() string {
-    if int(u) < 0 || int(u) >= len(unidadFrecuenciaSemStr) {
-        return "Desconocido"
-    }
-    return unidadFrecuenciaSemStr[u]
+	if int(u) < 0 || int(u) >= len(unidadFrecuenciaSemStr) {
+		logs.Logger.Println("Error: UnidadFrecuenciaSem fuera de rango en String():", int(u))
+		return "Desconocido"
+	}
+	return unidadFrecuenciaSemStr[u]
 }
 
 func (u UnidadFrecuenciaSem) MarshalJSON() ([]byte, error) {
-    return []byte(`"` + u.String() + `"`), nil
+	if int(u) < 0 || int(u) >= len(unidadFrecuenciaSemStr) {
+		logs.Logger.Println("Error: UnidadFrecuenciaSem fuera de rango en MarshalJSON():", int(u))
+	}
+	return utils.EnumMarshalJSON(int(u), unidadFrecuenciaSemStr[:])
 }
 
 func (u *UnidadFrecuenciaSem) UnmarshalJSON(data []byte) error {
-    str := strings.Trim(string(data), `"`)
-    for i, nombre := range unidadFrecuenciaSemStr {
-        if str == nombre {
-            *u = UnidadFrecuenciaSem(i)
-            return nil
-        }
-    }
-    *u = -1
-    return nil
+	idx, err := utils.EnumUnmarshalJSON(data, unidadFrecuenciaSemStr[:])
+	*u = UnidadFrecuenciaSem(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling UnidadFrecuenciaSem:", err)
+		return err
+	}
+	return err
 }
 
 // Scan implementa la interfaz sql.Scanner para cada enum y así funcione al recibir de la BD.
 func (u *UnidadFrecuenciaSem) Scan(value interface{}) error {
-    if value == nil {
-        return nil
-    }
-
-    var strValue string
-    switch v := value.(type) {
-    case []byte:
-        strValue = string(v)
-    case string:
-        strValue = v
-    default:
-        logs.Logger.Fatalf("tipo de dato no soportado para UnidadFrecuenciaSem: %T", value)
-        return fmt.Errorf("tipo de dato no soportado para UnidadFrecuenciaSem: %T", value)
-    }
-
-    for i, nombre := range unidadFrecuenciaSemStr {
-        if strValue == nombre {
-            *u = UnidadFrecuenciaSem(i)
-            return nil
-        }
-    }
-    return fmt.Errorf("UnidadFrecuenciaSem desconocido: %s", strValue)
+	idx, err := utils.EnumScan(value, unidadFrecuenciaSemStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning UnidadFrecuenciaSem:", err)
+		return err
+	}
+	*u = UnidadFrecuenciaSem(idx)
+	return err
 }

@@ -1,9 +1,7 @@
 package tipos
 
 import (
-	"fmt"
-	"strings"
-
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -20,13 +18,7 @@ const (
 )
 
 var diasStr = [...]string{
-	"Lunes",
-	"Martes",
-	"Miercoles",
-	"Jueves",
-	"Viernes",
-	"Sábado",
-	"Domingo",
+	"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo",
 }
 
 func (d Dia) String() string {
@@ -37,43 +29,25 @@ func (d Dia) String() string {
 }
 
 func (d Dia) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + d.String() + `"`), nil
+	return utils.EnumMarshalJSON(int(d), diasStr[:])
 }
 
 func (d *Dia) UnmarshalJSON(data []byte) error {
-	str := strings.Trim(string(data), `"`)
-	for i, nombre := range diasStr {
-		if str == nombre {
-			*d = Dia(i)
-			return nil
-		}
+	idx, err := utils.EnumUnmarshalJSON(data, diasStr[:])
+	*d = Dia(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling Dia:", err)
+		return err
 	}
-	*d = -1
-	return nil
+	return err
 }
 
-// Scan implementa la interfaz sql.Scanner para cada enum y así funcione al recibir de la BD.
 func (d *Dia) Scan(value interface{}) error {
-	if value == nil {
-		return nil
+	idx, err := utils.EnumScan(value, diasStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning Dia:", err)
+		return err
 	}
-
-	var strValue string
-	switch v := value.(type) {
-	case []byte:
-		strValue = string(v)
-	case string:
-		strValue = v
-	default:
-		logs.Logger.Fatalf("tipo de dato no soportado para Dia: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para Dia: %T", value)
-	}
-
-	for i, nombre := range diasStr {
-		if strValue == nombre {
-			*d = Dia(i)
-			return nil
-		}
-	}
-	return fmt.Errorf("Dia desconocido: %s", strValue)
+	*d = Dia(idx)
+	return err
 }

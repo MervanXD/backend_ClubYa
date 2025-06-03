@@ -1,9 +1,7 @@
 package tipos
 
 import (
-	"fmt"
-	"strings"
-
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -57,49 +55,35 @@ var deportesStr = [...]string{
 
 func (d Deporte) String() string {
 	if int(d) < 0 || int(d) >= len(deportesStr) {
+		logs.Logger.Println("Error: Deporte fuera de rango en String():", int(d))
 		return "Desconocido"
 	}
 	return deportesStr[d]
 }
 
 func (d Deporte) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + d.String() + `"`), nil
+	if int(d) < 0 || int(d) >= len(deportesStr) {
+		logs.Logger.Println("Error: Deporte fuera de rango en MarshalJSON():", int(d))
+	}
+	return utils.EnumMarshalJSON(int(d), deportesStr[:])
 }
 
 func (d *Deporte) UnmarshalJSON(data []byte) error {
-	str := strings.Trim(string(data), `"`)
-	for i, nombre := range deportesStr {
-		if str == nombre {
-			*d = Deporte(i)
-			return nil
-		}
+	idx, err := utils.EnumUnmarshalJSON(data, deportesStr[:])
+	*d = Deporte(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling Deporte:", err)
+		return err
 	}
-	*d = -1
-	return nil
+	return err
 }
 
-// Scan implementa la interfaz sql.Scanner para cada enum y así funcione al recibir de la BD.
-func (uc *Deporte) Scan(value interface{}) error {
-	if value == nil {
-		return nil
+func (d *Deporte) Scan(value interface{}) error {
+	idx, err := utils.EnumScan(value, deportesStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning Deporte:", err)
+		return err
 	}
-
-	var strValue string
-	switch v := value.(type) {
-	case []byte:
-		strValue = string(v)
-	case string:
-		strValue = v
-	default:
-		logs.Logger.Fatalf("tipo de dato no soportado para Deporte: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para Deporte: %T", value)
-	}
-
-	for i, nombre := range deportesStr {
-		if strValue == nombre {
-			*uc = Deporte(i)
-			return nil
-		}
-	}
-	return fmt.Errorf("Deporte desconocido: %s", strValue)
+	*d = Deporte(idx)
+	return err
 }

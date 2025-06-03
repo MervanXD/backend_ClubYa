@@ -1,9 +1,7 @@
 package tipos
 
 import (
-	"fmt"
-	"strings"
-
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -21,49 +19,36 @@ var tipoSocioStr = [...]string{
 
 func (t TipoSocio) String() string {
 	if int(t) < 0 || int(t) >= len(tipoSocioStr) {
+		logs.Logger.Println("Error: TipoSocio fuera de rango en String():", int(t))
 		return "Desconocido"
 	}
 	return tipoSocioStr[t]
 }
 
 func (t TipoSocio) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + t.String() + `"`), nil
+	if int(t) < 0 || int(t) >= len(tipoSocioStr) {
+		logs.Logger.Println("Error: TipoSocio fuera de rango en MarshalJSON():", int(t))
+	}
+	return utils.EnumMarshalJSON(int(t), tipoSocioStr[:])
 }
 
 func (t *TipoSocio) UnmarshalJSON(data []byte) error {
-	str := strings.Trim(string(data), `"`)
-	for i, nombre := range tipoSocioStr {
-		if str == nombre {
-			*t = TipoSocio(i)
-			return nil
-		}
+	idx, err := utils.EnumUnmarshalJSON(data, tipoSocioStr[:])
+	*t = TipoSocio(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling TipoSocio:", err)
+		return err
 	}
-	*t = -1
-	return nil
+	return err
 }
 
 // Scan implementa la interfaz sql.Scanner para cada enum y así funcione al recibir de la BD.
 func (t *TipoSocio) Scan(value interface{}) error {
-	if value == nil {
-		return nil
+	idx, err := utils.EnumScan(value, tipoSocioStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning TipoSocio:", err)
+		return err
 	}
-
-	var strValue string
-	switch v := value.(type) {
-	case []byte:
-		strValue = string(v)
-	case string:
-		strValue = v
-	default:
-		logs.Logger.Fatalf("tipo de dato no soportado para TipoSocio: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para TipoSocio: %T", value)
-	}
-
-	for i, nombre := range tipoSocioStr {
-		if strValue == nombre {
-			*t = TipoSocio(i)
-			return nil
-		}
-	}
-	return fmt.Errorf("TipoSocio desconocido: %s", strValue)
+	*t = TipoSocio(idx)
+	return err
 }
