@@ -22,7 +22,7 @@ var rolStr = [...]string{
 	"Conyuge",
 	"Administrador",
 	"Administrador_Actividad",
-	"Adminitrador_Membresias",
+	"Administrador_Membresias",
 	"Administrador_Canchas",
 	"Administrador_Eventos",
 }
