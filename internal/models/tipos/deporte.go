@@ -2,6 +2,7 @@ package tipos
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -9,15 +10,56 @@ import (
 type Deporte int
 
 const (
-	Tennis Deporte = iota
-	Futbol
-	Volley
-	Basket
-	Waterpolo
+	Tenis Deporte = iota
+	Fútbol
+	Vóley
+	Natación
+	FullBody
+	KungFuWushu
+	Handball
+	Aquaeróbicos
+	AltoRendimiento
+	Hockey
+	Básquet
+	FortalecimientoFlexibilidad
+	TenisDeMesa
+	Steps
+	PreparaciónFísica
+	Funcional
+	Psicomotricidad
+	Baile
+	BodyBalancePilates
+	Pilates
 )
 
+var deportesStr = [...]string{
+	"Tenis",
+	"Fútbol",
+	"Vóley",
+	"Natación",
+	"Full Body",
+	"Kung Fu Wushu",
+	"Handball",
+	"Aquaeróbicos",
+	"Alto Rendimiento",
+	"Hockey",
+	"Básquet",
+	"Fortalecimiento y Flexibilidad",
+	"Tenis de Mesa",
+	"Steps",
+	"Preparación Física",
+	"Funcional",
+	"Psicomotricidad",
+	"Baile",
+	"Body Balance y Pilates",
+	"Pilates",
+}
+
 func (d Deporte) String() string {
-	return [...]string{"Tennis", "Fútbol", "Volley", "Basket", "Waterpolo"}[d]
+	if int(d) < 0 || int(d) >= len(deportesStr) {
+		return "Desconocido"
+	}
+	return deportesStr[d]
 }
 
 func (d Deporte) MarshalJSON() ([]byte, error) {
@@ -25,28 +67,20 @@ func (d Deporte) MarshalJSON() ([]byte, error) {
 }
 
 func (d *Deporte) UnmarshalJSON(data []byte) error {
-	switch string(data) {
-	case `"Tennis"`:
-		*d = Tennis
-	case `"Fútbol"`:
-		*d = Futbol
-	case `"Volley"`:
-		*d = Volley
-	case `"Basket"`:
-		*d = Basket
-	case `"Waterpolo"`:
-		*d = Waterpolo
-	default:
-		*d = -1
+	str := strings.Trim(string(data), `"`)
+	for i, nombre := range deportesStr {
+		if str == nombre {
+			*d = Deporte(i)
+			return nil
+		}
 	}
+	*d = -1
 	return nil
 }
 
-// Scan implementa la interfaz sql.Scanner para cada enum y asi funcione al momento de recibir de la bd.
+// Scan implementa la interfaz sql.Scanner para cada enum y así funcione al recibir de la BD.
 func (uc *Deporte) Scan(value interface{}) error {
 	if value == nil {
-		// Manejar el caso de NULL de la base de datos si es necesario
-		// *uc = 0 // o algún valor por defecto
 		return nil
 	}
 
@@ -57,26 +91,15 @@ func (uc *Deporte) Scan(value interface{}) error {
 	case string:
 		strValue = v
 	default:
-		// Manejar el caso de tipo de dato no soportado
-		logs.Logger.Fatalf("tipo de dato no soportado para Actividad: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para Actividad: %T", value)
+		logs.Logger.Fatalf("tipo de dato no soportado para Deporte: %T", value)
+		return fmt.Errorf("tipo de dato no soportado para Deporte: %T", value)
 	}
 
-	// Aquí tu lógica para convertir strValue ("Puerta 1") a un int
-	// Aquí tu lógica para convertir strValue ("Puerta 1") a un enum Ubicacion
-	switch strValue {
-	case "Tennis":
-		*uc = Tennis
-	case "Futbol":
-		*uc = Futbol
-	case "Volley":
-		*uc = Volley
-	case "Basket":
-		*uc = Basket
-	case "Waterpolo":
-		*uc = Waterpolo
-	default:
-		return fmt.Errorf("Actividad desconocida: %s", strValue)
+	for i, nombre := range deportesStr {
+		if strValue == nombre {
+			*uc = Deporte(i)
+			return nil
+		}
 	}
-	return nil
+	return fmt.Errorf("Deporte desconocido: %s", strValue)
 }
