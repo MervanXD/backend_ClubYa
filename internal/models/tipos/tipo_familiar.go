@@ -8,17 +8,25 @@ import (
 type TipoFamiliar int
 
 const (
-	Conyugue TipoFamiliar = iota
-	Hijo_a
-	Padre
-	Madre
+	Esposa TipoFamiliar = iota
+	Esposo
+	Papá
+	Mamá
+	Abuela
+	Abuelo
+	Hijo
+	Hija
 )
 
 var tipoFamiliarStr = [...]string{
-	"Conyugue",
-	"Hijo(a)",
-	"Padre",
-	"Madre",
+	"Esposa",
+	"Esposo",
+	"Papá",
+	"Mamá",
+	"Abuela",
+	"Abuelo",
+	"Hijo",
+	"Hija",
 }
 
 func (d TipoFamiliar) String() string {
