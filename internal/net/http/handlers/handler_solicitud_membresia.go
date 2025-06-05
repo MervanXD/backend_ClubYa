@@ -97,7 +97,7 @@ func ObtenerPersonaPorSolicitudId(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Informacion obtenida con exito", persona))
 }
 
-func ObtenerEstadoSolicitud(c *fiber.Ctx) error{
+func ObtenerEstadoSolicitud(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {

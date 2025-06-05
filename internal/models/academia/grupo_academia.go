@@ -10,7 +10,6 @@ type GrupoAcademia struct {
 	Vacantes   int64           `json:"vacantes"`
 	EdadMinima int64           `json:"edad_minima"`
 	EdadMaxima int64           `json:"edad_maxima"`
-	HoraInicio string          `json:"hora_inicio"`
-	HoraFin    string          `json:"hora_fin"`
 	Espacio    espacio.Espacio `json:"espacio"`
+	Sesiones   []Sesion        `json:"sesiones"`
 }
