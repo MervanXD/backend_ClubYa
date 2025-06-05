@@ -1,8 +1,6 @@
 package persona
 
 import (
-	"database/sql"
-
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -58,8 +56,6 @@ func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 	var familiares []Familiar
 	for rows.Next() {
 		var fam Familiar
-		var ciudadStr sql.NullString
-		var codigoPostalStr sql.NullString
 		if err := rows.Scan(&fam.Id,
 			&fam.Nombre,
 			&fam.Apellidos,
@@ -73,23 +69,13 @@ func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 			&fam.Direccion,
 			&fam.TipoVia,
 			&fam.Referencia,
-			&ciudadStr,
-			&codigoPostalStr,
+			&fam.Ciudad,
+			&fam.CodigoPostal,
 			&fam.MismaDireccionPostulante,
 			&fam.EsConyuge,
 			&fam.TipoFamiliar); err != nil {
 			logs.Logger.Println("Error al escanear ID: ", err)
 			return nil, err
-		}
-		if ciudadStr.Valid {
-			fam.Ciudad = ciudadStr.String
-		} else {
-			fam.Ciudad = "-"
-		}
-		if codigoPostalStr.Valid {
-			fam.CodigoPostal = codigoPostalStr.String
-		} else {
-			fam.CodigoPostal = "-"
 		}
 		familiares = append(familiares, fam)
 	}

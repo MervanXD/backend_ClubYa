@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"database/sql"
+	"context"
 	"strconv"
+	"time"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
@@ -28,11 +29,12 @@ func ObtenerDisponibilidadEspacioSocialPorId(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Id bloque tiempo inválido")
 	}
-	espacio, err := detalledisponibilidad.ObtenerDisponibilidadEspacioSocialPorId(c.Context(), idEspacio, idHorarioDia, idBloqueTiempo)
+
+	ctx, cancel := context.WithTimeout(c.Context(), 3*time.Second)
+	defer cancel()
+
+	espacio, err := detalledisponibilidad.ObtenerDisponibilidadEspacioSocialPorId(ctx, idEspacio, idHorarioDia, idBloqueTiempo)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No encontrado"))
-		}
 		logs.Logger.Println("Error al obtener el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener el espacio social", nil))
 	}

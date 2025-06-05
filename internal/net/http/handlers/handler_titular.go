@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"context"
 	"strconv"
+	"time"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/persona"
@@ -35,3 +37,22 @@ func CrearTitular(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Persona creada con éxito", idTitular))
 }
 
+func ObtenerTitularPorID(c *fiber.Ctx) error {
+	titularIdStr := c.Params("idTitular")
+	idTitular, err := strconv.Atoi(titularIdStr)
+	if err != nil {
+		logs.Logger.Println("ID de titular inválido:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("ID de titular inválido", nil))
+	}
+
+	ctx, cancel := context.WithTimeout(c.Context(), 3*time.Second)
+	defer cancel()
+
+	titular, err := persona.ObtenerTitularPorID(ctx, idTitular)
+	if err != nil {
+		logs.Logger.Println("Error al obtener la información: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la información", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Información de titular obtenida correctamente", titular))
+}

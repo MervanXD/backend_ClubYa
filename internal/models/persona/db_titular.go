@@ -1,6 +1,9 @@
 package persona
 
 import (
+	"context"
+	"errors"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -22,4 +25,46 @@ func InsertarTitular(p Titular, idCuenta int) (int, error) {
 	}
 
 	return idTitular, nil
+}
+
+// ObtenerTitularPorID obtiene la información de un t por su ID
+// Returns:
+//   - *Titular: Puntero a la estructura Titular con los datos
+//   - error: Error si ocurre alguno
+func ObtenerTitularPorID(ctx context.Context, idPersona int) (*Titular, error) {
+	query := "call ingesoft.ObtenerTitularPorID(?)"
+
+	if idPersona <= 0 {
+		return nil, errors.New("ID de persona inválido")
+
+	}
+
+	var t Titular
+	row := database.DB.QueryRowContext(ctx, query, idPersona)
+	err := row.Scan(&t.Id,
+		&t.Nombre,
+		&t.Apellidos,
+		&t.Sexo,
+		&t.Dni,
+		&t.FechaNacimiento,
+		&t.Telefono,
+		&t.Pais,
+		&t.Provincia,
+		&t.Distrito,
+		&t.Direccion,
+		&t.TipoVia,
+		&t.Referencia,
+		&t.Ciudad,
+		&t.CodigoPostal,
+		&t.IngresoPromedio,
+		&t.Ocupacion,
+		&t.NombreEmpresa,
+		&t.DireccionEmpresa)
+
+	if err != nil {
+		logs.Logger.Println("Error al escanear ID: ", err)
+		return nil, err
+	}
+
+	return &t, nil
 }
