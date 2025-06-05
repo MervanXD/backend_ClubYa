@@ -8,8 +8,6 @@ type Academia struct {
 	Descripcion    string           `json:"descripcion"`
 	Deporte        tipos.Deporte    `json:"deporte"`
 	Grupos         []GrupoAcademia  `json:"grupos"`
-	PrecioSocio    float64          `json:"precio_socio"`
-	PrecioExterno  float64          `json:"precio_externo"`
 	Entrenador     string           `json:"entrenador"`
 	CostoUniforme  float64          `json:"costo_uniforme"`
 	CostoMatricula float64          `json:"costo_matricula"`

@@ -1,0 +1,28 @@
+package academia
+
+import (
+	"github.com/MervanXD/backend_ClubYa/database"
+	"github.com/MervanXD/backend_ClubYa/logs"
+)
+
+func ObtenerAcademias() ([]AcademiaDTO, error) {
+	query := "call ingesoft.ListarAcademias()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener la informacion de las academias: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var academias []AcademiaDTO
+	for rows.Next() {
+		var academia AcademiaDTO
+		if err := rows.Scan(&academia.ID, &academia.Nombre, &academia.Descripcion, &academia.Deporte, &academia.Imagen,
+			&academia.Monto, &academia.EdadMinima, &academia.Inscritos); err != nil {
+			logs.Logger.Println("Error al escanear la academia deportiva: ", err)
+			return nil, err
+		}
+
+		academias = append(academias, academia)
+	}
+	return academias, nil
+}
