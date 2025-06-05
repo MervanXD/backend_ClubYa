@@ -3,7 +3,6 @@ package persona
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -39,8 +38,6 @@ func ObtenerTitularPorID(ctx context.Context, idPersona int) (*Titular, error) {
 		return nil, errors.New("ID de persona inválido")
 
 	}
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
 
 	var t Titular
 	row := database.DB.QueryRowContext(ctx, query, idPersona)
