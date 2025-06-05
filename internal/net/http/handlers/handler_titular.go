@@ -35,19 +35,15 @@ func CrearTitular(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Persona creada con éxito", idTitular))
 }
 
-type TitularRequest struct {
-	IdPersona int `json:"id_persona" validate:"required"`
-}
-
 func ObtenerTitularPorID(c *fiber.Ctx) error {
-	var titularRequest TitularRequest
-
-	if err := c.BodyParser(&titularRequest); err != nil {
-		logs.Logger.Println("Error al parsear el body:", err)
-		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
+	titularIdStr := c.Params("idTitular")
+	idTitular, err := strconv.Atoi(titularIdStr)
+	if err != nil {
+		logs.Logger.Println("ID de titular inválido:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("ID de titular inválido", nil))
 	}
 
-	titular, err := persona.ObtenerTitularPorID(c.Context(), titularRequest.IdPersona)
+	titular, err := persona.ObtenerTitularPorID(c.Context(), idTitular)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la información: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la información", nil))
