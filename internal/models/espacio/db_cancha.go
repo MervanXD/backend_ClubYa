@@ -16,7 +16,7 @@ func ObtenerCanchasHorarios() ([]CanchaHorarioDTO, error) {
 	var canchasHorarios []CanchaHorarioDTO
 	for rows.Next() {
 		var es CanchaHorarioDTO
-		if err := rows.Scan(&es.Espacio.Id, &es.Espacio.Codigo, &es.Espacio.Nombre, &es.Espacio.Deporte,
+		if err := rows.Scan(&es.Espacio.Id, &es.Espacio.Codigo, &es.Espacio.Nombre, &es.Espacio.Imagen, &es.Espacio.Deporte,
 			&es.Espacio.Ubicacion, &es.Espacio.Capacidad, &es.Espacio.Costo, &es.Fecha, &es.HoraInicio, &es.HoraFinal,
 			&es.Estado, &es.IdHorario, &es.IdBloque); err != nil {
 			logs.Logger.Println("Error al escanear el horario de la loza deportiva: ", err)
