@@ -14,6 +14,7 @@ type AcademiaDTO struct {
 	Imagen      []byte        `json:"imagen"`
 	Monto       float64       `json:"monto"`
 	EdadMinima  int64         `json:"edad_minima"`
+	Inscritos   int64         `json:"cantidad_inscritos"`
 }
 
 func ObtenerAcademias() ([]AcademiaDTO, error) {
@@ -28,7 +29,7 @@ func ObtenerAcademias() ([]AcademiaDTO, error) {
 	for rows.Next() {
 		var academia AcademiaDTO
 		if err := rows.Scan(&academia.ID, &academia.Nombre, &academia.Descripcion, &academia.Deporte, &academia.Imagen,
-			&academia.Monto, &academia.EdadMinima); err != nil {
+			&academia.Monto, &academia.EdadMinima, &academia.Inscritos); err != nil {
 			logs.Logger.Println("Error al escanear la academia deportiva: ", err)
 			return nil, err
 		}
