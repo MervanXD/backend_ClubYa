@@ -1,4 +1,4 @@
-package academia
+package tarifas
 
 import "github.com/MervanXD/backend_ClubYa/internal/models/tipos"
 

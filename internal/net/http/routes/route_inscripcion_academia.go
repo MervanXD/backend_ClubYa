@@ -7,4 +7,5 @@ import (
 
 func RutasInscripcionAcademia(app *fiber.App) {
 	app.Get("/academias-deportivas", handlers.ListarAcademias)
+	app.Get("/academia-deportiva-informacion/:id", handlers.ObtenerAcademiaId)
 }

@@ -2,6 +2,8 @@ package academia
 
 import (
 	"github.com/MervanXD/backend_ClubYa/database"
+	grupoacademia "github.com/MervanXD/backend_ClubYa/internal/models/grupo_academia"
+	"github.com/MervanXD/backend_ClubYa/internal/models/tarifas"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -25,4 +27,34 @@ func ObtenerAcademias() ([]AcademiaDTO, error) {
 		academias = append(academias, academia)
 	}
 	return academias, nil
+}
+
+func ObtenerAcademiaPorId(idAcademia int) (*Academia, error) {
+	query := "CALL ObtenerAcademiaPorId(?)"
+	row := database.DB.QueryRow(query, idAcademia)
+
+	var academia Academia
+	err := row.Scan(&academia.ID, &academia.Nombre, &academia.Descripcion, &academia.Deporte,
+		&academia.Entrenador, &academia.CostoUniforme, &academia.CostoMatricula, &academia.Reglamento,
+		&academia.Imagen, &academia.Indicaciones)
+
+	if err != nil {
+		logs.Logger.Println("Error al obtener la academia:", err)
+		return nil, err
+	}
+	//leemos las tarifas
+	tarifas, err := tarifas.ObtenerTarifasAcademiaPorId(idAcademia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener las tarifas de la academia:", err)
+		return nil, err
+	}
+	academia.Tarifas = tarifas
+	//leemos los grupos
+	grupos, err := grupoacademia.ObtenerGruposAcademiaPorId(idAcademia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los grupos:", err)
+		return nil, err
+	}
+	academia.Grupos = grupos
+	return &academia, nil
 }
