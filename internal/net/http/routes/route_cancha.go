@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasCancha(app *fiber.App) {
+func RutasCancha(api fiber.Router) {
 
-	app.Get("/canchas-horarios", handlers.ListarCanchasHorarios)
+	api.Get("/canchas-horarios", handlers.ListarCanchasHorarios)
 	
 }

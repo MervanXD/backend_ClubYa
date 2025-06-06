@@ -5,6 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasDisponibilidad(app *fiber.App) {
-	app.Get("/disponibilidad/:id_espacio/:id_horario_dia/:id_bloque_tiempo", handlers.ObtenerDisponibilidadEspacioSocialPorId)
+func RutasDisponibilidad(api fiber.Router) {
+	api.Get("/disponibilidad/:id_espacio/:id_horario_dia/:id_bloque_tiempo", handlers.ObtenerDisponibilidadEspacioSocialPorId)
 }

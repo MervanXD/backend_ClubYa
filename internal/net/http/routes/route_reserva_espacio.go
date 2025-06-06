@@ -5,10 +5,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasReservaEspacio(app *fiber.App) {
-	app.Put("/reserva-espacio", handlers.ReservarEspacio)
-	app.Post("/reserva-espacio-social", handlers.ReservarEspacioSocial)
-	app.Put("/anulacion-reserva-espacio-social", handlers.AnularReservarEspacioSocial)
-	app.Get("/reservas-espacios-social-socio/:idSocio", handlers.ListarEspaciosSocialesSocio)
-	app.Get("/reserva-canchas/:idSocio",handlers.ListarCanchasSocio)
+func RutasReservaEspacio(api fiber.Router) {
+	api.Put("/reserva-espacio", handlers.ReservarEspacio)
+	api.Post("/reserva-espacio-social", handlers.ReservarEspacioSocial)
+	api.Put("/anulacion-reserva-espacio-social", handlers.AnularReservarEspacioSocial)
+	api.Get("/reservas-espacios-social-socio/:idSocio", handlers.ListarEspaciosSocialesSocio)
+	api.Get("/reserva-canchas/:idSocio",handlers.ListarCanchasSocio)
 }

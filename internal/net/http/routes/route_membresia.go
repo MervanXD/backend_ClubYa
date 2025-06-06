@@ -5,6 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasMembresia(app *fiber.App) {
-	app.Get("/membresia/solicitud/:id", handlers.ObtenerMembresiaPorSolicitud)
+func RutasMembresia(api fiber.Router) {
+	api.Get("/membresia/solicitud/:id", handlers.ObtenerMembresiaPorSolicitud)
 }
