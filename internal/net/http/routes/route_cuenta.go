@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RouteCuenta(app *fiber.App) {
-	app.Post("/cuenta/crear", handlers.CrearCuenta)
-	app.Post("/cuenta/login", handlers.LogIn)
+func RouteCuenta(api fiber.Router) {
+	api.Post("/cuenta/crear", handlers.CrearCuenta)
+	api.Post("/cuenta/login", handlers.LogIn)
 }

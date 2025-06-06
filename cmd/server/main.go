@@ -23,23 +23,24 @@ func main() {
 	// esto es para crear una app y tener handlers y eso
 	app := fiber.New()
 	app.Use(cors.New())
-	routes.RutasEspacioSocial(app)
-	routes.TitularRoutes(app)
-	routes.RutasSolicitudMembresia(app)
-	routes.RutasMembresia(app)
-	routes.RutasPago(app)
-	routes.RutasCuota(app)
+	api:=app.Group("/api")
+	routes.RutasEspacioSocial(api)
+	routes.TitularRoutes(api)
+	routes.RutasSolicitudMembresia(api)
+	routes.RutasMembresia(api)
+	routes.RutasPago(api)
+	routes.RutasCuota(api)
 
-	routes.RutasInscripcionEvento(app)
-	routes.RutasEvento(app)
-	routes.RouteCuenta(app)
-	routes.RutasReservaEspacio(app)
-	routes.RutasDisponibilidad(app)
+	routes.RutasInscripcionEvento(api)
+	routes.RutasEvento(api)
+	routes.RouteCuenta(api)
+	routes.RutasReservaEspacio(api)
+	routes.RutasDisponibilidad(api)
 
-	routes.RutasFamiliar(app)
+	routes.RutasFamiliar(api)
 
-	routes.RutasCancha(app)
-	routes.RutasInscripcionAcademia(app)
+	routes.RutasCancha(api)
+	routes.RutasInscripcionAcademia(api)
 
 	if err := app.Listen(":4000"); err != nil {
 		logs.Logger.Fatal("Error al iniciar el servidor: ", err)

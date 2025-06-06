@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasCuota(app *fiber.App) {
-	app.Get("/cuotas/membresia/:id/:limite", handlers.ObtenerCuotasPorMembresia)
+func RutasCuota(api fiber.Router) {
+	api.Get("/cuotas/membresia/:id/:limite", handlers.ObtenerCuotasPorMembresia)
 
 }

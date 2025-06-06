@@ -5,9 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasInscripcionAcademia(app *fiber.App) {
-	app.Get("/academias-deportivas", handlers.ListarAcademias)
-	app.Get("/academia-deportiva-informacion/:id", handlers.ObtenerAcademiaId)
-	app.Get("/academia-deportiva-informacion-familiares/:id", handlers.ListarFamiliaresSocioInscritos)
-	app.Post("/academia/inscripcion", handlers.RegistrarInscripcionAcademia)
+func RutasInscripcionAcademia(api fiber.Router) {
+	api.Get("/academias-deportivas", handlers.ListarAcademias)
+	api.Get("/academia-deportiva-informacion/:id", handlers.ObtenerAcademiaId)
+	api.Get("/academia-deportiva-informacion-familiares/:id", handlers.ListarFamiliaresSocioInscritos)
+	api.Post("/academia/inscripcion", handlers.RegistrarInscripcionAcademia)
 }
