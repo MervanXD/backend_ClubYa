@@ -1,11 +1,23 @@
 package evento
 
 import (
+	"errors"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
+
+type EventoRequest struct {
+	Nombre      string  `json:"nombre"`
+	Descripcion string  `json:"descripcion"`
+	Fecha       string  `json:"fecha"`
+	Aforo       int     `json:"aforo"`
+	Invitados   int     `json:"invitados"`
+	Precio      float64 `json:"precio"`
+	HoraInicio  string  `json:"hora_inicio"`
+	HoraFin     string  `json:"hora_fin"`
+}
 
 func ListarEventos() ([]Evento, error) {
 	query := "call ingesoft.ListarEventos()"
@@ -78,4 +90,46 @@ func BuscarEventoPorID(id int) (*Evento, error) {
 	}
 
 	return &e, nil
+}
+
+func InsertarEvento(req EventoRequest) (int, error) {
+	fecha, err := time.Parse("2006-01-02", req.Fecha)
+	if err != nil {
+		return -1, errors.New("formato de fecha inválido, se esperaba YYYY-MM-DD")
+	}
+
+	horaInicio, err := time.Parse("15:04:05", req.HoraInicio)
+	if err != nil {
+		return -1, errors.New("formato de hora de inicio inválido, se esperaba HH:MM:SS")
+	}
+
+	horaFin, err := time.Parse("15:04:05", req.HoraFin)
+	if err != nil {
+		return -1, errors.New("formato de hora de fin inválido, se esperaba HH:MM:SS")
+	}
+
+	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, @p_idEvento)"
+	_, err = database.DB.Exec(query,
+		req.Nombre,
+		req.Descripcion,
+		fecha.Format("2006-01-02"),
+		req.Aforo,
+		req.Invitados,
+		req.Precio,
+		horaInicio.Format("15:04:05"),
+		horaFin.Format("15:04:05"),
+	)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar SP InsertarEvento:", err)
+		return -1, err
+	}
+
+	var idEvento int
+	err = database.DB.QueryRow("SELECT @p_idEvento").Scan(&idEvento)
+	if err != nil {
+		logs.Logger.Println("Error al obtener idEvento:", err)
+		return -1, err
+	}
+
+	return idEvento, nil
 }

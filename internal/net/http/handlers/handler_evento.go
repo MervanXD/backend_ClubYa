@@ -45,3 +45,20 @@ func ObtenerEventoPorId(c *fiber.Ctx) error {
 		"data":    eventoInfo,
 	})
 }
+
+func CrearEvento(c *fiber.Ctx) error {
+	var eventoData evento.EventoRequest
+
+	if err := c.BodyParser(&eventoData); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear los datos del evento", nil))
+	}
+
+	idEvento, err := evento.InsertarEvento(eventoData)
+	if err != nil {
+		logs.Logger.Println("Error al insertar el evento: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al crear el evento", nil))
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Evento creado con éxito", idEvento))
+}

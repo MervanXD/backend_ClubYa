@@ -6,7 +6,7 @@ import (
 )
 
 func RutasEvento(api fiber.Router) {
-	//app.Post("/evento", handlers.CrearEvento)
+	api.Post("/evento", handlers.CrearEvento)
 	api.Get("/eventos", handlers.ListarEventos)
 	api.Get("/eventos/:id", handlers.ObtenerEventoPorId)
 	//app.Put("/eventos/:id", handlers.ActualizarEvento)

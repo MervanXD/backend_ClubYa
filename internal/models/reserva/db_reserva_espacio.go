@@ -37,7 +37,7 @@ func AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia in
 	query := "call ingesoft.AnularReservaEspacioSocial(?, ?, ?, ?, ?)"
 	_, err := database.DB.Exec(query, idReserva, idEspacio, idHorarioDia, idBloque, motivo)
 	if err != nil {
-		logs.Logger.Println("Error al cancelar la reserva del espacio social ", err)
+		logs.Logger.Println("Error al cancelar la reserva del espacio ", err)
 		return err
 	}
 	return nil
