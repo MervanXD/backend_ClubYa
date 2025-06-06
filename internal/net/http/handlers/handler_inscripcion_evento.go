@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	inscripcion "github.com/MervanXD/backend_ClubYa/internal/models/inscripcion_evento"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -33,4 +35,20 @@ func RegistrarInscripcionEvento(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Todas las inscripciones fueron registradas exitosamente", nil))
+}
+
+func ListarEventosSocioId(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
+	}
+	eventos, err := inscripcion.ObtenerEventosSocio(id)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los eventos del socio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los eventos del socio", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Eventos del socio obtenidas con exito", eventos))
 }
