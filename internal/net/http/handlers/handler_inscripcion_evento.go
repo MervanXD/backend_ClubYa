@@ -14,17 +14,23 @@ type InscripcionRequest struct {
 }
 
 func RegistrarInscripcionEvento(c *fiber.Ctx) error {
-	var req InscripcionRequest
+	var requests []InscripcionRequest
 
-	if err := c.BodyParser(&req); err != nil {
+	if err := c.BodyParser(&requests); err != nil {
 		logs.Logger.Println("Error al parsear el body:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
 	}
 
-	if err := inscripcion.RegistrarInscripcion(req.FidPersona, req.IdEvento, req.CantidadInvitados); err != nil {
-		logs.Logger.Println("Error al registrar inscripción:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción", nil))
+	if len(requests) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("La lista de inscripciones no puede estar vacía", nil))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(models.Succes("Inscripción registrada exitosamente", nil))
+	for _, req := range requests {
+		if err := inscripcion.RegistrarInscripcion(req.FidPersona, req.IdEvento, req.CantidadInvitados); err != nil {
+			logs.Logger.Printf("Error al registrar inscripción para persona %d: %v", req.FidPersona, err)
+			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para una o más personas", nil))
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Todas las inscripciones fueron registradas exitosamente", nil))
 }
