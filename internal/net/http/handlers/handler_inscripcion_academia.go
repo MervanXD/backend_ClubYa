@@ -70,3 +70,19 @@ func ObtenerAcademiaId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener la informacion de la academia", academia))
 }
+
+func ListarFamiliaresSocioInscritos(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
+	}
+	academia, err := inscripcionacademia.ObtenerFamiliaresInscritosAcademia(id)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los familiares inscritos a las academias deportivas: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los familiares inscritos", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Academias deportivas del socio obtenidas con exito", academia))
+}
