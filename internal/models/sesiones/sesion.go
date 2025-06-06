@@ -1,4 +1,4 @@
-package academia
+package sesiones
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 )
 
 type Sesion struct {
-	IDsesion   int64     `json:"id_sesion"`
+	IDsesion   int       `json:"id_sesion"`
 	Dia        tipos.Dia `json:"dia"`
 	HoraInicio time.Time `json:"hora_inicio"`
 	HoraFin    time.Time `json:"hora_fin"`
