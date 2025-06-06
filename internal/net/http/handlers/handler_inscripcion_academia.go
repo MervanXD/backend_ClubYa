@@ -6,9 +6,40 @@ import (
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/academia"
+	inscripcionacademia "github.com/MervanXD/backend_ClubYa/internal/models/inscripcion_academia"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/gofiber/fiber/v2"
 )
+
+type InscritosAcademia struct {
+	IDPersona int    `json:"id_persona"`
+	IDGrupo   int    `json:"id_grupo"`
+	IDTarifa  int    `json:"id_tarifa"`
+	Uniforme  int    `json:"uniforme"`
+	TipoSocio string `json:"tipoSocio"`
+}
+
+type InscripcionAcademiaRequest struct {
+	MontoTotal float64             `json:"monto_total"`
+	Inscritos  []InscritosAcademia `json:"inscritos"`
+}
+
+func RegistrarInscripcionAcademia(c *fiber.Ctx) error {
+	var requests InscripcionAcademiaRequest
+
+	if err := c.BodyParser(&requests); err != nil {
+		logs.Logger.Println("Error al parsear el body:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
+	}
+
+	for _, req := range requests.Inscritos {
+		if err := inscripcionacademia.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme); err != nil {
+			logs.Logger.Printf("Error al registrar inscripción para persona %d: %v", req.IDPersona, err)
+			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para una o más personas en academias", nil))
+		}
+	}
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Todas las inscripciones en academias fueron registradas exitosamente", nil))
+}
 
 func ListarAcademias(c *fiber.Ctx) error {
 	academiasDeportivas, err := academia.ObtenerAcademias()
