@@ -88,7 +88,7 @@ func ObtenerDatosPersonaPorIdSolicitud(idSolicitud int) (*persona.Titular, error
 	query := "CALL ObtenerDatosPersonaPorIdSolicitud(?)"
 	rows := database.DB.QueryRow(query, idSolicitud)
 	var persona persona.Titular
-	err := rows.Scan(&persona.Nombre, &persona.Apellidos, &persona.Sexo, &persona.Dni, &persona.FechaNacimiento, &persona.TipoVia, &persona.Direccion, &persona.Ciudad, &persona.Pais, &persona.CodigoPostal, &persona.Telefono, &persona.Referencia, &persona.Ocupacion,
+	err := rows.Scan(&persona.Nombre, &persona.Apellidos, &persona.Sexo, &persona.Dni, &persona.FechaNacimiento, &persona.TipoVia, &persona.Direccion, &persona.Distrito, &persona.Pais, &persona.Provincia, &persona.Telefono, &persona.Referencia, &persona.Ocupacion,
 		&persona.IngresoPromedio, &persona.NombreEmpresa, &persona.DireccionEmpresa)
 	if err != nil { //email lo estoy colocando en referencia , por ahora
 		logs.Logger.Println("Error al ejecutar el procedimiento:", err)
@@ -117,4 +117,3 @@ func ObtenerEstadoSolicitudPorID(idSolicitud int) (string, error) {
 
 	return "", fmt.Errorf("no se encontró el estado para la solicitud con ID %d", idSolicitud)
 }
-
