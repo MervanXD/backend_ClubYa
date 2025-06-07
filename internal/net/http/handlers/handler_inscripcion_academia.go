@@ -33,7 +33,7 @@ func RegistrarInscripcionAcademia(c *fiber.Ctx) error {
 	}
 
 	for _, req := range requests.Inscritos {
-		if err := inscripcionacademia.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme); err != nil {
+		if err := inscripcionacademia.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme, requests.MontoTotal); err != nil {
 			logs.Logger.Printf("Error al registrar inscripción para persona %d: %v", req.IDPersona, err)
 			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para una o más personas en academias", nil))
 		}
