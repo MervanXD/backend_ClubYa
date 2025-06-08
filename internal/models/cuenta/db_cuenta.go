@@ -9,12 +9,10 @@ import (
 func CrearCuenta(cuenta Cuenta) (int64, error) {
 	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
-	emailEncriptado := security.Hash256(cuenta.Email)
-
 	query := "CALL ingesoft.InsertarCuenta(?, ?, ?)"
 	var idCuenta int64
 
-	err := database.DB.QueryRow(query, usernameEncriptado, emailEncriptado, passwordEncriptado).Scan(&idCuenta)
+	err := database.DB.QueryRow(query, usernameEncriptado, cuenta.Email, passwordEncriptado).Scan(&idCuenta)
 	if err != nil {
 		return 0, err
 	}
