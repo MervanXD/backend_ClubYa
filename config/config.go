@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/MervanXD/backend_ClubYa/internal/pkgs/security"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -18,7 +19,13 @@ var (
 )
 
 func LoadConfig() string {
-	err := godotenv.Load("../../.env")
+	// Cargar el archivo .env
+	rootDir := os.Getenv("BACKEND_CLUBYA_ROOT")
+	if rootDir == "" {
+		logs.Logger.Fatal("No se ha definido la variable de entorno BACKEND_CLUBYA_ROOT")
+	}
+	envDir := filepath.Join(rootDir, ".env")
+	err := godotenv.Load(envDir)
 	if err != nil {
 		logs.Logger.Fatal("Error cargando .env")
 	}
