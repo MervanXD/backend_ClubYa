@@ -7,7 +7,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) (err error) {
+type reservaRepositoryDB struct{}
+
+func NewReservaRepositoryDB() ReservaRepository {
+	return &reservaRepositoryDB{}
+}
+
+func (r *reservaRepositoryDB) ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) (err error) {
 	err = detalledisponibilidad.ActualizarEstadoDetalleDisponibilidad(idHorarioDia, idBloqueTiempo, tipos.Reservado.String())
 	if err != nil {
 		logs.Logger.Println("Error al ReservarEspacio: ", err)
@@ -16,7 +22,7 @@ func ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) (err e
 	return nil
 }
 
-func ReservarEspacioSocial(reserva ReservaEspacio) error {
+func (r *reservaRepositoryDB) ReservarEspacioSocial(reserva ReservaEspacio) error {
 	query := "call ingesoft.ReservarEspacioSocial(?, ?, ?, ?, ?, ?,?)"
 	_, err := database.DB.Exec(query, reserva.IdSocio, reserva.Espacio.Id, reserva.IdHorarioDia, reserva.IdBloqueTiempo, reserva.Fecha, reserva.HoraInicio, reserva.HoraFin)
 
@@ -33,7 +39,7 @@ func ReservarEspacioSocial(reserva ReservaEspacio) error {
 	return nil
 }
 
-func AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia int, idBloque int, motivo string) error {
+func (r *reservaRepositoryDB) AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia int, idBloque int, motivo string) error {
 	query := "call ingesoft.AnularReservaEspacioSocial(?, ?, ?, ?, ?)"
 	_, err := database.DB.Exec(query, idReserva, idEspacio, idHorarioDia, idBloque, motivo)
 	if err != nil {
@@ -43,7 +49,7 @@ func AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia in
 	return nil
 }
 
-func ObtenerReservasEspaciosSocialesSocio(idSocio int) ([]ReservaEspacioSocialRequest, error) {
+func (r *reservaRepositoryDB) ObtenerReservasEspaciosSocialesSocio(idSocio int) ([]ReservaEspacioSocialRequest, error) {
 	query := "call ingesoft.ListarReservasEspaciosSocialesSocio(?)"
 	rows, err := database.DB.Query(query, idSocio)
 	if err != nil {
@@ -69,7 +75,7 @@ func ObtenerReservasEspaciosSocialesSocio(idSocio int) ([]ReservaEspacioSocialRe
 	return reservasSocio, nil
 }
 
-func ObtenerReservasCanchasSocio(idSocio int) ([]ReservaCanchaRequest, error) {
+func (r *reservaRepositoryDB) ObtenerReservasCanchasSocio(idSocio int) ([]ReservaCanchaRequest, error) {
 	query := "call ingesoft.ListarReservasCanchasSocio(?)"
 	rows, err := database.DB.Query(query, idSocio)
 	if err != nil {
