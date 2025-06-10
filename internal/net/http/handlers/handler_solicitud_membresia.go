@@ -10,7 +10,8 @@ import (
 )
 
 func ListarSolicitudMembresia(c *fiber.Ctx) error {
-	solicitudes, err := solicitud.ObtenerSolicitudesMembresia()
+	repo := solicitud.NewSolicitudRepositoryDB()
+	solicitudes, err := repo.ObtenerSolicitudesMembresia()
 	if err != nil {
 		logs.Logger.Println("Error al obtener las solicitudes de membresia: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las solicitudes de membresia", nil))
@@ -36,8 +37,8 @@ func ActualizarEstadoSolicitud(c *fiber.Ctx) error {
 		logs.Logger.Println("Error al parsear el cuerpo: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
-
-	err = solicitud.ActualizarEstadoSolicitud(id, body.EstadoSolicitud)
+	repo := solicitud.NewSolicitudRepositoryDB()
+	err = repo.ActualizarEstadoSolicitud(id, body.EstadoSolicitud)
 	if err != nil {
 		logs.Logger.Println("Error al actualizar estado: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo actualizar el estado", nil))
@@ -53,8 +54,8 @@ func DatosSolicitudId(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
 	}
-
-	solicitud, err := solicitud.ObtenerDatosSolicitudPorId(id)
+	repo := solicitud.NewSolicitudRepositoryDB()
+	solicitud, err := repo.ObtenerDatosSolicitudPorId(id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la informacion de la solicitud", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la solicitud", nil))
@@ -70,8 +71,8 @@ func ListarFamiliaresSolicitudId(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
 	}
-
-	familiares, err := solicitud.ObtenerFamiliaresPorIdSolicitud(id)
+	repo := solicitud.NewSolicitudRepositoryDB()
+	familiares, err := repo.ObtenerFamiliaresPorIdSolicitud(id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la informacion del familiar", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de los familiares ", nil))
@@ -87,8 +88,8 @@ func ObtenerPersonaPorSolicitudId(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
 	}
-
-	persona, err := solicitud.ObtenerDatosPersonaPorIdSolicitud(id)
+	repo := solicitud.NewSolicitudRepositoryDB()
+	persona, err := repo.ObtenerDatosPersonaPorIdSolicitud(id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la informacion de la persona", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la persona", nil))
@@ -104,8 +105,8 @@ func ObtenerEstadoSolicitud(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
 	}
-
-	estado, err := solicitud.ObtenerEstadoSolicitudPorID(id)
+	repo := solicitud.NewSolicitudRepositoryDB()
+	estado, err := repo.ObtenerEstadoSolicitudPorID(id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la informacion de la solicitud", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la informacion de la solicitud", nil))
