@@ -18,14 +18,31 @@ var (
 	DBName     string
 )
 
+func findProjectRoot(startDir, projectName string) string {
+	dir := startDir
+	for {
+		if filepath.Base(dir) == projectName {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break // Llegó a la raíz del sistema
+		}
+		dir = parent
+	}
+	return ""
+}
+
 func LoadConfig() string {
 	// Cargar el archivo .env
-	rootDir := os.Getenv("BACKEND_CLUBYA_ROOT")
-	if rootDir == "" {
-		logs.Logger.Fatal("No se ha definido la variable de entorno BACKEND_CLUBYA_ROOT")
+	wd, err := os.Getwd()
+	if err != nil {
+		logs.Logger.Fatalf("Error al obtener el directorio de trabajo: %v", err)
 	}
-	envDir := filepath.Join(rootDir, ".env")
-	err := godotenv.Load(envDir)
+
+	projectRoot := findProjectRoot(wd, "backend_ClubYa")
+	envDir := filepath.Join(projectRoot, ".env")
+	err = godotenv.Load(envDir)
 	if err != nil {
 		logs.Logger.Fatal("Error cargando .env")
 	}
