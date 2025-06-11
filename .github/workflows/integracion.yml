@@ -1,0 +1,27 @@
+name: Pruebas de integración
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar repo
+      uses: actions/checkout@v3
+
+    - name: Configurar Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.23.10
+    - name: Instalar docker-compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
+    - name: Construir y correr docker-compose
+      run: docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit

@@ -7,9 +7,15 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
+type inscripcionEventoRepositoryDB struct{}
+
+func NewInscripcionEventoRepositoryDB() InscripcionEventoRepository {
+	return &inscripcionEventoRepositoryDB{}
+}
+
 // RegistrarInscripcion permite registrar a un socio en un evento.
 // Ejecuta el procedimiento almacenado 'RegistrarInscripcionEvento'.
-func RegistrarInscripcion(fidPersona, idEvento, cantidadInvitados int) error {
+func (r *inscripcionEventoRepositoryDB) RegistrarInscripcion(fidPersona, idEvento, cantidadInvitados int) error {
 	query := "CALL RegistrarInscripcionEvento(?, ?, ?)"
 	_, err := database.DB.Exec(query, fidPersona, idEvento, cantidadInvitados)
 	if err != nil {
@@ -19,7 +25,7 @@ func RegistrarInscripcion(fidPersona, idEvento, cantidadInvitados int) error {
 	return nil
 }
 
-func ObtenerEventosSocio(idSocio int) ([]InscripcionSocioDTO, error) {
+func (r *inscripcionEventoRepositoryDB) ObtenerEventosSocio(idSocio int) ([]InscripcionSocioDTO, error) {
 	query := "call ingesoft.ListarEventosSocio(?)"
 	rows, err := database.DB.Query(query, idSocio)
 	if err != nil {

@@ -30,8 +30,8 @@ func ReservarEspacio(c *fiber.Ctx) (err error) {
 		logs.Logger.Println("Error al parsear el cuerpo: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
-
-	err = reserva.ReservarEspacio(body.IdEspacio, body.IdHorarioDia, body.IdBloqueTiempo)
+	repo := reserva.NewReservaRepositoryDB()
+	err = repo.ReservarEspacio(body.IdEspacio, body.IdHorarioDia, body.IdBloqueTiempo)
 	if err != nil {
 		logs.Logger.Println("Error al actualizar estado: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo actualizar el estado", nil))
@@ -47,7 +47,8 @@ func ReservarEspacioSocial(c *fiber.Ctx) error {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
-	if err := reserva.ReservarEspacioSocial(reservaEspacioSocial); err != nil {
+	repo := reserva.NewReservaRepositoryDB()
+	if err := repo.ReservarEspacioSocial(reservaEspacioSocial); err != nil {
 		logs.Logger.Println("Error al reservar el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al reservar el espacio social", nil))
 	}
@@ -62,8 +63,8 @@ func AnularReservarEspacioSocial(c *fiber.Ctx) error {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
-
-	err := reserva.AnulacionReservaEspacioSocial(reservaAnulada.IdReserva, reservaAnulada.IdEspacio, reservaAnulada.IdHorarioDia,
+	repo := reserva.NewReservaRepositoryDB()
+	err := repo.AnulacionReservaEspacioSocial(reservaAnulada.IdReserva, reservaAnulada.IdEspacio, reservaAnulada.IdHorarioDia,
 		reservaAnulada.IdBloqueTiempo, reservaAnulada.Motivo)
 	if err != nil {
 		logs.Logger.Println("Error al anular la reserva: ", err)
@@ -79,7 +80,8 @@ func ListarEspaciosSocialesSocio(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
 	}
-	espaciosReserva, err := reserva.ObtenerReservasEspaciosSocialesSocio(id)
+	repo := reserva.NewReservaRepositoryDB()
+	espaciosReserva, err := repo.ObtenerReservasEspaciosSocialesSocio(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logs.Logger.Println("No se encontraron reservas con ese ID", err)
@@ -99,7 +101,8 @@ func ListarCanchasSocio(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
 	}
-	canchaReserva, err := reserva.ObtenerReservasCanchasSocio(id)
+	repo := reserva.NewReservaRepositoryDB()
+	canchaReserva, err := repo.ObtenerReservasCanchasSocio(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logs.Logger.Println("No se encontraron reservas con ese ID", err)

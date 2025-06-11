@@ -26,9 +26,9 @@ func RegistrarInscripcionEvento(c *fiber.Ctx) error {
 	if len(requests) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("La lista de inscripciones no puede estar vacía", nil))
 	}
-
+	repo := inscripcion.NewInscripcionEventoRepositoryDB()
 	for _, req := range requests {
-		if err := inscripcion.RegistrarInscripcion(req.FidPersona, req.IdEvento, req.CantidadInvitados); err != nil {
+		if err := repo.RegistrarInscripcion(req.FidPersona, req.IdEvento, req.CantidadInvitados); err != nil {
 			logs.Logger.Printf("Error al registrar inscripción para persona %d: %v", req.FidPersona, err)
 			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para una o más personas", nil))
 		}
@@ -44,7 +44,8 @@ func ListarEventosSocioId(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
 	}
-	eventos, err := inscripcion.ObtenerEventosSocio(id)
+	repo := inscripcion.NewInscripcionEventoRepositoryDB()
+	eventos, err := repo.ObtenerEventosSocio(id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los eventos del socio: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los eventos del socio", nil))

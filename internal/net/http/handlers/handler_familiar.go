@@ -15,8 +15,8 @@ func InsertarFamiliares(c *fiber.Ctx) error {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
-
-	idSolicitud, err := persona.RegistrarFamiliares(req)
+	repo := persona.NewFamiliarRepositoryDB()
+	idSolicitud, err := repo.RegistrarFamiliares(req)
 	if err != nil {
 		logs.Logger.Println("Error al registrar familiares: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar familiares", nil))
@@ -32,8 +32,8 @@ func ObtenerFamiliaresPorTitular(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
 	}
-
-	familiares, err := persona.ObtenerIdsFamiliaresPorTitular(idTitular)
+	repo := persona.NewFamiliarRepositoryDB()
+	familiares, err := repo.ObtenerIdsFamiliaresPorTitular(idTitular)
 	if err != nil {
 		logs.Logger.Println("Error al obtener familiares:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo obtener los familiares", nil))
@@ -49,7 +49,8 @@ func ObtenerFamiliarPorIdPersona(c *fiber.Ctx) error {
 		logs.Logger.Println("ID de persona inválido:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID invalido", nil))
 	}
-	familiar, err := persona.ObtenerFamiliarPorIDPersona(idPersona)
+	repo := persona.NewFamiliarRepositoryDB()
+	familiar, err := repo.ObtenerFamiliarPorIDPersona(idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los datos del familiar:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo obtener los datos del familiar", nil))

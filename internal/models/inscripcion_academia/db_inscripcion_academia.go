@@ -6,7 +6,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, uniforme int, costo_total float64) error {
+type inscripcionAcademiaRepositoryDB struct{}
+
+func NewInscripcionAcademiaRepositoryDB() InscripcionAcademiaRepository {
+	return &inscripcionAcademiaRepositoryDB{}
+}
+
+func (r *inscripcionAcademiaRepositoryDB) RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, uniforme int, costo_total float64) error {
 	query := "CALL RegistrarInscripcionAcademia(?, ?, ?,?,?)"
 	_, err := database.DB.Exec(query, idPersonaint, idGrupo, idTarifa, uniforme, costo_total)
 	if err != nil {
@@ -16,7 +22,7 @@ func RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, u
 	return nil
 }
 
-func ObtenerFamiliaresInscritosAcademia(idSocio int) ([]InscritoAcademiaDTO, error) {
+func (r *inscripcionAcademiaRepositoryDB) ObtenerFamiliaresInscritosAcademia(idSocio int) ([]InscritoAcademiaDTO, error) {
 	inscritosQuery := "CALL ListarInscripcionesFamiliares(?)"
 	inscritosRows, err := database.DB.Query(inscritosQuery, idSocio)
 	if err != nil {

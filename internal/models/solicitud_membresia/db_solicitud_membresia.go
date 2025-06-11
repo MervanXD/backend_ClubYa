@@ -9,7 +9,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ObtenerSolicitudesMembresia() ([]SolicitudDTO, error) {
+type solicitudRepositoryDB struct{}
+
+func NewSolicitudRepositoryDB() SolicitudRepository {
+	return &solicitudRepositoryDB{}
+}
+
+func (r *solicitudRepositoryDB) ObtenerSolicitudesMembresia() ([]SolicitudDTO, error) {
 	query := "call ingesoft.obtenerSolicitudesConTitulares()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -29,7 +35,7 @@ func ObtenerSolicitudesMembresia() ([]SolicitudDTO, error) {
 	return solicitudes, nil
 }
 
-func ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
+func (r *solicitudRepositoryDB) ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
 	estado := strings.Title(strings.ToLower(nuevoEstado))
 
 	query := `CALL ActualizarEstadoSolicitud(?, ?)`
@@ -52,7 +58,7 @@ func ActualizarEstadoSolicitud(id int, nuevoEstado string) error {
 	return nil
 }
 
-func ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
+func (r *solicitudRepositoryDB) ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
 	query := "CALL ObtenerDatosSolicitudPorId(?)"
 	rows := database.DB.QueryRow(query, idSolicitud)
 	var solicitud SolicitudMembresia
@@ -64,7 +70,7 @@ func ObtenerDatosSolicitudPorId(idSolicitud int) (*SolicitudMembresia, error) {
 	return &solicitud, nil
 }
 
-func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error) {
+func (r *solicitudRepositoryDB) ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error) {
 	query := "CALL ObtenerFamiliaresPorSolicitud(?)"
 	rows, err := database.DB.Query(query, idSolicitud)
 	if err != nil {
@@ -84,7 +90,7 @@ func ObtenerFamiliaresPorIdSolicitud(idSolicitud int) ([]persona.Familiar, error
 	return familiares, nil
 }
 
-func ObtenerDatosPersonaPorIdSolicitud(idSolicitud int) (*persona.Titular, error) {
+func (r *solicitudRepositoryDB) ObtenerDatosPersonaPorIdSolicitud(idSolicitud int) (*persona.Titular, error) {
 	query := "CALL ObtenerDatosPersonaPorIdSolicitud(?)"
 	rows := database.DB.QueryRow(query, idSolicitud)
 	var persona persona.Titular
@@ -97,7 +103,7 @@ func ObtenerDatosPersonaPorIdSolicitud(idSolicitud int) (*persona.Titular, error
 	return &persona, nil
 }
 
-func ObtenerEstadoSolicitudPorID(idSolicitud int) (string, error) {
+func (r *solicitudRepositoryDB) ObtenerEstadoSolicitudPorID(idSolicitud int) (string, error) {
 	query := "CALL ObtenerEstadoSolicitud(?)"
 	rows, err := database.DB.Query(query, idSolicitud)
 	if err != nil {

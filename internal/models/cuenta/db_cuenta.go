@@ -6,7 +6,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func CrearCuenta(cuenta Cuenta) (int64, error) {
+type cuentaRepositoryDB struct{}
+
+func NewCuentaRepositoryDB() CuentaRepository {
+	return &cuentaRepositoryDB{}
+}
+
+func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
 	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	query := "CALL ingesoft.InsertarCuenta(?, ?, ?)"
@@ -20,7 +26,7 @@ func CrearCuenta(cuenta Cuenta) (int64, error) {
 	return idCuenta, nil
 }
 
-func LogIn(cuenta Cuenta) (DTOCuenta, error) {
+func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	query := "call ingesoft.LogIn(?, ?,@c_fid_persona,@c_rol,@c_esPostulante)"
