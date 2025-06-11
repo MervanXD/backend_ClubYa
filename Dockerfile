@@ -1,11 +1,15 @@
 # Etapa 1: build
-FROM golang:1.23.10 AS builder
+FROM golang:1.21-alpine
 
 WORKDIR /app
 
 # Copia los archivos go mod y sum, e instala dependencias
 COPY go.mod go.sum ./
 RUN go mod download
+
+
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 
 # Copia el resto del código fuente
 COPY . .
@@ -25,4 +29,4 @@ COPY --from=builder /app/app .
 EXPOSE 4000
 
 # Ejecuta la app
-CMD ["./app"]
+CMD ["go", "test", "./internal/tests/..."]
