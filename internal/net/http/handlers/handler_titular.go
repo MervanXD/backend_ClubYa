@@ -27,8 +27,8 @@ func CrearTitular(c *fiber.Ctx) error {
 		logs.Logger.Println("ID de membresía inválido:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de membresía inválido", nil))
 	}
-
-	idTitular, err := persona.InsertarTitular(personaData, idCuenta)
+	repo := persona.NewTitularRepositoryDB()
+	idTitular, err := repo.InsertarTitular(personaData, idCuenta)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la persona: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar la persona", nil))
@@ -47,8 +47,8 @@ func ObtenerTitularPorID(c *fiber.Ctx) error {
 
 	ctx, cancel := context.WithTimeout(c.Context(), 3*time.Second)
 	defer cancel()
-
-	titular, err := persona.ObtenerTitularPorID(ctx, idTitular)
+	repo := persona.NewTitularRepositoryDB()
+	titular, err := repo.ObtenerTitularPorID(ctx, idTitular)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la información: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la información", nil))

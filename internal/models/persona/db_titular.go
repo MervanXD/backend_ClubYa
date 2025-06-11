@@ -8,7 +8,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func InsertarTitular(p Titular, idCuenta int) (int, error) {
+type titularRepositoryDB struct{}
+
+func NewTitularRepositoryDB() TitularRepository {
+	return &titularRepositoryDB{}
+}
+
+func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, error) {
 	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
 	_, err := database.DB.Exec(query, p.Nombre, p.Apellidos, p.Sexo.String(),
 		p.Dni, p.FechaNacimiento, p.Telefono, p.Pais, p.Provincia, p.Distrito, p.TipoVia.String(),
@@ -31,7 +37,7 @@ func InsertarTitular(p Titular, idCuenta int) (int, error) {
 // Returns:
 //   - *Titular: Puntero a la estructura Titular con los datos
 //   - error: Error si ocurre alguno
-func ObtenerTitularPorID(ctx context.Context, idPersona int) (*Titular, error) {
+func (r *titularRepositoryDB) ObtenerTitularPorID(ctx context.Context, idPersona int) (*Titular, error) {
 	query := "call ingesoft.ObtenerTitularPorID(?)"
 
 	if idPersona <= 0 {

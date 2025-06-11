@@ -10,7 +10,13 @@ type FamiliarResquest struct {
 	Familiares []Familiar `json:"familiares"`
 }
 
-func InsertarFamiliar(f Familiar, idTitular int) error {
+type familiarRepositoryDB struct{}
+
+func NewFamiliarRepositoryDB() FamiliarRepository {
+	return &familiarRepositoryDB{}
+}
+
+func (r *familiarRepositoryDB) InsertarFamiliar(f Familiar, idTitular int) error {
 	query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	_, err := database.DB.Exec(query, f.Nombre, f.Apellidos, f.Sexo.String(),
 		f.Dni, f.FechaNacimiento, f.Telefono, f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(),
@@ -22,9 +28,9 @@ func InsertarFamiliar(f Familiar, idTitular int) error {
 	return nil
 }
 
-func RegistrarFamiliares(req FamiliarResquest) (int, error) {
+func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, error) {
 	for _, familiar := range req.Familiares {
-		err := InsertarFamiliar(familiar, req.IdTitular)
+		err := r.InsertarFamiliar(familiar, req.IdTitular)
 		if err != nil {
 			logs.Logger.Println("Error al insertar familiar: ", err)
 			return -1, err
@@ -45,7 +51,7 @@ func RegistrarFamiliares(req FamiliarResquest) (int, error) {
 	return idSolicitud, nil
 }
 
-func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
+func (r *familiarRepositoryDB) ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 	rows, err := database.DB.Query("CALL ObtenerFamiliaresPorTitular(?)", idTitular)
 	if err != nil {
 		logs.Logger.Println("Error al ejecutar procedimiento: ", err)
@@ -83,7 +89,7 @@ func ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 	return familiares, nil
 }
 
-func ObtenerFamiliarPorIDPersona(idPersona int) (*Familiar, error) {
+func (r *familiarRepositoryDB) ObtenerFamiliarPorIDPersona(idPersona int) (*Familiar, error) {
 	query := "call ingesoft.ObtenerFamiliarPorIdPersona(?)"
 	rows := database.DB.QueryRow(query, idPersona)
 	var f Familiar
