@@ -31,9 +31,9 @@ func RegistrarInscripcionAcademia(c *fiber.Ctx) error {
 		logs.Logger.Println("Error al parsear el body:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
 	}
-
+	repo := inscripcionacademia.NewInscripcionAcademiaRepositoryDB()
 	for _, req := range requests.Inscritos {
-		if err := inscripcionacademia.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme, requests.MontoTotal); err != nil {
+		if err := repo.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme, requests.MontoTotal); err != nil {
 			logs.Logger.Printf("Error al registrar inscripción para persona %d: %v", req.IDPersona, err)
 			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para una o más personas en academias", nil))
 		}
@@ -78,7 +78,8 @@ func ListarFamiliaresSocioInscritos(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
 	}
-	academia, err := inscripcionacademia.ObtenerFamiliaresInscritosAcademia(id)
+	repo := inscripcionacademia.NewInscripcionAcademiaRepositoryDB()
+	academia, err := repo.ObtenerFamiliaresInscritosAcademia(id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los familiares inscritos a las academias deportivas: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los familiares inscritos", nil))
