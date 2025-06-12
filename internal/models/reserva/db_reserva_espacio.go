@@ -14,7 +14,8 @@ func NewReservaRepositoryDB() ReservaRepository {
 }
 
 func (r *reservaRepositoryDB) ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) (err error) {
-	err = detalledisponibilidad.ActualizarEstadoDetalleDisponibilidad(idHorarioDia, idBloqueTiempo, tipos.Reservado.String())
+	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	err = repo.ActualizarEstadoDetalleDisponibilidad(idHorarioDia, idBloqueTiempo, tipos.Reservado.String())
 	if err != nil {
 		logs.Logger.Println("Error al ReservarEspacio: ", err)
 		return err
@@ -30,8 +31,8 @@ func (r *reservaRepositoryDB) ReservarEspacioSocial(reserva ReservaEspacio) erro
 		logs.Logger.Println("Error al reservar el espacio social: ", err)
 		return err
 	}
-
-	err = detalledisponibilidad.ActualizarEstadoDetalleDisponibilidad(reserva.IdHorarioDia, reserva.IdBloqueTiempo, tipos.Reservado.String())
+	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	err = repo.ActualizarEstadoDetalleDisponibilidad(reserva.IdHorarioDia, reserva.IdBloqueTiempo, tipos.Reservado.String())
 	if err != nil {
 		logs.Logger.Println("Error al ReservarEspacio: ", err)
 		return err

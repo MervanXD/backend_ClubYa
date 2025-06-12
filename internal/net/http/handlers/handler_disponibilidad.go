@@ -32,8 +32,8 @@ func ObtenerDisponibilidadEspacioSocialPorId(c *fiber.Ctx) error {
 
 	ctx, cancel := context.WithTimeout(c.Context(), 3*time.Second)
 	defer cancel()
-
-	espacio, err := detalledisponibilidad.ObtenerDisponibilidadEspacioSocialPorId(ctx, idEspacio, idHorarioDia, idBloqueTiempo)
+	rapo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	espacio, err := rapo.ObtenerDisponibilidadEspacioSocialPorId(ctx, idEspacio, idHorarioDia, idBloqueTiempo)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener el espacio social", nil))
