@@ -17,6 +17,8 @@ type Academia struct {
 	Reglamento     []byte                        `json:"reglamento"`
 	Imagen         []byte                        `json:"imagen"`
 	Indicaciones   string                        `json:"indicaciones"`
+	FechaInicio    string                        `json:"fecha_inicio"`
+	FechaFin       string                        `json:"fecha_fin"`
 	Grupos         []grupoacademia.GrupoAcademia `json:"grupos"`
 	Tarifas        []tarifas.TarifaAcademia      `json:"tarifas"`
 }
