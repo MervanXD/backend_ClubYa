@@ -19,7 +19,7 @@ func ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
 	for gruposRows.Next() {
 		var grupo GrupoAcademia
 		if err := gruposRows.Scan(&grupo.ID, &grupo.Nombre, &grupo.Vacantes, &grupo.EdadMinima, &grupo.EdadMaxima,
-			&grupo.Espacio.Id, &grupo.Espacio.Nombre, &grupo.Espacio.Ubicacion); err != nil {
+			&grupo.Espacio.Id, &grupo.Espacio.Nombre, &grupo.Espacio.Ubicacion, &grupo.Inscritos); err != nil {
 			logs.Logger.Println("Error al escanear el grupo:", err)
 			return nil, err
 		}
