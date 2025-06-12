@@ -19,7 +19,7 @@ func ObtenerAcademias() ([]AcademiaDTO, error) {
 	for rows.Next() {
 		var academia AcademiaDTO
 		if err := rows.Scan(&academia.ID, &academia.Nombre, &academia.Descripcion, &academia.Deporte, &academia.Imagen,
-			&academia.Monto, &academia.EdadMinima, &academia.Inscritos); err != nil {
+			&academia.Monto, &academia.FechaInicio, &academia.FechaFin, &academia.EdadMinima, &academia.Inscritos); err != nil {
 			logs.Logger.Println("Error al escanear la academia deportiva: ", err)
 			return nil, err
 		}
@@ -36,7 +36,7 @@ func ObtenerAcademiaPorId(idAcademia int) (*Academia, error) {
 	var academia Academia
 	err := row.Scan(&academia.ID, &academia.Nombre, &academia.Descripcion, &academia.Deporte,
 		&academia.Entrenador, &academia.CostoUniforme, &academia.CostoMatricula, &academia.Reglamento,
-		&academia.Imagen, &academia.Indicaciones)
+		&academia.Imagen, &academia.Indicaciones, &academia.FechaInicio, &academia.FechaFin)
 
 	if err != nil {
 		logs.Logger.Println("Error al obtener la academia:", err)
