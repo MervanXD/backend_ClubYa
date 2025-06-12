@@ -13,6 +13,7 @@ type GrupoAcademia struct {
 	EdadMinima int                      `json:"edad_minima"`
 	EdadMaxima int                      `json:"edad_maxima"`
 	Espacio    espacio.Espacio          `json:"espacio"`
+	Inscritos  int                      `json:"cantidad_inscritos"`
 	Sesiones   []sesiones.Sesion        `json:"sesiones"`
 	Tarifas    []tarifas.TarifaAcademia `json:"tarifas"`
 }
