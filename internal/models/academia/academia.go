@@ -2,7 +2,6 @@ package academia
 
 import (
 	grupoacademia "github.com/MervanXD/backend_ClubYa/internal/models/grupo_academia"
-	"github.com/MervanXD/backend_ClubYa/internal/models/tarifas"
 	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
 )
 
@@ -20,5 +19,4 @@ type Academia struct {
 	FechaInicio    string                        `json:"fecha_inicio"`
 	FechaFin       string                        `json:"fecha_fin"`
 	Grupos         []grupoacademia.GrupoAcademia `json:"grupos"`
-	Tarifas        []tarifas.TarifaAcademia      `json:"tarifas"`
 }

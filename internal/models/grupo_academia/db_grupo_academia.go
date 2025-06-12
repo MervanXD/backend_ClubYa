@@ -3,6 +3,7 @@ package grupoacademia
 import (
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/internal/models/sesiones"
+	"github.com/MervanXD/backend_ClubYa/internal/models/tarifas"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -29,6 +30,15 @@ func ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
 			return nil, err
 		}
 		grupo.Sesiones = sesiones
+
+		//leemos sus tarifas
+		tarifas, err := tarifas.ObtenerTarifasAcademiaPorId(grupo.ID)
+		if err != nil {
+			logs.Logger.Println("Error al obtener las tarifas del grupo :", err)
+			return nil, err
+		}
+		grupo.Tarifas = tarifas
+
 		grupos = append(grupos, grupo)
 	}
 

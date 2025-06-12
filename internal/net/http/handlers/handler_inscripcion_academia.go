@@ -21,6 +21,7 @@ type InscritosAcademia struct {
 
 type InscripcionAcademiaRequest struct {
 	MontoTotal float64             `json:"monto_total"`
+	IdTitular  int                 `json:"id_titular"`
 	Inscritos  []InscritosAcademia `json:"inscritos"`
 }
 
@@ -33,7 +34,7 @@ func RegistrarInscripcionAcademia(c *fiber.Ctx) error {
 	}
 	repo := inscripcionacademia.NewInscripcionAcademiaRepositoryDB()
 	for _, req := range requests.Inscritos {
-		if err := repo.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme, requests.MontoTotal); err != nil {
+		if err := repo.RegistrarInscripcionAcademia(req.IDPersona, req.IDGrupo, req.IDTarifa, req.Uniforme, requests.MontoTotal, requests.IdTitular); err != nil {
 			logs.Logger.Printf("Error al registrar inscripción para persona %d: %v", req.IDPersona, err)
 			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para una o más personas en academias", nil))
 		}
