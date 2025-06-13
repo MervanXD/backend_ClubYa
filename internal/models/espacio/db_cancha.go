@@ -5,7 +5,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ObtenerCanchasHorarios() ([]CanchaHorarioDTO, error) {
+type canchaRespositoryDB struct{}
+
+func NewCanchaRepositoryDB() CanchaRepository {
+	return &canchaRespositoryDB{}
+}
+
+func(r *canchaRespositoryDB) ObtenerCanchasHorarios() ([]CanchaHorarioDTO, error) {
 	query := "call ingesoft.listarCanchasHorarios()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
