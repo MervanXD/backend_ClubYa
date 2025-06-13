@@ -2,6 +2,8 @@ package espacio
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -15,7 +17,7 @@ func NewEspacioSocialRepositoryDB() EspacioSocialRepository {
 }
 
 func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) error {
-	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
 	_, err := database.DB.Exec(query,
 		es.Codigo,
 		es.Nombre,
@@ -25,11 +27,76 @@ func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) err
 		es.Reglamento,
 		es.Imagen,
 		0,
-		es.Actividad)
+		es.Actividad,
+		es.DuracionBloque)
 	if err != nil {
 		logs.Logger.Println("Error al insertar espacio social: ", err)
 		return err
 	}
+	return nil
+}
+
+func(r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialUpdateDTO) error {
+	// ---------- Actualiza tabla Espacio ----------
+	espacioSet := []string{}
+	args := []interface{}{}
+
+	if dto.Nombre != nil {
+		espacioSet = append(espacioSet, "nombre = ?")
+		args = append(args, *dto.Nombre)
+	}
+	if dto.Ubicacion != nil {
+		espacioSet = append(espacioSet, "ubicacion = ?")
+		args = append(args, dto.Ubicacion.String()) // si es enum con método String()
+	}
+	if dto.Capacidad != nil {
+		espacioSet = append(espacioSet, "capacidad = ?")
+		args = append(args, *dto.Capacidad)
+	}
+	if dto.Costo != nil {
+		espacioSet = append(espacioSet, "costo = ?")
+		args = append(args, *dto.Costo)
+	}
+	if dto.Codigo != nil {
+		espacioSet = append(espacioSet, "codigo = ?")
+		args = append(args, *dto.Codigo)
+	}
+	if dto.Reglamento != nil {
+		espacioSet = append(espacioSet, "reglamento = ?")
+		args = append(args, *dto.Reglamento)
+	}
+	if dto.Imagen != nil {
+		espacioSet = append(espacioSet, "imagen = ?")
+		args = append(args, *dto.Imagen)
+	}
+	if dto.DuracionBloque != nil {
+		espacioSet = append(espacioSet, "duracion_bloque = ?")
+		args = append(args, *dto.DuracionBloque)
+	}
+	if dto.EstadoEspacio != nil {
+		espacioSet = append(espacioSet, "estado_espacio = ?")
+		args = append(args, *dto.EstadoEspacio)
+	}
+
+	if len(espacioSet) > 0 {
+		query := fmt.Sprintf("UPDATE Espacio SET %s WHERE idEspacio = ?", strings.Join(espacioSet, ", "))
+		args = append(args, id)
+		fmt.Println("Query:", query)
+		_, err := database.DB.Exec(query, args...)
+		if err != nil {
+			return fmt.Errorf("error actualizando espacio: %w", err)
+		}
+	}
+	
+	// ---------- Actualiza tabla EspacioSocial ----------
+	if dto.Actividad != nil {
+		query := "UPDATE EspacioSocial SET actividad = ? WHERE fid_Espacio = ?"
+		_, err := database.DB.Exec(query, dto.Actividad.String(), id)
+		if err != nil {
+			return fmt.Errorf("error actualizando actividad: %w", err)
+		}
+	}
+	
 	return nil
 }
 
