@@ -15,8 +15,17 @@ func NewEspacioSocialRepositoryDB() EspacioSocialRepository {
 }
 
 func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) error {
-	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?,?,?)"
-	_, err := database.DB.Exec(query, es.Nombre, es.Codigo, es.Ubicacion, es.Capacidad, es.Costo, es.Imagen, es.Reglamento, es.Actividad.String())
+	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err := database.DB.Exec(query,
+		es.Codigo,
+		es.Nombre,
+		es.Ubicacion.String(),
+		es.Capacidad,
+		es.Costo,
+		es.Reglamento,
+		es.Imagen,
+		0,
+		es.Actividad)
 	if err != nil {
 		logs.Logger.Println("Error al insertar espacio social: ", err)
 		return err
