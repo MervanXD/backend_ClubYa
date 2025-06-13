@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/espacio"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -9,7 +8,8 @@ import (
 )
 
 func ListarCanchasHorarios(c *fiber.Ctx) error {
-	horariosCanchas, err := espacio.ObtenerCanchasHorarios()
+	repo := espacio.NewCanchaRepositoryDB()
+	horariosCanchas, err := repo.ObtenerCanchasHorarios()
 	if err != nil {
 		logs.Logger.Println("Error al obtener las lozas deportivas: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las lozas deportivas", nil))
