@@ -11,4 +11,5 @@ func RutasReservaEspacio(api fiber.Router) {
 	api.Put("/anulacion-reserva-espacio-social", handlers.AnularReservarEspacioSocial)
 	api.Get("/reservas-espacios-social-socio/:idSocio", handlers.ListarEspaciosSocialesSocio)
 	api.Get("/reservas-canchas-socio/:idSocio", handlers.ListarCanchasSocio)
+
 }

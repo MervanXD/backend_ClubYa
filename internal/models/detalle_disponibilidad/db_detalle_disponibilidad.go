@@ -55,3 +55,26 @@ func ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int,
 	}
 	return &res, nil
 }
+
+func ObtenerRangosInicioDisponibles(idEspacio int, fecha string) ([]string, error) {
+	query := "CALL ListarHorariosDisponiblesPorEspacioYFecha(?, ?)"
+	rows, err := database.DB.Query(query, idEspacio, fecha)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedimiento: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rangos []string
+
+	for rows.Next() {
+		var rango string
+		if err := rows.Scan(&rango); err != nil {
+			logs.Logger.Println("Error al escanear fila: ", err)
+			return nil, err
+		}
+		rangos = append(rangos, rango)
+	}
+
+	return rangos, nil
+}

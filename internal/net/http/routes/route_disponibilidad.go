@@ -7,4 +7,5 @@ import (
 
 func RutasDisponibilidad(api fiber.Router) {
 	api.Get("/disponibilidad/:id_espacio/:id_horario_dia/:id_bloque_tiempo", handlers.ObtenerDisponibilidadEspacioSocialPorId)
+	api.Get("/disponibilidad-espacio/:idEspacio/:fecha", handlers.ListarDisponibilidadEspacio)
 }
