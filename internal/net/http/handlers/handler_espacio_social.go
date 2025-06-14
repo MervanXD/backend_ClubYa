@@ -68,3 +68,26 @@ func ListarEspaciosSocialesHorarios(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Horarios de espacios sociales obtenidos con éxito", horariosEspacioSocial))
 }
+
+func ActualizarEspacioSocial(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
+
+	var input espacio.EspacioSocialUpdateDTO
+	if err := c.BodyParser(&input); err != nil {
+		logs.Logger.Println("Error al parsear JSON: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear JSON", nil))
+	}
+	repo := espacio.NewEspacioSocialRepositoryDB()
+	err = repo.ActualizarParcial(id, input)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar el espacio social: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al actualizar", nil))
+	}
+
+	return c.JSON(models.Succes("Actualizado correctamente", nil))
+}

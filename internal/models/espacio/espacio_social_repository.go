@@ -7,4 +7,5 @@ type EspacioSocialRepository interface {
 	ObtenerEspaciosSociales() ([]EspacioSocial, error)
 	ObtenerEspacioSocialPorID(ctx context.Context, id int) (*EspacioSocial, error)
 	ObtenerEspaciosSocialesHorarios() ([]EspacioSocialHorarioDTO, error)
+	ActualizarParcial(id int, dto EspacioSocialUpdateDTO) error 
 }
