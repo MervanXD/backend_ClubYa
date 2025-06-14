@@ -14,4 +14,5 @@ type Evento struct {
 	Precio      float64   `json:"precio"`
 	Imagen      []byte    `json:"imagen"`
 	Reglamento  []byte    `json:"reglamento"`
+	NroInscritos int	  `json:"nro_inscritos"`
 }

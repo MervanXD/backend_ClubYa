@@ -17,6 +17,7 @@ type EventoRequest struct {
 	Precio      float64 `json:"precio"`
 	HoraInicio  string  `json:"hora_inicio"`
 	HoraFin     string  `json:"hora_fin"`
+	NroInscritos string `json:"nro_inscritos"`
 	IdEspacio   int     `json:"id_espacio"`
 }
 
@@ -33,7 +34,7 @@ func ListarEventos() ([]Evento, error) {
 		var e Evento
 		var horaInicio string
 		var horaFin string
-		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Precio, &e.Fecha, &horaInicio, &horaFin, &e.Imagen); err != nil {
+		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Precio, &e.Fecha, &horaInicio, &horaFin, &e.Imagen, &e.NroInscritos); err != nil {
 			logs.Logger.Println("Error al escanear evento: ", err)
 			return nil, err
 		}
@@ -109,7 +110,7 @@ func InsertarEvento(req EventoRequest) (int, error) {
 		return -1, errors.New("formato de hora de fin inválido, se esperaba HH:MM:SS")
 	}
 
-	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @p_idEvento)"
+	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@p_idEvento)"
 	_, err = database.DB.Exec(query,
 		req.Nombre,
 		req.Descripcion,
@@ -119,6 +120,7 @@ func InsertarEvento(req EventoRequest) (int, error) {
 		req.Precio,
 		horaInicio.Format("15:04:05"),
 		horaFin.Format("15:04:05"),
+		req.NroInscritos,
 		req.IdEspacio,
 	)
 	if err != nil {
