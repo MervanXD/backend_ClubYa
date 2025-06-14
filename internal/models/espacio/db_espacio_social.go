@@ -81,7 +81,6 @@ func(r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialU
 	if len(espacioSet) > 0 {
 		query := fmt.Sprintf("UPDATE Espacio SET %s WHERE idEspacio = ?", strings.Join(espacioSet, ", "))
 		args = append(args, id)
-		fmt.Println("Query:", query)
 		_, err := database.DB.Exec(query, args...)
 		if err != nil {
 			return fmt.Errorf("error actualizando espacio: %w", err)
