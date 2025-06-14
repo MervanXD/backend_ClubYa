@@ -11,7 +11,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ActualizarEstadoDetalleDisponibilidad(idHorarioDia int, idBloqueTiempo int, estado string) (err error) {
+type detalleDisponibilidadRepositoryDB struct{}
+
+func NewDetalleDisponibilidadRepositoryDB() DetalleDisponibilidadRepository {
+	return &detalleDisponibilidadRepositoryDB{}
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilidad(idHorarioDia int, idBloqueTiempo int, estado string) (err error) {
 	stmt := "call ActualizarEstadoDetalleDisponibilidad(?,?,?)"
 	result, err := database.DB.Exec(stmt, idHorarioDia, idBloqueTiempo, estado)
 	if err != nil {
@@ -40,7 +46,7 @@ type DisponibilidadEspacioResponse struct {
 	Disponibilidad tipos.EstadoDisponibilidad `json:"disponibilidad"`
 }
 
-func ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int, idHorarioDia int, idBloqueTiempo int) (*DisponibilidadEspacioResponse, error) {
+func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int, idHorarioDia int, idBloqueTiempo int) (*DisponibilidadEspacioResponse, error) {
 	query := "call ingesoft.ObtenerDetalleDisponibilidadEspacioSocial(?,?,?)"
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)

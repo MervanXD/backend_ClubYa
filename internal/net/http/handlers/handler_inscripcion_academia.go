@@ -43,7 +43,8 @@ func RegistrarInscripcionAcademia(c *fiber.Ctx) error {
 }
 
 func ListarAcademias(c *fiber.Ctx) error {
-	academiasDeportivas, err := academia.ObtenerAcademias()
+	repo := academia.NewAcademiaRepositoryDB()
+	academiasDeportivas, err := repo.ObtenerAcademias()
 	if err != nil {
 		logs.Logger.Println("Error al obtener las academias deportivas: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las academias", nil))
@@ -59,7 +60,8 @@ func ObtenerAcademiaId(c *fiber.Ctx) error {
 		logs.Logger.Println("ID inválido: ", err)
 		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
 	}
-	academia, err := academia.ObtenerAcademiaPorId(id)
+	repo := academia.NewAcademiaRepositoryDB()
+	academia, err := repo.ObtenerAcademiaPorId(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logs.Logger.Println("No se encontró ninguna academia con ese ID", err)

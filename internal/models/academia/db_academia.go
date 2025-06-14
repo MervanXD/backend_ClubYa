@@ -6,7 +6,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ObtenerAcademias() ([]AcademiaDTO, error) {
+type academiaRespositoryDB struct{}
+
+func NewAcademiaRepositoryDB() AcademiaRepository {
+	return &academiaRespositoryDB{}
+}
+
+func (r *academiaRespositoryDB) ObtenerAcademias() ([]AcademiaDTO, error) {
 	query := "call ingesoft.ListarAcademias()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -28,7 +34,7 @@ func ObtenerAcademias() ([]AcademiaDTO, error) {
 	return academias, nil
 }
 
-func ObtenerAcademiaPorId(idAcademia int) (*Academia, error) {
+func (r *academiaRespositoryDB) ObtenerAcademiaPorId(idAcademia int) (*Academia, error) {
 	query := "CALL ObtenerAcademiaPorId(?)"
 	row := database.DB.QueryRow(query, idAcademia)
 

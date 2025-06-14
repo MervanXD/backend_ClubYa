@@ -8,7 +8,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func InsertarEspacioSocial(es EspacioSocial) error {
+type espacioSocialRespositoryDB struct{}
+
+func NewEspacioSocialRepositoryDB() EspacioSocialRepository {
+	return &espacioSocialRespositoryDB{}
+}
+
+func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) error {
 	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?,?,?)"
 	_, err := database.DB.Exec(query, es.Nombre, es.Codigo, es.Ubicacion, es.Capacidad, es.Costo, es.Imagen, es.Reglamento, es.Actividad.String())
 	if err != nil {
@@ -18,7 +24,7 @@ func InsertarEspacioSocial(es EspacioSocial) error {
 	return nil
 }
 
-func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
+func (r *espacioSocialRespositoryDB) ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 	query := "call ingesoft.ObtenerEspaciosSociales()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -39,7 +45,7 @@ func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 	return espacios, nil
 }
 
-func ObtenerEspacioSocialPorID(ctx context.Context, id int) (*EspacioSocial, error) {
+func (r *espacioSocialRespositoryDB) ObtenerEspacioSocialPorID(ctx context.Context, id int) (*EspacioSocial, error) {
 	query := "call ingesoft.ObtenerEspacioSocialPorID(?)"
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -53,7 +59,7 @@ func ObtenerEspacioSocialPorID(ctx context.Context, id int) (*EspacioSocial, err
 	return &es, nil
 }
 
-func ObtenerEspaciosSocialesHorarios() ([]EspacioSocialHorarioDTO, error) {
+func (r *espacioSocialRespositoryDB) ObtenerEspaciosSocialesHorarios() ([]EspacioSocialHorarioDTO, error) {
 	query := "call ingesoft.listarEspaciosSocialesHorarios()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
