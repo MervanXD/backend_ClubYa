@@ -9,16 +9,16 @@ import (
 )
 
 type EventoRequest struct {
-	Nombre      string  `json:"nombre"`
-	Descripcion string  `json:"descripcion"`
-	Fecha       string  `json:"fecha"`
-	Aforo       int     `json:"aforo"`
-	Invitados   int     `json:"invitados"`
-	Precio      float64 `json:"precio"`
-	HoraInicio  string  `json:"hora_inicio"`
-	HoraFin     string  `json:"hora_fin"`
-	NroInscritos string `json:"nro_inscritos"`
-	IdEspacio   int     `json:"id_espacio"`
+	Nombre       string  `json:"nombre"`
+	Descripcion  string  `json:"descripcion"`
+	Fecha        string  `json:"fecha"`
+	Aforo        int     `json:"aforo"`
+	Invitados    int     `json:"invitados"`
+	Precio       float64 `json:"precio"`
+	HoraInicio   string  `json:"hora_inicio"`
+	HoraFin      string  `json:"hora_fin"`
+	NroInscritos int     `json:"nro_inscritos"`
+	IdEspacio    int     `json:"id_espacio"`
 }
 
 func ListarEventos() ([]Evento, error) {
@@ -34,7 +34,7 @@ func ListarEventos() ([]Evento, error) {
 		var e Evento
 		var horaInicio string
 		var horaFin string
-		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Precio, &e.Fecha, &horaInicio, &horaFin, &e.Imagen, &e.NroInscritos); err != nil {
+		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Fecha, &e.Aforo, &e.Invitados, &e.Precio, &e.Imagen, &horaInicio, &horaFin, &e.NroInscritos); err != nil {
 			logs.Logger.Println("Error al escanear evento: ", err)
 			return nil, err
 		}
@@ -95,6 +95,7 @@ func BuscarEventoPorID(id int) (*Evento, error) {
 }
 
 func InsertarEvento(req EventoRequest) (int, error) {
+
 	fecha, err := time.Parse("2006-01-02", req.Fecha)
 	if err != nil {
 		return -1, errors.New("formato de fecha inválido, se esperaba YYYY-MM-DD")
@@ -110,7 +111,7 @@ func InsertarEvento(req EventoRequest) (int, error) {
 		return -1, errors.New("formato de hora de fin inválido, se esperaba HH:MM:SS")
 	}
 
-	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@p_idEvento)"
+	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@p_idEvento)"
 	_, err = database.DB.Exec(query,
 		req.Nombre,
 		req.Descripcion,
@@ -120,8 +121,8 @@ func InsertarEvento(req EventoRequest) (int, error) {
 		req.Precio,
 		horaInicio.Format("15:04:05"),
 		horaFin.Format("15:04:05"),
-		req.NroInscritos,
 		req.IdEspacio,
+		req.NroInscritos,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al ejecutar SP InsertarEvento:", err)
