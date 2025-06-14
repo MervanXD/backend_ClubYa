@@ -10,4 +10,5 @@ type TarifaAcademia struct {
 	TipoSocio           tipos.TipoSocio           `json:"tipo_socio"`
 	Monto               float64                   `json:"monto"`
 	EsActiva            bool                      `json:"es_activa"`
+	IDGrupo             int                       `json:"fid_grupo"`
 }

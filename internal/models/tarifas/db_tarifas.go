@@ -5,9 +5,9 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ObtenerTarifasAcademiaPorId(idAcademia int) ([]TarifaAcademia, error) {
+func ObtenerTarifasAcademiaPorId(idGrupoAcademia int) ([]TarifaAcademia, error) {
 	tarifaQuery := "call ingesoft.listarTarifasAcademia(?)"
-	rows, err := database.DB.Query(tarifaQuery, idAcademia)
+	rows, err := database.DB.Query(tarifaQuery, idGrupoAcademia)
 	if err != nil {
 		logs.Logger.Println("Error al obtener las tarifas de la academia:", err)
 		return nil, err
