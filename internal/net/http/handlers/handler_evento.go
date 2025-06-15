@@ -62,3 +62,45 @@ func CrearEvento(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Evento creado con éxito", idEvento))
 }
+
+func ModificarEvento(c *fiber.Ctx) error {
+    var eventoData evento.EventoRequest
+
+    idStr := c.Params("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil || id <= 0 {
+        logs.Logger.Println("ID de evento inválido:", idStr)
+        return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de evento inválido", nil))
+    }
+
+    if err := c.BodyParser(&eventoData); err != nil {
+        logs.Logger.Println("Error al parsear el cuerpo de la solicitud:", err)
+        return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear los datos del evento", nil))
+    }
+
+    eventoData.IdEvento = id
+
+    if err := evento.ModificarEvento(eventoData); err != nil {
+        logs.Logger.Println("Error al modificar el evento:", err)
+        return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al modificar el evento", nil))
+    }
+
+    return c.Status(fiber.StatusOK).JSON(models.Succes("Evento modificado con éxito", nil))
+}
+
+func CancelarEvento(c *fiber.Ctx) error {
+    idStr := c.Params("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        logs.Logger.Println("Error al convertir id a entero:", err)
+        return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+    }
+
+    if err := evento.CancelarEvento(id); err != nil {
+        logs.Logger.Println("Error al cancelar el evento:", err)
+        return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al cancelar el evento", nil))
+    }
+
+    return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
+}
+

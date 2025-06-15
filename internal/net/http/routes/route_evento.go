@@ -9,6 +9,7 @@ func RutasEvento(api fiber.Router) {
 	api.Post("/evento", handlers.CrearEvento)
 	api.Get("/eventos", handlers.ListarEventos)
 	api.Get("/eventos/:id", handlers.ObtenerEventoPorId)
-	//app.Put("/eventos/:id", handlers.ActualizarEvento)
-	//app.Delete("/eventos/:id", handlers.EliminarEvento)
+	api.Put("/eventos/:id", handlers.ModificarEvento)
+	api.Put("/evento/cancelar/:id", handlers.CancelarEvento)
+
 }
