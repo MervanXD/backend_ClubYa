@@ -5,7 +5,9 @@ import (
 	"strconv"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
+	bloqueTiempo "github.com/MervanXD/backend_ClubYa/internal/models/bloque_tiempo"
 	"github.com/MervanXD/backend_ClubYa/internal/models/espacio"
+	"github.com/MervanXD/backend_ClubYa/internal/models/horario"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/gofiber/fiber/v2"
 )
@@ -103,7 +105,40 @@ func ListarEspaciosSocialesConfiguracion(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Espacios sociales obtenidos con éxito", espacios))
 }
 
+func ListarDisponibilidadEspacioSocial(c *fiber.Ctx) error {
+	var requests DisponibilidadEspacioRequest
+
+	if err := c.BodyParser(&requests); err != nil {
+		logs.Logger.Println("Error al parsear el body:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
+	}
+	repo := horario.NewHorarioDiaRepositoryDB()
+	horarios, err := repo.ObtenerInscritosEspacioSocialFecha(requests.IdEspacio, requests.FechaActual)
+	if err != nil {
+		logs.Logger.Println("Error al obtener la disponibilidad del espacio social de la fecha: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la disponibilidad del espacio social de la fecha:", nil))
+	}
+
+	repo2 := bloqueTiempo.NewBloqueTiempoRepositoryDB()
+	bloques, err := repo2.ObtenerBloquesTiempoEspacio(requests.IdEspacio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los bloques de tiempo ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los bloques de tiempo", nil))
+	}
+
+	var disponibilidades DisponibilidadEspacio
+	disponibilidades.HorariosDias = horarios
+	disponibilidades.Bloques = bloques
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Todas la información de disponibilidad de el espacio fue obtenido con éxito", disponibilidades))
+}
+
 type DisponibilidadEspacioRequest struct {
 	IdEspacio   int    `json:"id_espacio"`
 	FechaActual string `json:"fecha_actual"`
+}
+
+type DisponibilidadEspacio struct {
+	HorariosDias []horario.HorarioDiaDTO     `json:"horariosDia"`
+	Bloques      []bloqueTiempo.BloqueTiempo `json:"bloquesTiempo"`
 }
