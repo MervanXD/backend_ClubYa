@@ -8,6 +8,8 @@ import (
 
 type InscripcionEvento struct {
 	IdInscripcionEvento int          `json:"id_inscripcion_evento"`
+	IdEvento            int          `json:"id_evento"`
+	IdSocio             int          `json:"id_socio"`
 	FechaInscripcion    time.Time    `json:"fecha_inscripcion"`
 	HoraInscripcion     time.Time    `json:"hora_inscripcion"`
 	Estado              tipos.Estado `json:"estado"`

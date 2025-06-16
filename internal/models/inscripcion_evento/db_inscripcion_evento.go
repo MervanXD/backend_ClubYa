@@ -1,6 +1,9 @@
 package inscripcion_evento
 
 import (
+	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -59,4 +62,27 @@ func (r *inscripcionEventoRepositoryDB) ObtenerEventosSocio(idSocio int) ([]Insc
 		eventos = append(eventos, evento)
 	}
 	return eventos, nil
+}
+
+func (r *inscripcionEventoRepositoryDB) AnularInscripcion(idInscripcionEvento int, motivo string) error {
+	query := "CALL AnularInscripcionEvento(?, ?, @errorMsg)"
+	_, err := database.DB.Exec(query, idInscripcionEvento, motivo)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedimiento almacenado: ", err)
+		return fmt.Errorf("error al ejecutar el procedimiento: %w", err)
+	}
+
+	var errorMsg sql.NullString
+	err = database.DB.QueryRow("SELECT @errorMsg").Scan(&errorMsg)
+	if err != nil {
+		logs.Logger.Println("Error al leer la variable @errorMsg: ", err)
+		return fmt.Errorf("error al leer variable de salida: %w", err)
+	}
+
+	if errorMsg.Valid {
+		logs.Logger.Println("Error de negocio desde el procedimiento: ", errorMsg.String)
+		return errors.New(errorMsg.String)
+	}
+
+	return nil
 }
