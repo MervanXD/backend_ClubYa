@@ -17,3 +17,14 @@ func ListarCanchasHorarios(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Horarios de lozas deportivas obtenidos con éxito", horariosCanchas))
 }
+
+func ListarCanchasConfiguracion(c *fiber.Ctx) error {
+	repo := espacio.NewCanchaRepositoryDB()
+	canchas, err := repo.ObtenerCanchasConfiguracion()
+	if err != nil {
+		logs.Logger.Println("Error al obtener las canchas: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las canchas", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Canchas obtenidos con éxito", canchas))
+}

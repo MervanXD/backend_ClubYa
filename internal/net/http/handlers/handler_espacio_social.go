@@ -6,6 +6,7 @@ import (
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	bloqueTiempo "github.com/MervanXD/backend_ClubYa/internal/models/bloque_tiempo"
+	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
 	"github.com/MervanXD/backend_ClubYa/internal/models/espacio"
 	"github.com/MervanXD/backend_ClubYa/internal/models/horario"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -105,7 +106,7 @@ func ListarEspaciosSocialesConfiguracion(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Espacios sociales obtenidos con éxito", espacios))
 }
 
-func ListarDisponibilidadEspacioSocial(c *fiber.Ctx) error {
+func ListarDisponibilidadEspacio(c *fiber.Ctx) error {
 	var requests DisponibilidadEspacioRequest
 
 	if err := c.BodyParser(&requests); err != nil {
@@ -126,9 +127,17 @@ func ListarDisponibilidadEspacioSocial(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los bloques de tiempo", nil))
 	}
 
+	repo3 := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	detalles, err := repo3.ObtenerDetalleDisponibilidadEspacioSocialFechaId(requests.IdEspacio, requests.FechaActual)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los detalles del espacio ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los detalles del espacio", nil))
+	}
 	var disponibilidades DisponibilidadEspacio
 	disponibilidades.HorariosDias = horarios
+
 	disponibilidades.Bloques = bloques
+	disponibilidades.DetallesDisponibilidad = detalles
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Todas la información de disponibilidad de el espacio fue obtenido con éxito", disponibilidades))
 }
@@ -139,6 +148,7 @@ type DisponibilidadEspacioRequest struct {
 }
 
 type DisponibilidadEspacio struct {
-	HorariosDias []horario.HorarioDiaDTO     `json:"horariosDia"`
-	Bloques      []bloqueTiempo.BloqueTiempo `json:"bloquesTiempo"`
+	HorariosDias           []horario.HorarioDiaDTO                       `json:"horariosDia"`
+	Bloques                []bloqueTiempo.BloqueTiempo                   `json:"bloquesTiempo"`
+	DetallesDisponibilidad []detalledisponibilidad.DetalleDisponibilidad `json:"detalleDisponibilidad"`
 }
