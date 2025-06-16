@@ -8,5 +8,6 @@ import (
 func RutasCancha(api fiber.Router) {
 
 	api.Get("/canchas-horarios", handlers.ListarCanchasHorarios)
-	
+	api.Get("/canchas-configuracion", handlers.ListarCanchasConfiguracion)
+	api.Get("/canchas-disponibilidad-configuracion", handlers.ListarDisponibilidadEspacio)
 }

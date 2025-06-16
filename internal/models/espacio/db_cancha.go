@@ -11,7 +11,7 @@ func NewCanchaRepositoryDB() CanchaRepository {
 	return &canchaRespositoryDB{}
 }
 
-func(r *canchaRespositoryDB) ObtenerCanchasHorarios() ([]CanchaHorarioDTO, error) {
+func (r *canchaRespositoryDB) ObtenerCanchasHorarios() ([]CanchaHorarioDTO, error) {
 	query := "call ingesoft.listarCanchasHorarios()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -31,4 +31,25 @@ func(r *canchaRespositoryDB) ObtenerCanchasHorarios() ([]CanchaHorarioDTO, error
 		canchasHorarios = append(canchasHorarios, es)
 	}
 	return canchasHorarios, nil
+}
+
+func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
+	query := "call ingesoft.ListarCanchasConfiguracion()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener las canchas: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var canchas []Cancha
+	for rows.Next() {
+		var cancha Cancha
+		//var actividad string
+		if err := rows.Scan(&cancha.Id, &cancha.Nombre, &cancha.Codigo, &cancha.Deporte); err != nil {
+			logs.Logger.Println("Error al escanear la cancha: ", err)
+			return nil, err
+		}
+		canchas = append(canchas, cancha)
+	}
+	return canchas, nil
 }
