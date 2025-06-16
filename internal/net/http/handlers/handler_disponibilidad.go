@@ -41,3 +41,20 @@ func ObtenerDisponibilidadEspacioSocialPorId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener el espacio social", espacio))
 }
+
+func ActualizarDetalleDisponibilidad(c *fiber.Ctx) error {
+	var detalleDisponibilidad detalledisponibilidad.DetalleDisponibilidad
+	if err := c.BodyParser(&detalleDisponibilidad); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	err := repo.ActualizarEstadoDetalleDisponibilidad(detalleDisponibilidad.IdHorarioDia, detalleDisponibilidad.IdBloqueTiempo, detalleDisponibilidad.EstadoDisponibilidad.String())
+	if err != nil {
+		logs.Logger.Println("Error al actualizar el detalle de disponibilidad: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al actualizar el detalle de disponibilidad", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Detalle de disponibilidad actualizado correctamente", nil))
+}
