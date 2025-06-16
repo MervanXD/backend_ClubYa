@@ -8,5 +8,7 @@ import (
 func RutasCancha(api fiber.Router) {
 
 	api.Get("/canchas-horarios", handlers.ListarCanchasHorarios)
+	api.Post("/canchas", handlers.InsertarCancha)
+	api.Patch("/canchas/:id", handlers.ActualizarCancha)
 	
 }

@@ -27,7 +27,7 @@ func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) err
 		es.Reglamento,
 		es.Imagen,
 		0,
-		es.Actividad,
+		es.Actividad.String(),
 		es.DuracionBloque)
 	if err != nil {
 		logs.Logger.Println("Error al insertar espacio social: ", err)
