@@ -45,7 +45,9 @@ func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
 	for rows.Next() {
 		var cancha Cancha
 		//var actividad string
-		if err := rows.Scan(&cancha.Id, &cancha.Nombre, &cancha.Codigo, &cancha.Deporte); err != nil {
+		if err := rows.Scan(&cancha.Id, &cancha.Codigo, &cancha.Nombre, &cancha.Ubicacion, &cancha.Capacidad,
+			&cancha.Costo, &cancha.Reglamento, &cancha.Imagen, &cancha.EstadoEspacio, &cancha.DuracionBloque,
+			&cancha.Deporte); err != nil {
 			logs.Logger.Println("Error al escanear la cancha: ", err)
 			return nil, err
 		}
