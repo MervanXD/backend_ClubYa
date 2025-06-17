@@ -19,7 +19,7 @@ func InsertarEspacioSocial(es EspacioSocial) error {
 }
 
 func ObtenerEspaciosSociales() ([]EspacioSocial, error) {
-	query := "call ingesoft.ObtenerEspaciosSociales()"
+	query := "call ingesoft.ListarEspaciosSocialesActivosParaAdminEvento()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
 		logs.Logger.Println("Error al obtener espacios sociales: ", err)
