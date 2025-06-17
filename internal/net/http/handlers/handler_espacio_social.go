@@ -114,7 +114,7 @@ func ListarDisponibilidadEspacio(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
 	}
 	repo := horario.NewHorarioDiaRepositoryDB()
-	horarios, err := repo.ObtenerInscritosEspacioSocialFecha(requests.IdEspacio, requests.FechaActual)
+	horarios, err := repo.ObtenerInscritosEspacioFecha(requests.IdEspacio, requests.FechaActual)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la disponibilidad del espacio social de la fecha: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la disponibilidad del espacio social de la fecha:", nil))
@@ -128,7 +128,7 @@ func ListarDisponibilidadEspacio(c *fiber.Ctx) error {
 	}
 
 	repo3 := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
-	detalles, err := repo3.ObtenerDetalleDisponibilidadEspacioSocialFechaId(requests.IdEspacio, requests.FechaActual)
+	detalles, err := repo3.ObtenerDetalleDisponibilidadEspacioFechaId(requests.IdEspacio, requests.FechaActual)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los detalles del espacio ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los detalles del espacio", nil))

@@ -11,7 +11,7 @@ func NewHorarioDiaRepositoryDB() HorarioDiaRepository {
 	return &horarioDiaRepositoryDB{}
 }
 
-func (r *horarioDiaRepositoryDB) ObtenerInscritosEspacioSocialFecha(idEspacio int, fecha string) ([]HorarioDiaDTO, error) {
+func (r *horarioDiaRepositoryDB) ObtenerInscritosEspacioFecha(idEspacio int, fecha string) ([]HorarioDiaDTO, error) {
 	query := "call ingesoft.ListarInscritosHorarioDia(?,?)"
 	rows, err := database.DB.Query(query, idEspacio, fecha)
 	if err != nil {
