@@ -17,7 +17,7 @@ type InscripcionRequest struct {
 
 type AnulacionRequest struct {
 	IdInscripcionEvento int    `json:"id_inscripcion_evento" validate:"required"`
-	Motivo              string `json:"mensaje"`
+	Motivo              string `json:"motivo"`
 }
 
 func RegistrarInscripcionEvento(c *fiber.Ctx) error {
