@@ -24,9 +24,9 @@ func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) err
 		es.Ubicacion.String(),
 		es.Capacidad,
 		es.Costo,
-		es.Reglamento,
 		es.Imagen,
-		0,
+		es.Reglamento,
+		1,
 		es.Actividad,
 		es.DuracionBloque)
 	if err != nil {
@@ -111,10 +111,11 @@ func (r *espacioSocialRespositoryDB) ObtenerEspaciosSociales() ([]EspacioSocial,
 	for rows.Next() {
 		var es EspacioSocial
 		//var actividad string
-		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad); err != nil {
+		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad, &es.EstadoEspacio, &es.DuracionBloque); err != nil {
 			logs.Logger.Println("Error al escanear espacio social: ", err)
 			return nil, err
 		}
+
 		espacios = append(espacios, es)
 	}
 	return espacios, nil
