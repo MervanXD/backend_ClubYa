@@ -46,7 +46,7 @@ func (r *canchaRespositoryDB) InsertarCancha(c Cancha) error {
 		c.Costo,
 		c.Reglamento,
 		c.Imagen,
-		0,
+		1,
 		c.Deporte.String(),
 		c.DuracionBloque)
 	if err != nil {
@@ -94,7 +94,7 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 		args = append(args, *dto.DuracionBloque)
 	}
 	if dto.EstadoEspacio != nil {
-		espacioSet = append(espacioSet, "estado_espacio = ?")
+		espacioSet = append(espacioSet, "estadoEspacio = ?")
 		args = append(args, *dto.EstadoEspacio)
 	}
 
@@ -117,6 +117,7 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 	}
 
 	return nil
+}
 
 func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
 	query := "call ingesoft.ListarCanchasConfiguracion()"
