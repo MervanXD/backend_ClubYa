@@ -148,7 +148,7 @@ type DisponibilidadEspacioRequest struct {
 }
 
 type DisponibilidadEspacio struct {
-	HorariosDias           []horario.HorarioDiaDTO                       `json:"horariosDia"`
-	Bloques                []bloqueTiempo.BloqueTiempo                   `json:"bloquesTiempo"`
-	DetallesDisponibilidad []detalledisponibilidad.DetalleDisponibilidad `json:"detalleDisponibilidad"`
+	HorariosDias           []horario.HorarioDiaDTO                          `json:"horariosDia"`
+	Bloques                []bloqueTiempo.BloqueTiempo                      `json:"bloquesTiempo"`
+	DetallesDisponibilidad []detalledisponibilidad.DetalleDisponibilidadDto `json:"detalleDisponibilidad"`
 }

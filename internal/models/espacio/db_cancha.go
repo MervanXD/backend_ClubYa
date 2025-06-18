@@ -119,6 +119,7 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 	return nil
 }
 
+
 func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
 	query := "call ingesoft.ListarCanchasConfiguracion()"
 	rows, err := database.DB.Query(query)
