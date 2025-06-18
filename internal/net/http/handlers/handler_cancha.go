@@ -60,6 +60,8 @@ func ActualizarCancha(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Cancha actualizada con éxito", nil))
 }
+
+
 func ListarCanchasConfiguracion(c *fiber.Ctx) error {
 	repo := espacio.NewCanchaRepositoryDB()
 	canchas, err := repo.ObtenerCanchasConfiguracion()
