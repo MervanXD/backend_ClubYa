@@ -143,48 +143,41 @@ func InsertarEvento(req EventoRequest) (int, error) {
 }
 
 func ModificarEvento(req EventoRequest) error {
-	fecha, err := time.Parse("2006-01-02", req.Fecha)
-	if err != nil {
-		return errors.New("formato de fecha inválido, se esperaba YYYY-MM-DD")
-	}
-
-	horaInicio, err := time.Parse("15:04:05", req.HoraInicio)
-	if err != nil {
-		return errors.New("formato de hora de inicio inválido, se esperaba HH:MM:SS")
-	}
-
-	horaFin, err := time.Parse("15:04:05", req.HoraFin)
-	if err != nil {
-		return errors.New("formato de hora de fin inválido, se esperaba HH:MM:SS")
-	}
-
-	query := "CALL ModificarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err = database.DB.Exec(query,
+	
+	query := "CALL ModificarEvento(?, ?, ?, ?, ?, ?, ?)"
+	_, err := database.DB.Exec(query,
 		req.IdEvento,
 		req.Nombre,
 		req.Descripcion,
-		fecha.Format("2006-01-02"),
 		req.Aforo,
 		req.Invitados,
-		req.Precio,
-		horaInicio.Format("15:04:05"),
-		horaFin.Format("15:04:05"),
-		req.IdEspacio,
+		req.Precio,        
 		req.Estado,
 	)
 	if err != nil {
-		logs.Logger.Println("Error al ejecutar SP ModificarEvento:", err)
+		logs.Logger.Println("Error al modificar el evento:", err)
 		return err
 	}
 
 	return nil
 }
 
+
 func CancelarEvento(idEvento int) error {
 	query := "CALL CancelarEvento(?)"
 	_, err := database.DB.Exec(query, idEvento)
 	if err != nil {
-		logs.Logger.Println("Error al ejecutar el procedimiento almacenado CancelarEvento:", err)
+		logs.Logger.Println("Error al cancelar el evento:", err)
+		return err
+	}
+	return nil
+}
+
+func EliminarEvento(idEvento int) error {
+	query := "CALL EliminarEvento(?)"
+	_, err := database.DB.Exec(query, idEvento)
+	if err != nil {
+		logs.Logger.Println("Error al eliminar el evento:", err)
 		return err
 	}
 	return nil

@@ -104,3 +104,19 @@ func CancelarEvento(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
 }
 
+
+func EliminarEvento(c *fiber.Ctx) error {
+    idStr := c.Params("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        logs.Logger.Println("Error al convertir id a entero:", err)
+        return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+    }
+
+    if err := evento.EliminarEvento(id); err != nil {
+        logs.Logger.Println("Error al eliminar el evento:", err)
+        return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al cancelar el evento", nil))
+    }
+
+    return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
+}
