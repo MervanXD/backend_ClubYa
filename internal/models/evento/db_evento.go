@@ -30,7 +30,8 @@ func ListarEventos() ([]Evento, error) {
 			&e.Precio,
 			&e.Imagen,
 			&horaInicio,
-			&horaFin); err != nil {
+			&horaFin,
+			&e.NroInscritos); err != nil {
 			logs.Logger.Println("Error al escanear evento: ", err)
 			return nil, err
 		}
