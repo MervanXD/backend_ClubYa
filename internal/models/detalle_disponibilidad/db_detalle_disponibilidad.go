@@ -61,3 +61,23 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPo
 	}
 	return &res, nil
 }
+
+func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidad, error) {
+	query := "call ingesoft.ListarDetalleDisponibilidad(?,?)"
+	rows, err := database.DB.Query(query, idEspacio, fecha)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los de detalles tiempo: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var detalles []DetalleDisponibilidad
+	for rows.Next() {
+		var dp DetalleDisponibilidad
+		if err := rows.Scan(&dp.IdHorarioDia, &dp.IdBloqueTiempo, &dp.EstadoDisponibilidad); err != nil {
+			logs.Logger.Println("Error al escanear el detalle: ", err)
+			return nil, err
+		}
+		detalles = append(detalles, dp)
+	}
+	return detalles, nil
+}

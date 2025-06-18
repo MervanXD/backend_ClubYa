@@ -20,7 +20,18 @@ func ListarEventos() ([]Evento, error) {
 		var e Evento
 		var horaInicio string
 		var horaFin string
-		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Precio, &e.Fecha, &horaInicio, &horaFin, &e.Imagen); err != nil {
+		if err := rows.Scan(
+			&e.IdEvento,
+			&e.Nombre,
+			&e.Descripcion,
+			&e.Fecha,
+			&e.Aforo,
+			&e.Invitados,
+			&e.Precio,
+			&e.Imagen,
+			&horaInicio,
+			&horaFin,
+			&e.NroInscritos); err != nil {
 			logs.Logger.Println("Error al escanear evento: ", err)
 			return nil, err
 		}
@@ -59,6 +70,7 @@ func BuscarEventoPorID(id int) (*Evento, error) {
 		&e.Reglamento,
 		&horaInicioStr,
 		&horaFinStr,
+		&e.NroInscritos,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al buscar evento por ID: ", err)

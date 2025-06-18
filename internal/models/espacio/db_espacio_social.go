@@ -24,9 +24,9 @@ func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) err
 		es.Ubicacion.String(),
 		es.Capacidad,
 		es.Costo,
-		es.Reglamento,
 		es.Imagen,
-		0,
+		es.Reglamento,
+		1,
 		es.Actividad.String(),
 		es.DuracionBloque)
 	if err != nil {
@@ -36,7 +36,7 @@ func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) err
 	return nil
 }
 
-func(r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialUpdateDTO) error {
+func (r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialUpdateDTO) error {
 	// ---------- Actualiza tabla Espacio ----------
 	espacioSet := []string{}
 	args := []interface{}{}
@@ -86,7 +86,7 @@ func(r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialU
 			return fmt.Errorf("error actualizando espacio: %w", err)
 		}
 	}
-	
+
 	// ---------- Actualiza tabla EspacioSocial ----------
 	if dto.Actividad != nil {
 		query := "UPDATE EspacioSocial SET actividad = ? WHERE fid_Espacio = ?"
@@ -95,7 +95,7 @@ func(r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialU
 			return fmt.Errorf("error actualizando actividad: %w", err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -111,10 +111,11 @@ func (r *espacioSocialRespositoryDB) ObtenerEspaciosSociales() ([]EspacioSocial,
 	for rows.Next() {
 		var es EspacioSocial
 		//var actividad string
-		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad); err != nil {
+		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad, &es.EstadoEspacio, &es.DuracionBloque); err != nil {
 			logs.Logger.Println("Error al escanear espacio social: ", err)
 			return nil, err
 		}
+
 		espacios = append(espacios, es)
 	}
 	return espacios, nil
@@ -155,4 +156,25 @@ func (r *espacioSocialRespositoryDB) ObtenerEspaciosSocialesHorarios() ([]Espaci
 		espaciosHorarios = append(espaciosHorarios, es)
 	}
 	return espaciosHorarios, nil
+}
+
+func (r *espacioSocialRespositoryDB) ObtenerEspaciosSocialesConfiguracion() ([]EspacioSocial, error) {
+	query := "call ingesoft.ListarEspaciosSocialesConfiguracion()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener espacios sociales: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var espacios []EspacioSocial
+	for rows.Next() {
+		var es EspacioSocial
+		//var actividad string
+		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Actividad); err != nil {
+			logs.Logger.Println("Error al escanear espacio social: ", err)
+			return nil, err
+		}
+		espacios = append(espacios, es)
+	}
+	return espacios, nil
 }

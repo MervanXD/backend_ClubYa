@@ -117,4 +117,27 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 	}
 
 	return nil
+
+func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
+	query := "call ingesoft.ListarCanchasConfiguracion()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener las canchas: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var canchas []Cancha
+	for rows.Next() {
+		var cancha Cancha
+		//var actividad string
+		if err := rows.Scan(&cancha.Id, &cancha.Codigo, &cancha.Nombre, &cancha.Ubicacion, &cancha.Capacidad,
+			&cancha.Costo, &cancha.Reglamento, &cancha.Imagen, &cancha.EstadoEspacio, &cancha.DuracionBloque,
+			&cancha.Deporte); err != nil {
+			logs.Logger.Println("Error al escanear la cancha: ", err)
+			return nil, err
+		}
+		canchas = append(canchas, cancha)
+	}
+	return canchas, nil
+
 }
