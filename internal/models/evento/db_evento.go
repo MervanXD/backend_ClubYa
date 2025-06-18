@@ -76,6 +76,7 @@ func BuscarEventoPorID(id int) (*Evento, error) {
 		&horaInicioStr,
 		&horaFinStr,
 		&e.NroInscritos,
+		&e.Estado,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al buscar evento por ID: ", err)
@@ -143,7 +144,7 @@ func InsertarEvento(req EventoRequest) (int, error) {
 }
 
 func ModificarEvento(req EventoRequest) error {
-	
+
 	query := "CALL ModificarEvento(?, ?, ?, ?, ?, ?, ?)"
 	_, err := database.DB.Exec(query,
 		req.IdEvento,
@@ -151,7 +152,7 @@ func ModificarEvento(req EventoRequest) error {
 		req.Descripcion,
 		req.Aforo,
 		req.Invitados,
-		req.Precio,        
+		req.Precio,
 		req.Estado,
 	)
 	if err != nil {
@@ -161,7 +162,6 @@ func ModificarEvento(req EventoRequest) error {
 
 	return nil
 }
-
 
 func CancelarEvento(idEvento int) error {
 	query := "CALL CancelarEvento(?)"
