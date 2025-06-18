@@ -62,7 +62,7 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPo
 	return &res, nil
 }
 
-func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioSocialFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidad, error) {
+func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidad, error) {
 	query := "call ingesoft.ListarDetalleDisponibilidad(?,?)"
 	rows, err := database.DB.Query(query, idEspacio, fecha)
 	if err != nil {
