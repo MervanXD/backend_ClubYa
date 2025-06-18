@@ -12,6 +12,42 @@ type CanchaRepository struct {
 	mock.Mock
 }
 
+// ActualizarParcial provides a mock function with given fields: id, dto
+func (_m *CanchaRepository) ActualizarParcial(id int, dto espacio.CanchaUpdateDTO) error {
+	ret := _m.Called(id, dto)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ActualizarParcial")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, espacio.CanchaUpdateDTO) error); ok {
+		r0 = rf(id, dto)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// InsertarCancha provides a mock function with given fields: c
+func (_m *CanchaRepository) InsertarCancha(c espacio.Cancha) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InsertarCancha")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(espacio.Cancha) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // ObtenerCanchasHorarios provides a mock function with no fields
 func (_m *CanchaRepository) ObtenerCanchasHorarios() ([]espacio.CanchaHorarioDTO, error) {
 	ret := _m.Called()
