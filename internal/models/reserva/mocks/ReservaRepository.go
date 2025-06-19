@@ -90,6 +90,36 @@ func (_m *ReservaRepository) ObtenerReservasEspaciosSocialesSocio(idSocio int) (
 	return r0, r1
 }
 
+// ObtenerReservasPorEspacio provides a mock function with given fields: idEspacio
+func (_m *ReservaRepository) ObtenerReservasPorEspacio(idEspacio int) ([]reserva.ReservaRequest, error) {
+	ret := _m.Called(idEspacio)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerReservasPorEspacio")
+	}
+
+	var r0 []reserva.ReservaRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) ([]reserva.ReservaRequest, error)); ok {
+		return rf(idEspacio)
+	}
+	if rf, ok := ret.Get(0).(func(int) []reserva.ReservaRequest); ok {
+		r0 = rf(idEspacio)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]reserva.ReservaRequest)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(idEspacio)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ReservarEspacio provides a mock function with given fields: idEspacio, idHorarioDia, idBloqueTiempo
 func (_m *ReservaRepository) ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) error {
 	ret := _m.Called(idEspacio, idHorarioDia, idBloqueTiempo)

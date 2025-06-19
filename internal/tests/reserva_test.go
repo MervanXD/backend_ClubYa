@@ -1,12 +1,14 @@
 package tests
 
 import (
+	"database/sql"
 	"testing"
 
 	"github.com/MervanXD/backend_ClubYa/internal/models/espacio"
 	"github.com/MervanXD/backend_ClubYa/internal/models/reserva"
 	"github.com/MervanXD/backend_ClubYa/internal/models/reserva/mocks"
 	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -169,6 +171,52 @@ func TestObtenerReservasCanchasSocio_Error(t *testing.T) {
 	mockRepo.On("ObtenerReservasCanchasSocio", 1).Return(nil, assert.AnError)
 
 	result, err := mockRepo.ObtenerReservasCanchasSocio(1)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestObtenerReservasPorEspacio_OK(t *testing.T) {
+	mockRepo := new(mocks.ReservaRepository)
+	expected := []reserva.ReservaRequest{
+		{
+			IdReserva:        1,
+			NombreSocio:      "Juan Pérez",
+			FechaReserva:     utils.NullString{NullString: sql.NullString{String: "2024-06-20", Valid: true}},
+			HoraInicio:       utils.NullString{NullString: sql.NullString{String: "10:00", Valid: true}},
+			HoraFin:          utils.NullString{NullString: sql.NullString{String: "11:00", Valid: true}},
+			Estado:           tipos.Estado(0),
+			AnulacionReserva: nil,
+		},
+		{
+			IdReserva:    2,
+			NombreSocio:  "Ana López",
+			FechaReserva: utils.NullString{NullString: sql.NullString{String: "2024-06-21", Valid: true}},
+			HoraInicio:   utils.NullString{NullString: sql.NullString{String: "12:00", Valid: true}},
+			HoraFin:      utils.NullString{NullString: sql.NullString{String: "13:00", Valid: true}},
+			Estado:       tipos.Estado(1),
+			AnulacionReserva: &reserva.AnulacionReserva{
+				Id:     1,
+				Fecha:  utils.NullString{NullString: sql.NullString{String: "2024-06-21", Valid: true}},
+				Motivo: utils.NullString{NullString: sql.NullString{String: "Motivo de anulacion", Valid: true}},
+			},
+		},
+	}
+	mockRepo.On("ObtenerReservasPorEspacio", 1).Return(expected, nil)
+
+	result, err := mockRepo.ObtenerReservasPorEspacio(1)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expected, result)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestObtenerReservasPorEspacio_Error(t *testing.T) {
+	mockRepo := new(mocks.ReservaRepository)
+	mockRepo.On("ObtenerReservasPorEspacio", 1).Return(nil, assert.AnError)
+
+	result, err := mockRepo.ObtenerReservasPorEspacio(1)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)

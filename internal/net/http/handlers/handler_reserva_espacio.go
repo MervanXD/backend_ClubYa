@@ -114,3 +114,20 @@ func ListarCanchasSocio(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener la loza deportiva", canchaReserva))
 }
+
+func ListarReservasPorEspacio(c *fiber.Ctx) error {
+	idStr := c.Params("idEspacio")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
+	}
+	repo := reserva.NewReservaRepositoryDB()
+	reservas, err := repo.ObtenerReservasPorEspacio(id)
+	if err != nil {
+		logs.Logger.Println("Error al obtener las reservas del espacio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener las reservas del espacio", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener las reservas del espacio", reservas))
+}

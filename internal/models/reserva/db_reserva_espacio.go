@@ -100,3 +100,38 @@ func (r *reservaRepositoryDB) ObtenerReservasCanchasSocio(idSocio int) ([]Reserv
 	}
 	return reservasSocio, nil
 }
+
+func (r *reservaRepositoryDB) ObtenerReservasPorEspacio(idEspacio int) ([]ReservaRequest, error) {
+	query := "call ingesoft.ListarReservasPorEspacio(?)"
+	rows, err := database.DB.Query(query, idEspacio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener las reservas del espacio: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reservas []ReservaRequest
+	for rows.Next() {
+		var reserva ReservaRequest
+		var anulacion AnulacionReserva
+		err := rows.Scan(
+			&reserva.IdReserva,
+			&reserva.NombreSocio,
+			&reserva.FechaReserva,
+			&reserva.HoraInicio,
+			&reserva.HoraFin,
+			&reserva.Estado,
+			&anulacion.Id, &anulacion.Fecha, &anulacion.Motivo, &anulacion.Devolucion,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear reserva: ", err)
+			return nil, err
+		}
+		// Si hay anulación asociada, la agregas
+		if anulacion.Id != 0 {
+			reserva.AnulacionReserva = &anulacion
+		}
+		reservas = append(reservas, reserva)
+	}
+	return reservas, nil
+}
