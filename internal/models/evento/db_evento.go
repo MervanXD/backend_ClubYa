@@ -2,6 +2,7 @@ package evento
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -10,11 +11,11 @@ import (
 
 type eventoRepositoryDB struct{}
 
-func NewEventoRepositoryDB() EventoRepository{
+func NewEventoRepositoryDB() EventoRepository {
 	return &eventoRepositoryDB{}
 }
 
-func (r *eventoRepositoryDB)ListarEventos() ([]Evento, error) {
+func (r *eventoRepositoryDB) ListarEventos() ([]Evento, error) {
 	query := "call ingesoft.ListarEventos()"
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -47,7 +48,7 @@ func (r *eventoRepositoryDB)ListarEventos() ([]Evento, error) {
 	return eventos, nil
 }
 
-func (r *eventoRepositoryDB)BuscarEventoPorID(id int) (*Evento, error) {
+func (r *eventoRepositoryDB) BuscarEventoPorID(id int) (*Evento, error) {
 	query := "CALL ObtenerEventoPorId(?)"
 	row := database.DB.QueryRow(query, id)
 
@@ -89,7 +90,7 @@ func (r *eventoRepositoryDB)BuscarEventoPorID(id int) (*Evento, error) {
 	return &e, nil
 }
 
-func (r *eventoRepositoryDB)InsertarEvento(req EventoRequest) (int, error) {
+func (r *eventoRepositoryDB) InsertarEvento(req EventoRequest) (int, error) {
 
 	fecha, err := time.Parse("2006-01-02", req.Fecha)
 	if err != nil {
@@ -134,7 +135,7 @@ func (r *eventoRepositoryDB)InsertarEvento(req EventoRequest) (int, error) {
 	return idEvento, nil
 }
 
-func (r *eventoRepositoryDB)ModificarEvento(req EventoRequest) error {
+func (r *eventoRepositoryDB) ModificarEvento(req EventoRequest) error {
 
 	query := "CALL ModificarEvento(?, ?, ?, ?, ?, ?, ?)"
 	_, err := database.DB.Exec(query,
@@ -154,7 +155,7 @@ func (r *eventoRepositoryDB)ModificarEvento(req EventoRequest) error {
 	return nil
 }
 
-func (r *eventoRepositoryDB)CancelarEvento(idEvento int) error {
+func (r *eventoRepositoryDB) CancelarEvento(idEvento int) error {
 	query := "CALL CancelarEvento(?)"
 	_, err := database.DB.Exec(query, idEvento)
 	if err != nil {
@@ -164,7 +165,7 @@ func (r *eventoRepositoryDB)CancelarEvento(idEvento int) error {
 	return nil
 }
 
-func (r *eventoRepositoryDB)EliminarEvento(idEvento int) error {
+func (r *eventoRepositoryDB) EliminarEvento(idEvento int) error {
 	query := "CALL EliminarEvento(?)"
 	_, err := database.DB.Exec(query, idEvento)
 	if err != nil {
@@ -172,4 +173,35 @@ func (r *eventoRepositoryDB)EliminarEvento(idEvento int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *eventoRepositoryDB) ListarParticipantesPorEvento(idEvento int) ([]ParticipanteRequest, error) {
+	query := "CALL ListarParticipantesPorEvento(?)"
+	rows, err := database.DB.Query(query, idEvento)
+	if err != nil {
+		return nil, fmt.Errorf("error ejecutando procedimiento: %v", err)
+	}
+	defer rows.Close()
+
+	var participantes []ParticipanteRequest
+
+	for rows.Next() {
+		var p ParticipanteRequest
+		err := rows.Scan(
+			&p.IdPersona,
+			&p.Nombres,
+			&p.Apellidos,
+			&p.Dni,
+			&p.FechaInscripcion,
+			&p.HoraInscripcion,
+			&p.EstadoInscripcion,
+			&p.CantidadInvitados,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error escaneando fila: %v", err)
+		}
+		participantes = append(participantes, p)
+	}
+
+	return participantes, nil
 }

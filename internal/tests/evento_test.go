@@ -190,3 +190,42 @@ func TestEliminarEvento_Error(t *testing.T) {
 	assert.Error(t, err)
 	mockRepo.AssertExpectations(t)
 }
+
+func TestListarParticipantesPorEvento_OK(t *testing.T) {
+	mockRepo := new(mocks.EventoRepository)
+	expected := []evento.ParticipanteRequest{
+		{
+			IdPersona:         1,
+			Nombres:           "Juan",
+			Apellidos:         "Pérez",
+			Dni:               "12345678",
+			FechaInscripcion:  "2024-06-19",
+			HoraInscripcion:   93000,
+			EstadoInscripcion: "Inscrito",
+			CantidadInvitados: 2,
+		},
+	}
+
+	mockRepo.
+		On("ListarParticipantesPorEvento", 10).
+		Return(expected, nil)
+
+	result, err := mockRepo.ListarParticipantesPorEvento(10)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expected, result)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestListarParticipantesPorEvento_Error(t *testing.T) {
+	mockRepo := new(mocks.EventoRepository)
+	mockRepo.
+		On("ListarParticipantesPorEvento", 99).
+		Return(nil, assert.AnError)
+
+	result, err := mockRepo.ListarParticipantesPorEvento(99)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	mockRepo.AssertExpectations(t)
+}
