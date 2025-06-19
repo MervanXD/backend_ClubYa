@@ -12,9 +12,9 @@ func NewInscripcionAcademiaRepositoryDB() InscripcionAcademiaRepository {
 	return &inscripcionAcademiaRepositoryDB{}
 }
 
-func (r *inscripcionAcademiaRepositoryDB) RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, uniforme int, costo_total float64, idTitular int) error {
-	query := "CALL RegistrarInscripcionAcademia(?, ?, ?,?,?,?)"
-	_, err := database.DB.Exec(query, idPersonaint, idGrupo, idTarifa, uniforme, costo_total, idTitular)
+func (r *inscripcionAcademiaRepositoryDB) RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, uniforme int, costo_total float64, idTitular int, metodoPago string) error {
+	query := "CALL RegistrarInscripcionAcademia(?, ?, ?,?,?,?,?)"
+	_, err := database.DB.Exec(query, idPersonaint, idGrupo, idTarifa, uniforme, costo_total, idTitular, metodoPago)
 	if err != nil {
 		logs.Logger.Println("Error al registrar la inscripción al evento: ", err)
 		return err
