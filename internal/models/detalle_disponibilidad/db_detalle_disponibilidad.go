@@ -38,6 +38,19 @@ func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilida
 	return nil
 }
 
+//a esta funcion no le voy a poner test pq es lo mismo que hacer lo de arriba solo que varias veces
+func ActualizarDetalleGrupo(detalles []DetalleDisponibilidad) error {
+	repo := NewDetalleDisponibilidadRepositoryDB()
+	for _, detalle := range detalles {
+		err := repo.ActualizarEstadoDetalleDisponibilidad(detalle.IdHorarioDia, detalle.IdBloqueTiempo, detalle.EstadoDisponibilidad.String())
+		if err != nil {
+			logs.Logger.Println("Error al actualizar el detalle de disponibilidad: ", err)
+			return err
+		}
+	}
+	return nil
+}
+
 type DisponibilidadEspacioResponse struct {
 	Espacio        espacio.EspacioSocial      `json:"espacio"`
 	HoraInicio     string                     `json:"hora_inicio"`
