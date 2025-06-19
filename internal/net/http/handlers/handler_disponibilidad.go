@@ -43,14 +43,13 @@ func ObtenerDisponibilidadEspacioSocialPorId(c *fiber.Ctx) error {
 }
 
 func ActualizarDetalleDisponibilidad(c *fiber.Ctx) error {
-	var detalleDisponibilidad detalledisponibilidad.DetalleDisponibilidad
-	if err := c.BodyParser(&detalleDisponibilidad); err != nil {
+	var detalles []detalledisponibilidad.DetalleDisponibilidad
+	if err := c.BodyParser(&detalles); err != nil {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 
-	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
-	err := repo.ActualizarEstadoDetalleDisponibilidad(detalleDisponibilidad.IdHorarioDia, detalleDisponibilidad.IdBloqueTiempo, detalleDisponibilidad.EstadoDisponibilidad.String())
+	err := detalledisponibilidad.ActualizarDetalleGrupo(detalles)
 	if err != nil {
 		logs.Logger.Println("Error al actualizar el detalle de disponibilidad: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al actualizar el detalle de disponibilidad", nil))
