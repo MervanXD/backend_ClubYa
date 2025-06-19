@@ -14,6 +14,24 @@ type EspacioSocialRepository struct {
 	mock.Mock
 }
 
+// ActualizarParcial provides a mock function with given fields: id, dto
+func (_m *EspacioSocialRepository) ActualizarParcial(id int, dto espacio.EspacioSocialUpdateDTO) error {
+	ret := _m.Called(id, dto)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ActualizarParcial")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, espacio.EspacioSocialUpdateDTO) error); ok {
+		r0 = rf(id, dto)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // InsertarEspacioSocial provides a mock function with given fields: es
 func (_m *EspacioSocialRepository) InsertarEspacioSocial(es espacio.EspacioSocial) error {
 	ret := _m.Called(es)
@@ -30,6 +48,36 @@ func (_m *EspacioSocialRepository) InsertarEspacioSocial(es espacio.EspacioSocia
 	}
 
 	return r0
+}
+
+// ListarEspaciosSocialesActivosAdmin provides a mock function with no fields
+func (_m *EspacioSocialRepository) ListarEspaciosSocialesActivosAdmin() ([]espacio.EspacioSocial, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListarEspaciosSocialesActivosAdmin")
+	}
+
+	var r0 []espacio.EspacioSocial
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]espacio.EspacioSocial, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []espacio.EspacioSocial); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]espacio.EspacioSocial)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // ObtenerEspacioSocialPorID provides a mock function with given fields: ctx, id
@@ -68,6 +116,36 @@ func (_m *EspacioSocialRepository) ObtenerEspaciosSociales() ([]espacio.EspacioS
 
 	if len(ret) == 0 {
 		panic("no return value specified for ObtenerEspaciosSociales")
+	}
+
+	var r0 []espacio.EspacioSocial
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]espacio.EspacioSocial, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []espacio.EspacioSocial); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]espacio.EspacioSocial)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ObtenerEspaciosSocialesConfiguracion provides a mock function with no fields
+func (_m *EspacioSocialRepository) ObtenerEspaciosSocialesConfiguracion() ([]espacio.EspacioSocial, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerEspaciosSocialesConfiguracion")
 	}
 
 	var r0 []espacio.EspacioSocial

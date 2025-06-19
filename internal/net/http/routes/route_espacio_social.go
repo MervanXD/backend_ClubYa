@@ -13,5 +13,6 @@ func RutasEspacioSocial(api fiber.Router) {
 	api.Put("/espacio-social/:id", handlers.ActualizarEspacioSocial)
 	api.Get("/espacio-social-configuracion", handlers.ListarEspaciosSocialesConfiguracion)
 	api.Post("/espacio-social-disponibilidad-configuracion", handlers.ListarDisponibilidadEspacio)
+	api.Get("/espacio-social-admin", handlers.ListarEspaciosSocialesAdmin)
 	//app.Delete("/espacio-social/:id", handlers.EliminarEspacioSocial)
 }

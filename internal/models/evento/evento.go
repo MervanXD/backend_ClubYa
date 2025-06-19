@@ -15,4 +15,5 @@ type Evento struct {
 	Imagen       []byte    `json:"imagen"`
 	Reglamento   []byte    `json:"reglamento"`
 	NroInscritos int       `json:"nro_inscritos"`
+	Estado		 int 	   `json:"estado"`	
 }

@@ -142,6 +142,17 @@ func ListarDisponibilidadEspacio(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Todas la información de disponibilidad de el espacio fue obtenido con éxito", disponibilidades))
 }
 
+func ListarEspaciosSocialesAdmin(c *fiber.Ctx) error {
+	repo := espacio.NewEspacioSocialRepositoryDB()
+	espacios, err := repo.ListarEspaciosSocialesActivosAdmin()
+	if err != nil {
+		logs.Logger.Println("Error al obtener los espacios sociales: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los espacios sociales", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Espacios sociales obtenidos con éxito", espacios))
+}
+
 type DisponibilidadEspacioRequest struct {
 	IdEspacio   int    `json:"id_espacio"`
 	FechaActual string `json:"fecha_actual"`
