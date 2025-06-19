@@ -44,11 +44,12 @@ func (r *canchaRespositoryDB) InsertarCancha(c Cancha) error {
 		c.Ubicacion.String(),
 		c.Capacidad,
 		c.Costo,
-		c.Reglamento,
 		c.Imagen,
+		c.Reglamento,
 		1,
+		c.DuracionBloque,
 		c.Deporte.String(),
-		c.DuracionBloque)
+		)
 	if err != nil {
 		logs.Logger.Println("Error al insertar espacio social: ", err)
 		return err
