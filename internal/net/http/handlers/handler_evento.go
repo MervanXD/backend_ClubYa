@@ -65,62 +65,81 @@ func CrearEvento(c *fiber.Ctx) error {
 }
 
 func ModificarEvento(c *fiber.Ctx) error {
-    var eventoData evento.EventoRequest
+	var eventoData evento.EventoRequest
 
-    idStr := c.Params("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil || id <= 0 {
-        logs.Logger.Println("ID de evento inválido:", idStr)
-        return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de evento inválido", nil))
-    }
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		logs.Logger.Println("ID de evento inválido:", idStr)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de evento inválido", nil))
+	}
 
-    if err := c.BodyParser(&eventoData); err != nil {
-        logs.Logger.Println("Error al parsear el cuerpo de la solicitud:", err)
-        return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear los datos del evento", nil))
-    }
+	if err := c.BodyParser(&eventoData); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear los datos del evento", nil))
+	}
 
-    eventoData.IdEvento = id
+	eventoData.IdEvento = id
 
 	repo := evento.NewEventoRepositoryDB()
-    if err := repo.ModificarEvento(eventoData); err != nil {
-        logs.Logger.Println("Error al modificar el evento:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al modificar el evento", nil))
-    }
+	if err := repo.ModificarEvento(eventoData); err != nil {
+		logs.Logger.Println("Error al modificar el evento:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al modificar el evento", nil))
+	}
 
-    return c.Status(fiber.StatusOK).JSON(models.Succes("Evento modificado con éxito", nil))
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Evento modificado con éxito", nil))
 }
 
 func CancelarEvento(c *fiber.Ctx) error {
-    idStr := c.Params("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        logs.Logger.Println("Error al convertir id a entero:", err)
-        return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
-    }
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir id a entero:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
 
 	repo := evento.NewEventoRepositoryDB()
-    if err := repo.CancelarEvento(id); err != nil {
-        logs.Logger.Println("Error al cancelar el evento:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al cancelar el evento", nil))
-    }
+	if err := repo.CancelarEvento(id); err != nil {
+		logs.Logger.Println("Error al cancelar el evento:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al cancelar el evento", nil))
+	}
 
-    return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
 }
 
-
 func EliminarEvento(c *fiber.Ctx) error {
-    idStr := c.Params("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        logs.Logger.Println("Error al convertir id a entero:", err)
-        return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
-    }
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir id a entero:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
 
 	repo := evento.NewEventoRepositoryDB()
-    if err := repo.EliminarEvento(id); err != nil {
-        logs.Logger.Println("Error al eliminar el evento:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al cancelar el evento", nil))
-    }
+	if err := repo.EliminarEvento(id); err != nil {
+		logs.Logger.Println("Error al eliminar el evento:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al cancelar el evento", nil))
+	}
 
-    return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Evento cancelado con éxito", nil))
+}
+
+func ListarParticipantesEvento(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	idEvento, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "ID de evento inválido",
+		})
+	}
+
+	repo := evento.NewEventoRepositoryDB()
+	participantes, err := repo.ListarParticipantesPorEvento(idEvento)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Error al obtener participantes",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Participantes del evento listados con exito", participantes))
 }

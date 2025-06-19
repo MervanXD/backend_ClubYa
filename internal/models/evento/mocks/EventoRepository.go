@@ -136,6 +136,36 @@ func (_m *EventoRepository) ListarEventos() ([]evento.Evento, error) {
 	return r0, r1
 }
 
+// ListarParticipantesPorEvento provides a mock function with given fields: idEvento
+func (_m *EventoRepository) ListarParticipantesPorEvento(idEvento int) ([]evento.ParticipanteRequest, error) {
+	ret := _m.Called(idEvento)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListarParticipantesPorEvento")
+	}
+
+	var r0 []evento.ParticipanteRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) ([]evento.ParticipanteRequest, error)); ok {
+		return rf(idEvento)
+	}
+	if rf, ok := ret.Get(0).(func(int) []evento.ParticipanteRequest); ok {
+		r0 = rf(idEvento)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]evento.ParticipanteRequest)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(idEvento)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ModificarEvento provides a mock function with given fields: req
 func (_m *EventoRepository) ModificarEvento(req evento.EventoRequest) error {
 	ret := _m.Called(req)
