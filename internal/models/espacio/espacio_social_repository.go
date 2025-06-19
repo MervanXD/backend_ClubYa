@@ -9,4 +9,5 @@ type EspacioSocialRepository interface {
 	ObtenerEspaciosSocialesHorarios() ([]EspacioSocialHorarioDTO, error)
 	ActualizarParcial(id int, dto EspacioSocialUpdateDTO) error
 	ObtenerEspaciosSocialesConfiguracion() ([]EspacioSocial, error)
+	ListarEspaciosSocialesActivosAdmin() ([]EspacioSocial, error)
 }

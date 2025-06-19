@@ -178,3 +178,25 @@ func (r *espacioSocialRespositoryDB) ObtenerEspaciosSocialesConfiguracion() ([]E
 	}
 	return espacios, nil
 }
+
+func (r *espacioSocialRespositoryDB) ListarEspaciosSocialesActivosAdmin() ([]EspacioSocial, error) {
+	query := "call ingesoft.ListarEspaciosSocialesActivosParaAdminEvento()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener espacios sociales: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var espacios []EspacioSocial
+	for rows.Next() {
+		var es EspacioSocial
+		//var actividad string
+		if err := rows.Scan(&es.Id, &es.Nombre, &es.Codigo, &es.Ubicacion, &es.Capacidad, &es.Costo, &es.Imagen, &es.Reglamento, &es.Actividad); err != nil {
+			logs.Logger.Println("Error al escanear espacio social: ", err)
+			return nil, err
+		}
+
+		espacios = append(espacios, es)
+	}
+	return espacios, nil
+}
