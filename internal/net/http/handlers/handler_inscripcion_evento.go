@@ -20,6 +20,14 @@ type AnulacionRequest struct {
 	Motivo              string `json:"motivo"`
 }
 
+type PagoInscripcionRequest struct {
+	IdPersona  int     `json:"id_persona" validate:"required"`
+	IdEvento   int     `json:"id_evento" validate:"required"`
+	Concepto   string  `json:"concepto" validate:"required"`
+	MetodoPago string  `json:"metodo" validate:"required"`
+	Monto      float64 `json:"monto" validate:"required"`
+}
+
 func RegistrarInscripcionEvento(c *fiber.Ctx) error {
 	var requests []InscripcionRequest
 
@@ -78,4 +86,26 @@ func AnularInscripcionEvento(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inscripción anulada exitosamente", nil))
+}
+
+func PagarInscripcionEvento(c *fiber.Ctx) error {
+	var request PagoInscripcionRequest
+
+	if err := c.BodyParser(&request); err != nil {
+		logs.Logger.Println("Error al parsear el body:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
+	}
+
+	if request.IdPersona == 0 || request.IdEvento == 0 || request.Concepto == "" || request.MetodoPago == "" || request.Monto <= 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos de pago inválidos", nil))
+	}
+
+	repo := inscripcion_evento.NewInscripcionEventoRepositoryDB()
+	idPago, err := repo.PagarInscripcion(request.IdPersona, request.IdEvento, request.Concepto, request.MetodoPago, request.Monto)
+	if err != nil {
+		logs.Logger.Printf("Error al procesar el pago de inscripción: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo procesar el pago de inscripción", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Pago de inscripción procesado exitosamente", map[string]int{"id_pago": idPago}))
 }
