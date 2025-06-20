@@ -7,4 +7,5 @@ type ReservaRepository interface {
 	ObtenerReservasEspaciosSocialesSocio(idSocio int) ([]ReservaEspacioSocialRequest, error)
 	ObtenerReservasCanchasSocio(idSocio int) ([]ReservaCanchaRequest, error)
 	ObtenerReservasPorEspacio(idEspacio int) ([]ReservaRequest, error)
+	AceptarDevolucionAnulacionReserva(AnulacionReservaRequest) error
 }

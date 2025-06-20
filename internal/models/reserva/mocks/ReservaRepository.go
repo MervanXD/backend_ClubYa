@@ -12,6 +12,24 @@ type ReservaRepository struct {
 	mock.Mock
 }
 
+// AceptarDevolucionAnulacionReserva provides a mock function with given fields: _a0
+func (_m *ReservaRepository) AceptarDevolucionAnulacionReserva(_a0 reserva.AnulacionReservaRequest) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AceptarDevolucionAnulacionReserva")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(reserva.AnulacionReservaRequest) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // AnulacionReservaEspacioSocial provides a mock function with given fields: idReserva, idEspacio, idHorarioDia, idBloque, motivo
 func (_m *ReservaRepository) AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia int, idBloque int, motivo string) error {
 	ret := _m.Called(idReserva, idEspacio, idHorarioDia, idBloque, motivo)

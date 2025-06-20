@@ -1,9 +1,11 @@
 package reserva
 
 import (
+	"fmt"
 	"github.com/MervanXD/backend_ClubYa/database"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
 	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+	servicios "github.com/MervanXD/backend_ClubYa/internal/services"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -134,4 +136,33 @@ func (r *reservaRepositoryDB) ObtenerReservasPorEspacio(idEspacio int) ([]Reserv
 		reservas = append(reservas, reserva)
 	}
 	return reservas, nil
+}
+
+func (r *reservaRepositoryDB) AceptarDevolucionAnulacionReserva(anulacion AnulacionReservaRequest) error {
+	query := "call ingesoft.AceptarDevolucionAnulacionReserva(?, ?, ?, @p_correo)"
+	_, err := database.DB.Exec(query, anulacion.IdReserva, anulacion.IdAnulacion, anulacion.PorcentajeDevolucion)
+	if err != nil {
+		logs.Logger.Println("Error al aceptar la devolución de la anulación de reserva: ", err)
+		return err
+	}
+	// Recupera el valor del parámetro de salida
+	var correo string
+	row := database.DB.QueryRow("SELECT @p_correo")
+	if err := row.Scan(&correo); err != nil {
+		logs.Logger.Println("Error al obtener el correo de salida: ", err)
+		return err
+	}
+	//Mandamos un correo de confirmacion al socio
+	if correo != "" {
+		err = servicios.EnviarCorreo([]string{correo},// destinatario
+			"Confirmación de devolución de anulación de reserva",// asunto
+			// cuerpo del mensaje
+			"Su solicitud de devolución por anulación de reserva ha sido aceptada. El porcentaje de devolución es: "+fmt.Sprintf("%.2f", anulacion.PorcentajeDevolucion)+"%.")
+		if err != nil {
+			logs.Logger.Println("Error al enviar correo de confirmación de devolución: ", err)
+			return err
+		}
+	}
+
+	return nil
 }

@@ -131,3 +131,19 @@ func ListarReservasPorEspacio(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Se logró obtener las reservas del espacio", reservas))
 }
+
+func AceptarDevolucionAnulacionReserva(c *fiber.Ctx) error {
+	var anulacionReserva reserva.AnulacionReservaRequest
+
+	if err := c.BodyParser(&anulacionReserva); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+	repo := reserva.NewReservaRepositoryDB()
+	if err := repo.AceptarDevolucionAnulacionReserva(anulacionReserva); err != nil {
+		logs.Logger.Println("Error al aceptar la devolución de la anulación de reserva: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo aceptar la devolución de la anulación de reserva", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Devolución de anulación aceptada correctamente", nil))
+}

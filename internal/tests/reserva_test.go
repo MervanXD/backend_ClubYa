@@ -222,3 +222,25 @@ func TestObtenerReservasPorEspacio_Error(t *testing.T) {
 	assert.Nil(t, result)
 	mockRepo.AssertExpectations(t)
 }
+
+func TestAceptarDevolucionAnulacionReserva_OK(t *testing.T) {
+	mockRepo := new(mocks.ReservaRepository)
+	req := reserva.AnulacionReservaRequest{IdReserva: 1, IdAnulacion: 2, PorcentajeDevolucion: 50.0}
+	mockRepo.On("AceptarDevolucionAnulacionReserva", req).Return(nil)
+
+	err := mockRepo.AceptarDevolucionAnulacionReserva(req)
+
+	assert.NoError(t, err)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAceptarDevolucionAnulacionReserva_Error(t *testing.T) {
+	mockRepo := new(mocks.ReservaRepository)
+	req := reserva.AnulacionReservaRequest{IdReserva: 1, IdAnulacion: 2, PorcentajeDevolucion: 50.0}
+	mockRepo.On("AceptarDevolucionAnulacionReserva", req).Return(assert.AnError)
+
+	err := mockRepo.AceptarDevolucionAnulacionReserva(req)
+
+	assert.Error(t, err)
+	mockRepo.AssertExpectations(t)
+}
