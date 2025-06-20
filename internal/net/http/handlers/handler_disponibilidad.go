@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
+	"github.com/MervanXD/backend_ClubYa/internal/models/bloque_tiempo"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/gofiber/fiber/v2"
@@ -81,4 +82,15 @@ func ListarDisponibilidadEspacioYFecha(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Horarios disponibles encontrados", rangos))
+}
+
+func ListarBloquesTiempoEstandar(c *fiber.Ctx) error {
+	repo := bloque_tiempo.NewBloqueTiempoRepositoryDB()
+	bloques, err := repo.ListarBloquesTiempoEstandar()
+	if err != nil {
+		logs.Logger.Println("Error al obtener bloques de tiempo estándar: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener bloques de tiempo estándar", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Bloques de tiempo estándar encontrados", bloques))
 }

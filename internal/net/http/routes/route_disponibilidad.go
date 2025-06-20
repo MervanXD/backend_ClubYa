@@ -9,4 +9,5 @@ func RutasDisponibilidad(api fiber.Router) {
 	api.Get("/disponibilidad/:id_espacio/:id_horario_dia/:id_bloque_tiempo", handlers.ObtenerDisponibilidadEspacioSocialPorId)
 	api.Put("/disponibilidad/actualizar", handlers.ActualizarDetalleDisponibilidad)
 	api.Get("/disponibilidad-espacio/:idEspacio/:fecha", handlers.ListarDisponibilidadEspacioYFecha)
+	api.Get("/disponibilidad/bloques-tiempo-estandar", handlers.ListarBloquesTiempoEstandar)
 }
