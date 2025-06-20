@@ -12,9 +12,9 @@ func NewInscripcionAcademiaRepositoryDB() InscripcionAcademiaRepository {
 	return &inscripcionAcademiaRepositoryDB{}
 }
 
-func (r *inscripcionAcademiaRepositoryDB) RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, uniforme int, costo_total float64, idTitular int) error {
-	query := "CALL RegistrarInscripcionAcademia(?, ?, ?,?,?,?)"
-	_, err := database.DB.Exec(query, idPersonaint, idGrupo, idTarifa, uniforme, costo_total, idTitular)
+func (r *inscripcionAcademiaRepositoryDB) RegistrarInscripcionAcademia(idPersonaint int, idGrupo int, idTarifa int, uniforme int, costo_total float64, idTitular int, metodoPago string) error {
+	query := "CALL RegistrarInscripcionAcademia(?, ?, ?,?,?,?,?)"
+	_, err := database.DB.Exec(query, idPersonaint, idGrupo, idTarifa, uniforme, costo_total, idTitular, metodoPago)
 	if err != nil {
 		logs.Logger.Println("Error al registrar la inscripción al evento: ", err)
 		return err
@@ -34,7 +34,7 @@ func (r *inscripcionAcademiaRepositoryDB) ObtenerFamiliaresInscritosAcademia(idS
 	for inscritosRows.Next() {
 		var inscrito InscritoAcademiaDTO
 		if err := inscritosRows.Scan(&inscrito.IdPersona, &inscrito.NombrePersona, &inscrito.ApellidoPersona, &inscrito.NombreGrupo,
-			&inscrito.IdGrupo, &inscrito.NombreAcademia, &inscrito.FechaInicio, &inscrito.FechaFin, &inscrito.EstadoInscripcion); err != nil {
+			&inscrito.IdGrupo, &inscrito.EdadMinima, &inscrito.EdadMaxima, &inscrito.NombreAcademia, &inscrito.FechaInicio, &inscrito.FechaFin, &inscrito.EstadoInscripcion, &inscrito.FechaInscripcion, &inscrito.Monto); err != nil {
 			logs.Logger.Println("Error al escanear a la persona inscrita:", err)
 			return nil, err
 		}
