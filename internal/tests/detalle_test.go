@@ -72,3 +72,27 @@ func TestObtenerDisponibilidadEspacioSocialPorId_Error(t *testing.T) {
 	assert.Nil(t, result)
 	mockRepo.AssertExpectations(t)
 }
+
+func TestObtenerRangosInicioDisponibles_OK(t *testing.T) {
+	mockRepo := new(mocks.DetalleDisponibilidadRepository)
+	expected := []string{"08:00:00", "10:00:00", "14:00:00"}
+
+	mockRepo.On("ObtenerRangosInicioDisponibles", 5, "2025-06-20").Return(expected, nil)
+
+	result, err := mockRepo.ObtenerRangosInicioDisponibles(5, "2025-06-20")
+
+	assert.NoError(t, err)
+	assert.Equal(t, expected, result)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestObtenerRangosInicioDisponibles_Error(t *testing.T) {
+	mockRepo := new(mocks.DetalleDisponibilidadRepository)
+	mockRepo.On("ObtenerRangosInicioDisponibles", 5, "2025-06-20").Return(nil, assert.AnError)
+
+	result, err := mockRepo.ObtenerRangosInicioDisponibles(5, "2025-06-20")
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	mockRepo.AssertExpectations(t)
+}

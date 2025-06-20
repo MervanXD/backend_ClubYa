@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"strconv"
 	"time"
 
@@ -56,4 +57,28 @@ func ActualizarDetalleDisponibilidad(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Detalle de disponibilidad actualizado correctamente", nil))
+}
+
+func ListarDisponibilidadEspacioYFecha(c *fiber.Ctx) error {
+	idStr := c.Params("idEspacio")
+	fecha := c.Params("fecha")
+
+	idEspacio, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID de espacio inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID de espacio inválido")
+	}
+
+	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	rangos, err := repo.ObtenerRangosInicioDisponibles(idEspacio, fecha)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logs.Logger.Println("No se encontraron rangos")
+			return c.Status(fiber.StatusNotFound).JSON(models.NotFound("No hay horarios disponibles"))
+		}
+		logs.Logger.Println("Error al obtener rangos de inicio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener horarios", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Horarios disponibles encontrados", rangos))
 }

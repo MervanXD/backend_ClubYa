@@ -32,6 +32,36 @@ func (_m *DetalleDisponibilidadRepository) ActualizarEstadoDetalleDisponibilidad
 	return r0
 }
 
+// ObtenerDetalleDisponibilidadEspacioFechaId provides a mock function with given fields: idEspacio, fecha
+func (_m *DetalleDisponibilidadRepository) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]detalledisponibilidad.DetalleDisponibilidadDto, error) {
+	ret := _m.Called(idEspacio, fecha)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerDetalleDisponibilidadEspacioFechaId")
+	}
+
+	var r0 []detalledisponibilidad.DetalleDisponibilidadDto
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, string) ([]detalledisponibilidad.DetalleDisponibilidadDto, error)); ok {
+		return rf(idEspacio, fecha)
+	}
+	if rf, ok := ret.Get(0).(func(int, string) []detalledisponibilidad.DetalleDisponibilidadDto); ok {
+		r0 = rf(idEspacio, fecha)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]detalledisponibilidad.DetalleDisponibilidadDto)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, string) error); ok {
+		r1 = rf(idEspacio, fecha)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ObtenerDisponibilidadEspacioSocialPorId provides a mock function with given fields: ctx, idEspacio, idHorarioDia, idBloqueTiempo
 func (_m *DetalleDisponibilidadRepository) ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int, idHorarioDia int, idBloqueTiempo int) (*detalledisponibilidad.DisponibilidadEspacioResponse, error) {
 	ret := _m.Called(ctx, idEspacio, idHorarioDia, idBloqueTiempo)
@@ -55,6 +85,36 @@ func (_m *DetalleDisponibilidadRepository) ObtenerDisponibilidadEspacioSocialPor
 
 	if rf, ok := ret.Get(1).(func(context.Context, int, int, int) error); ok {
 		r1 = rf(ctx, idEspacio, idHorarioDia, idBloqueTiempo)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ObtenerRangosInicioDisponibles provides a mock function with given fields: idEspacio, fecha
+func (_m *DetalleDisponibilidadRepository) ObtenerRangosInicioDisponibles(idEspacio int, fecha string) ([]string, error) {
+	ret := _m.Called(idEspacio, fecha)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerRangosInicioDisponibles")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, string) ([]string, error)); ok {
+		return rf(idEspacio, fecha)
+	}
+	if rf, ok := ret.Get(0).(func(int, string) []string); ok {
+		r0 = rf(idEspacio, fecha)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, string) error); ok {
+		r1 = rf(idEspacio, fecha)
 	} else {
 		r1 = ret.Error(1)
 	}

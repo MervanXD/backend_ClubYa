@@ -38,7 +38,7 @@ func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilida
 	return nil
 }
 
-//a esta funcion no le voy a poner test pq es lo mismo que hacer lo de arriba solo que varias veces
+// a esta funcion no le voy a poner test pq es lo mismo que hacer lo de arriba solo que varias veces
 func ActualizarDetalleGrupo(detalles []DetalleDisponibilidad) error {
 	repo := NewDetalleDisponibilidadRepositoryDB()
 	for _, detalle := range detalles {
@@ -95,4 +95,27 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioF
 	}
 
 	return detalles, nil
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ObtenerRangosInicioDisponibles(idEspacio int, fecha string) ([]string, error) {
+	query := "CALL ListarHorariosDisponiblesPorEspacioYFecha(?, ?)"
+	rows, err := database.DB.Query(query, idEspacio, fecha)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedimiento: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rangos []string
+
+	for rows.Next() {
+		var rango string
+		if err := rows.Scan(&rango); err != nil {
+			logs.Logger.Println("Error al escanear fila: ", err)
+			return nil, err
+		}
+		rangos = append(rangos, rango)
+	}
+
+	return rangos, nil
 }
