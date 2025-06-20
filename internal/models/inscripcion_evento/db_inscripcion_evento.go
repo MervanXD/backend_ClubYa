@@ -104,7 +104,7 @@ func (r *inscripcionEventoRepositoryDB) PagarInscripcion(fidPersona int, idEvent
 
 	if idPago <= 0 {
 		logs.Logger.Println("idPago inválido recibido:", idPago)
-		return -1, err
+		return -1, errors.New("invalid idPago received")
 	}
 
 	return idPago, nil
