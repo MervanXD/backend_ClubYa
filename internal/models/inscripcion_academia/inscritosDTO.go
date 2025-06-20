@@ -11,9 +11,13 @@ type InscritoAcademiaDTO struct {
 	ApellidoPersona   string            `json:"apellido_persona"`
 	NombreGrupo       string            `json:"nombre_grupo"`
 	IdGrupo           int               `json:"id_grupo"`
+	EdadMinima        int               `json:"edadMinima"`
+	EdadMaxima        int               `json:"edadMaxima"`
 	NombreAcademia    string            `json:"nombre_academia"`
 	FechaInicio       string            `json:"fecha_inicio"`
 	FechaFin          string            `json:"fecha_fin"`
 	EstadoInscripcion tipos.Estado      `json:"estado"`
+	FechaInscripcion  string            `json:"fechaInscripcion"`
+	Monto             float64           `json:"montoPagado"`
 	Sesiones          []sesiones.Sesion `json:"sesiones"`
 }
