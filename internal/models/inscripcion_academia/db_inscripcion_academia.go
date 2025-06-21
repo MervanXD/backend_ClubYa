@@ -33,8 +33,8 @@ func (r *inscripcionAcademiaRepositoryDB) ObtenerFamiliaresInscritosAcademia(idS
 	var inscritos []InscritoAcademiaDTO
 	for inscritosRows.Next() {
 		var inscrito InscritoAcademiaDTO
-		if err := inscritosRows.Scan(&inscrito.IdPersona, &inscrito.NombrePersona, &inscrito.ApellidoPersona, &inscrito.NombreGrupo,
-			&inscrito.IdGrupo, &inscrito.EdadMinima, &inscrito.EdadMaxima, &inscrito.NombreAcademia, &inscrito.FechaInicio, &inscrito.FechaFin, &inscrito.EstadoInscripcion, &inscrito.FechaInscripcion, &inscrito.Monto); err != nil {
+		if err := inscritosRows.Scan(&inscrito.IdInscripcion, &inscrito.IdPersona, &inscrito.NombrePersona, &inscrito.ApellidoPersona,
+			&inscrito.TipoSocio, &inscrito.NombreGrupo, &inscrito.IdGrupo, &inscrito.EdadMinima, &inscrito.EdadMaxima, &inscrito.NombreAcademia, &inscrito.FechaInicio, &inscrito.FechaFin, &inscrito.EstadoInscripcion, &inscrito.FechaInscripcion, &inscrito.Monto); err != nil {
 			logs.Logger.Println("Error al escanear a la persona inscrita:", err)
 			return nil, err
 		}
