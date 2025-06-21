@@ -20,6 +20,15 @@ type AnulacionRequest struct {
 	Motivo              string `json:"motivo"`
 }
 
+type PagoInscripcionRequest struct {
+	IdTitular   int     `json:"id_titular" validate:"required"`
+	IdInscritos []int   `json:"id_inscritos" validate:"required"`
+	IdEvento    int     `json:"id_evento" validate:"required"`
+	Monto       float64 `json:"monto" validate:"required"`
+	Concepto    string  `json:"concepto" validate:"required"`
+	MetodoPago  string  `json:"metodo" validate:"required"`
+}
+
 func RegistrarInscripcionEvento(c *fiber.Ctx) error {
 	var requests []InscripcionRequest
 
@@ -78,4 +87,34 @@ func AnularInscripcionEvento(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inscripción anulada exitosamente", nil))
+}
+
+func PagarInscripcionEvento(c *fiber.Ctx) error {
+	var request PagoInscripcionRequest
+
+	if err := c.BodyParser(&request); err != nil {
+		logs.Logger.Println("Error al parsear el body:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos inválidos", nil))
+	}
+
+	if request.IdTitular == 0 || request.IdEvento == 0 || request.MetodoPago == "" || request.Monto <= 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(models.BadRequest("Datos de pago inválidos", nil))
+	}
+
+	repo := inscripcion_evento.NewInscripcionEventoRepositoryDB()
+	//registra las inscripciones de los invitados con pago pendiente
+	for _, idInscrito := range request.IdInscritos {
+		if err := repo.RegistrarInscripcion(idInscrito, request.IdEvento, 0); err != nil {
+			logs.Logger.Printf("Error al registrar inscripción para invitado %d: %v", idInscrito, err)
+			return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo registrar la inscripción para uno o más invitados", nil))
+		}
+	}
+	//procesa el pago de la inscripción (acá se actualiza el estado de la inscripción a confirmada)
+	idPago, err := repo.PagarInscripcion(request.IdTitular, request.IdEvento, request.Concepto, request.MetodoPago, request.Monto)
+	if err != nil {
+		logs.Logger.Printf("Error al procesar el pago de inscripción: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo procesar el pago de inscripción", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Pago de inscripción procesado exitosamente", map[string]int{"id_pago": idPago}))
 }

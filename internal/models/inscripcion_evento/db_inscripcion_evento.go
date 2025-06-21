@@ -86,3 +86,26 @@ func (r *inscripcionEventoRepositoryDB) AnularInscripcion(idInscripcionEvento in
 
 	return nil
 }
+
+func (r *inscripcionEventoRepositoryDB) PagarInscripcion(fidPersona int, idEvento int, concepto string, metodoPago string, monto float64) (int, error) {
+	query := "CALL CrearPagoEvento(?, ?, ?, ?, ?, @idPago)"
+	_, err := database.DB.Exec(query, fidPersona, idEvento, concepto, metodoPago, monto)
+	if err != nil {
+		logs.Logger.Println("Error al registrar el pago de la inscripción: ", err)
+		return -1, err
+	}
+
+	var idPago int
+	err = database.DB.QueryRow("SELECT @idPago").Scan(&idPago)
+	if err != nil {
+		logs.Logger.Println("Error al leer la variable @idPago: ", err)
+		return -1, fmt.Errorf("error al leer variable de salida: %w", err)
+	}
+
+	if idPago <= 0 {
+		logs.Logger.Println("idPago inválido recibido:", idPago)
+		return -1, errors.New("invalid idPago received")
+	}
+
+	return idPago, nil
+}
