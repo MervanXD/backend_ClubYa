@@ -6,9 +6,11 @@ import (
 )
 
 type InscritoAcademiaDTO struct {
+	IdInscripcion     int               `json:"id_inscripcion"`
 	IdPersona         int               `json:"id_persona"`
 	NombrePersona     string            `json:"nombre_persona"`
 	ApellidoPersona   string            `json:"apellido_persona"`
+	TipoSocio         string            `json:"tipo_socio"`
 	NombreGrupo       string            `json:"nombre_grupo"`
 	IdGrupo           int               `json:"id_grupo"`
 	EdadMinima        int               `json:"edadMinima"`
