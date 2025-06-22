@@ -11,12 +11,14 @@ const (
 	PendienteSolicitud EstadoSolicitud = iota
 	Aceptada
 	Rechazada
+	Pagada
 )
 
 var estadoSolicitudStr = [...]string{
 	"Pendiente",
 	"Aceptada",
 	"Rechazada",
+	"Pagada",
 }
 
 func (d EstadoSolicitud) String() string {
