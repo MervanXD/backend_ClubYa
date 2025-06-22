@@ -125,3 +125,44 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerRangosInicioDisponibles(idEsp
 
 	return rangos, nil
 }
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReserva(detalle DetalleRequestActualizar) (int, error) {
+	stmt := "call ActualizaDisponibilidadSegunReserva(?,?,?,?,?,?, @p_nuevoIdHorarioDia)"
+	result, err := database.DB.Exec(stmt,
+		detalle.IdHorarioDia,
+		detalle.IdBloqueTiempo,
+		detalle.EstadoDisponibilidad.String(),
+		detalle.Id_Espacio,
+		detalle.Fecha,
+		detalle.Dia.String(),
+	)
+	if err != nil {
+		logs.Logger.Println("Error al ActualizarEstadoSegunReserva: ", err)
+		return -1, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		logs.Logger.Println("Error al obtener rowsAffected:", err)
+		return -1, err
+	}
+
+	if rowsAffected == 0 {
+		return -1, errors.New("columnas no fueron afectadas")
+	}
+
+	// Recupera el valor del parámetro de salida
+	var nuevoIdHorarioDia int
+	row := database.DB.QueryRow("SELECT @p_nuevoIdHorarioDia")
+	if err := row.Scan(&nuevoIdHorarioDia); err != nil {
+		logs.Logger.Println("Error al obtener el nuevoIdHorarioDia: ", err)
+		return -1, err
+	}
+
+	if nuevoIdHorarioDia == -1 {
+		logs.Logger.Println("No se pudo obtener el nuevoIdHorarioDia")
+		return -1, errors.New("no se pudo obtener el nuevoIdHorarioDia")
+	}
+
+	return nuevoIdHorarioDia, nil
+}
