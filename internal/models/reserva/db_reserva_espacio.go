@@ -33,25 +33,26 @@ func (r *reservaRepositoryDB) ReservarEspacio(idEspacio int, idHorarioDia int, i
 	return nil
 }
 
-func (r *reservaRepositoryDB) ReservarEspacioSocial(reserva ReservaEspacio) error {
-	query := "call ingesoft.ReservarEspacioSocial(?, ?, ?, ?, ?, ?,?)"
-	_, err := database.DB.Exec(query, reserva.IdSocio, reserva.Espacio.Id, reserva.IdHorarioDia, reserva.IdBloqueTiempo, reserva.Fecha, reserva.HoraInicio, reserva.HoraFin)
-
-	if err != nil {
-		logs.Logger.Println("Error al reservar el espacio social: ", err)
-		return err
-	}
+func (r *reservaRepositoryDB) ReservarEspacioSocial(reserva ReservaEspacio, dia tipos.Dia) error {
 	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
 	var detalle detalledisponibilidad.DetalleRequestActualizar
 	detalle.IdHorarioDia = reserva.IdHorarioDia
 	detalle.IdBloqueTiempo = reserva.IdBloqueTiempo
 	detalle.EstadoDisponibilidad = tipos.Reservado
 	detalle.Fecha = reserva.Fecha
-	detalle.Dia = tipos.Dia(1)
+	detalle.Dia = dia
 	detalle.Id_Espacio = reserva.Espacio.Id
-	err = repo.ActualizarEstadoDetalleDisponibilidad(detalle)
+	nuevoIdHorarioDia, err := repo.ActualizarDisponibilidadSegunReserva(detalle)
 	if err != nil {
 		logs.Logger.Println("Error al ReservarEspacio: ", err)
+		return err
+	}
+
+	query := "call ingesoft.ReservarEspacioSocial(?, ?, ?, ?, ?, ?, ?)"
+	_, err = database.DB.Exec(query, reserva.IdSocio, reserva.Espacio.Id, nuevoIdHorarioDia, reserva.IdBloqueTiempo, reserva.Fecha, reserva.HoraInicio, reserva.HoraFin)
+
+	if err != nil {
+		logs.Logger.Println("Error al reservar el espacio social: ", err)
 		return err
 	}
 	return nil

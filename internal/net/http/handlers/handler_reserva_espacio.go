@@ -6,6 +6,7 @@ import (
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/reserva"
+	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,6 +23,11 @@ type AnulacionReservaRequest struct {
 	IdHorarioDia   int    `json:"id_horario_dia"`
 	IdBloqueTiempo int    `json:"id_bloque_tiempo"`
 	Motivo         string `json:"motivo"`
+}
+
+type ReservaEspacioRequest struct {
+	reserva.ReservaEspacio
+	Dia tipos.Dia `json:"dia"`
 }
 
 func ReservarEspacio(c *fiber.Ctx) (err error) {
@@ -41,14 +47,14 @@ func ReservarEspacio(c *fiber.Ctx) (err error) {
 }
 
 func ReservarEspacioSocial(c *fiber.Ctx) error {
-	var reservaEspacioSocial reserva.ReservaEspacio
+	var reservaEspacioSocial ReservaEspacioRequest
 
 	if err := c.BodyParser(&reservaEspacioSocial); err != nil {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 	repo := reserva.NewReservaRepositoryDB()
-	if err := repo.ReservarEspacioSocial(reservaEspacioSocial); err != nil {
+	if err := repo.ReservarEspacioSocial(reservaEspacioSocial.ReservaEspacio, reservaEspacioSocial.Dia); err != nil {
 		logs.Logger.Println("Error al reservar el espacio social: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al reservar el espacio social", nil))
 	}
