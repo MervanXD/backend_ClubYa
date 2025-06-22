@@ -9,4 +9,5 @@ type DTOCuenta struct {
 	Postulante      bool                  `json:"postulante" `
 	Rol             tipos.Rol             `json:"rol" `
 	EstadoSolicitud tipos.EstadoSolicitud `json:"estado_solicitud" `
+	IdMembresia     int                   `json:"id_membresia,omitempty"` // Solo si es titular
 }
