@@ -13,4 +13,5 @@ func RutasEvento(api fiber.Router) {
 	api.Put("/evento/cancelar/:id", handlers.CancelarEvento)
 	api.Put("/evento/eliminar/:id", handlers.EliminarEvento)
 	api.Get("/eventos/participantes/:id/", handlers.ListarParticipantesEvento)
+	api.Get("/eventos/bloques/:id/:fecha", handlers.ListarBloquesBloqueados)
 }

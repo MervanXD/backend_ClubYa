@@ -8,4 +8,5 @@ type EventoRepository interface {
 	CancelarEvento(idEvento int) error
 	EliminarEvento(idEvento int) error
 	ListarParticipantesPorEvento(idEvento int) ([]ParticipanteRequest, error)
+	ListarBloquesBloqueados(idEvento int, fecha string) ([]BloqueTiempoRequest, error)
 }
