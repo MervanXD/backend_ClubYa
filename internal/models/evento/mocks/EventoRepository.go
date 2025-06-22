@@ -107,8 +107,8 @@ func (_m *EventoRepository) InsertarEvento(req evento.EventoRequest) (int, error
 }
 
 // ListarBloquesBloqueados provides a mock function with given fields: idEvento, fecha
-func (_m *EventoRepository) ListarBloquesBloqueados(idEspacio int, fecha string) ([]evento.BloqueTiempoRequest, error) {
-	ret := _m.Called(idEspacio, fecha)
+func (_m *EventoRepository) ListarBloquesBloqueados(idEvento int, fecha string) ([]evento.BloqueTiempoRequest, error) {
+	ret := _m.Called(idEvento, fecha)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListarBloquesBloqueados")
@@ -117,10 +117,10 @@ func (_m *EventoRepository) ListarBloquesBloqueados(idEspacio int, fecha string)
 	var r0 []evento.BloqueTiempoRequest
 	var r1 error
 	if rf, ok := ret.Get(0).(func(int, string) ([]evento.BloqueTiempoRequest, error)); ok {
-		return rf(idEspacio, fecha)
+		return rf(idEvento, fecha)
 	}
 	if rf, ok := ret.Get(0).(func(int, string) []evento.BloqueTiempoRequest); ok {
-		r0 = rf(idEspacio, fecha)
+		r0 = rf(idEvento, fecha)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]evento.BloqueTiempoRequest)
@@ -128,7 +128,7 @@ func (_m *EventoRepository) ListarBloquesBloqueados(idEspacio int, fecha string)
 	}
 
 	if rf, ok := ret.Get(1).(func(int, string) error); ok {
-		r1 = rf(idEspacio, fecha)
+		r1 = rf(idEvento, fecha)
 	} else {
 		r1 = ret.Error(1)
 	}

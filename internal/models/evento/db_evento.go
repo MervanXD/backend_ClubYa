@@ -207,7 +207,7 @@ func (r *eventoRepositoryDB) ListarParticipantesPorEvento(idEvento int) ([]Parti
 }
 
 func (r *eventoRepositoryDB) ListarBloquesBloqueados(idEspacio int, fecha string) ([]BloqueTiempoRequest, error) {
-	query := "CALL ListarBloquesBloqueadosPorEventoYFecha(?, ?)"
+	query := "CALL ListarBloquesBloqueadosPorEspacioYFecha(?,?)"
 	rows, err := database.DB.Query(query, idEspacio, fecha)
 	if err != nil {
 		return nil, fmt.Errorf("error ejecutando procedimiento: %v", err)
