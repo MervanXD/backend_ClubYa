@@ -37,7 +37,7 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 		logs.Logger.Println("Error al iniciar sesion: ", err)
 		return cuentaDTO, err
 	}
-	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia)
+	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
 		return cuentaDTO, err
