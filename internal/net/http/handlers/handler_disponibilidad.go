@@ -45,7 +45,7 @@ func ObtenerDisponibilidadEspacioSocialPorId(c *fiber.Ctx) error {
 }
 
 func ActualizarDetalleDisponibilidad(c *fiber.Ctx) error {
-	var detalles []detalledisponibilidad.DetalleDisponibilidad
+	var detalles []detalledisponibilidad.DetalleRequestActualizar
 	if err := c.BodyParser(&detalles); err != nil {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))

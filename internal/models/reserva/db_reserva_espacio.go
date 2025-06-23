@@ -2,6 +2,7 @@ package reserva
 
 import (
 	"fmt"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
 	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
@@ -17,7 +18,14 @@ func NewReservaRepositoryDB() ReservaRepository {
 
 func (r *reservaRepositoryDB) ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) (err error) {
 	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
-	err = repo.ActualizarEstadoDetalleDisponibilidad(idHorarioDia, idBloqueTiempo, tipos.Reservado.String())
+	var detalle detalledisponibilidad.DetalleRequestActualizar
+	detalle.IdHorarioDia = idHorarioDia
+	detalle.IdBloqueTiempo = idBloqueTiempo
+	detalle.EstadoDisponibilidad = tipos.Reservado
+	detalle.Fecha = ""
+	detalle.Dia = tipos.Dia(1) // Asignar un valor por defecto o el correcto según tu lógica
+	detalle.Id_Espacio = idEspacio
+	err = repo.ActualizarEstadoDetalleDisponibilidad(detalle)
 	if err != nil {
 		logs.Logger.Println("Error al ReservarEspacio: ", err)
 		return err
@@ -34,7 +42,14 @@ func (r *reservaRepositoryDB) ReservarEspacioSocial(reserva ReservaEspacio) erro
 		return err
 	}
 	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
-	err = repo.ActualizarEstadoDetalleDisponibilidad(reserva.IdHorarioDia, reserva.IdBloqueTiempo, tipos.Reservado.String())
+	var detalle detalledisponibilidad.DetalleRequestActualizar
+	detalle.IdHorarioDia = reserva.IdHorarioDia
+	detalle.IdBloqueTiempo = reserva.IdBloqueTiempo
+	detalle.EstadoDisponibilidad = tipos.Reservado
+	detalle.Fecha = reserva.Fecha
+	detalle.Dia = tipos.Dia(1)
+	detalle.Id_Espacio = reserva.Espacio.Id
+	err = repo.ActualizarEstadoDetalleDisponibilidad(detalle)
 	if err != nil {
 		logs.Logger.Println("Error al ReservarEspacio: ", err)
 		return err
@@ -154,8 +169,8 @@ func (r *reservaRepositoryDB) AceptarDevolucionAnulacionReserva(anulacion Anulac
 	}
 	//Mandamos un correo de confirmacion al socio
 	if correo != "" {
-		err = servicios.EnviarCorreo([]string{correo},// destinatario
-			"Confirmación de devolución de anulación de reserva",// asunto
+		err = servicios.EnviarCorreo([]string{correo}, // destinatario
+			"Confirmación de devolución de anulación de reserva", // asunto
 			// cuerpo del mensaje
 			"Su solicitud de devolución por anulación de reserva ha sido aceptada. El porcentaje de devolución es: "+fmt.Sprintf("%.2f", anulacion.PorcentajeDevolucion)+"%.")
 		if err != nil {

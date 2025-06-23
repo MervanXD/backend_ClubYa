@@ -17,9 +17,15 @@ func NewDetalleDisponibilidadRepositoryDB() DetalleDisponibilidadRepository {
 	return &detalleDisponibilidadRepositoryDB{}
 }
 
-func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilidad(idHorarioDia int, idBloqueTiempo int, estado string) (err error) {
-	stmt := "call ActualizarEstadoDetalleDisponibilidad(?,?,?)"
-	result, err := database.DB.Exec(stmt, idHorarioDia, idBloqueTiempo, estado)
+func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilidad(detalle DetalleRequestActualizar) (err error) {
+	stmt := "call ActualizarEstadoDetalleDisponibilidad(?,?,?,?,?,?)"
+	result, err := database.DB.Exec(stmt,
+		detalle.IdHorarioDia,
+		detalle.IdBloqueTiempo,
+		detalle.EstadoDisponibilidad.String(),
+		detalle.Id_Espacio,
+		detalle.Fecha,
+		detalle.Dia.String())
 	if err != nil {
 		logs.Logger.Println("Error al ActualizarEstadoDetalleDisponibilidad: ", err)
 		return err
@@ -39,10 +45,10 @@ func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilida
 }
 
 // a esta funcion no le voy a poner test pq es lo mismo que hacer lo de arriba solo que varias veces
-func ActualizarDetalleGrupo(detalles []DetalleDisponibilidad) error {
+func ActualizarDetalleGrupo(detalles []DetalleRequestActualizar) error {
 	repo := NewDetalleDisponibilidadRepositoryDB()
 	for _, detalle := range detalles {
-		err := repo.ActualizarEstadoDetalleDisponibilidad(detalle.IdHorarioDia, detalle.IdBloqueTiempo, detalle.EstadoDisponibilidad.String())
+		err := repo.ActualizarEstadoDetalleDisponibilidad(detalle)
 		if err != nil {
 			logs.Logger.Println("Error al actualizar el detalle de disponibilidad: ", err)
 			return err
