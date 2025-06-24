@@ -7,7 +7,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
+type grupoAcademiaRepositoryDB struct{}
+
+func NewGrupoAcademiaRepositoryDB() GrupoAcademiaRepository {
+	return &grupoAcademiaRepositoryDB{}
+}
+
+func (r *grupoAcademiaRepositoryDB) ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
 	gruposQuery := "CALL ListarGruposAcademiaPorId(?)"
 	gruposRows, err := database.DB.Query(gruposQuery, idAcademia)
 	if err != nil {
@@ -24,7 +30,8 @@ func ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
 			return nil, err
 		}
 		//leemos sus sesiones
-		sesiones, err := sesiones.ObtenerSesionesGrupo(grupo.ID)
+		repo := sesiones.NewSesionRepositoryDB()
+		sesiones, err := repo.ObtenerSesionesGrupo(grupo.ID)
 		if err != nil {
 			logs.Logger.Println("Error al obtener las sesiones del grupo :", err)
 			return nil, err
@@ -32,7 +39,8 @@ func ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
 		grupo.Sesiones = sesiones
 
 		//leemos sus tarifas
-		tarifas, err := tarifas.ObtenerTarifasAcademiaPorId(grupo.ID)
+		repoTarifa := tarifas.NewTarifaAcademiaRepositoryDB()
+		tarifas, err := repoTarifa.ObtenerTarifasAcademiaPorId(grupo.ID)
 		if err != nil {
 			logs.Logger.Println("Error al obtener las tarifas del grupo :", err)
 			return nil, err
@@ -43,4 +51,21 @@ func ObtenerGruposAcademiaPorId(idAcademia int) ([]GrupoAcademia, error) {
 	}
 
 	return grupos, nil
+}
+
+func (r *grupoAcademiaRepositoryDB) InsertarGrupoAcademia(grupo *GrupoAcademia) (int64, error) {
+	query := "CALL InsertarGrupoAcademia(?,?,?,?,?,?,?)"
+	result, err := database.DB.Exec(query, grupo.Nombre, grupo.Vacantes, grupo.EdadMinima, grupo.EdadMaxima,
+		grupo.Espacio.Id, 0, grupo.IdAcademia) //inscritos inicialmente es 0
+	if err != nil {
+		logs.Logger.Println("Error al insertar el grupo de la academia:", err)
+		return 0, err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID del nuevo grupo:", err)
+		return 0, err
+	}
+
+	return id, nil
 }

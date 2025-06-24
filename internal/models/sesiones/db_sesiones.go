@@ -7,7 +7,13 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error) {
+type sesionRepositoryDB struct{}
+
+func NewSesionRepositoryDB() SesionRepository {
+	return &sesionRepositoryDB{}
+}
+
+func (r *sesionRepositoryDB) ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error) {
 	sesionesQuery := "CALL ListarSesionPorGruposAcademia(?)"
 	sesionesRows, err := database.DB.Query(sesionesQuery, idGrupo)
 	if err != nil {
@@ -41,4 +47,19 @@ func ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error) {
 		sesiones = append(sesiones, sesion)
 	}
 	return sesiones, nil
+}
+
+func (r *sesionRepositoryDB) InsertarSesion(sesion *Sesion) (int64, error) {
+	query := "CALL InsertarSesion(?,?,?,?)"
+	result, err := database.DB.Exec(query, sesion.IdGrupo, sesion.Dia, sesion.HoraInicio.Format("15:04:05"), sesion.HoraFin.Format("15:04:05"))
+	if err != nil {
+		logs.Logger.Println("Error al insertar la sesión:", err)
+		return 0, err
+	}
+	idSesion, err := result.LastInsertId()
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la sesión insertada:", err)
+		return 0, err
+	}
+	return idSesion, nil
 }

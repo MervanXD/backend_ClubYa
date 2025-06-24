@@ -8,6 +8,7 @@ import (
 
 type Sesion struct {
 	IDsesion   int       `json:"id_sesion"`
+	IdGrupo    int       `json:"id_grupo"`
 	Dia        tipos.Dia `json:"dia"`
 	HoraInicio time.Time `json:"hora_inicio"`
 	HoraFin    time.Time `json:"hora_fin"`

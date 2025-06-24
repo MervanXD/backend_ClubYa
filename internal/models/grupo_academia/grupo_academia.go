@@ -8,6 +8,7 @@ import (
 
 type GrupoAcademia struct {
 	ID         int                      `json:"id"`
+	IdAcademia int64                      `json:"id_academia"`
 	Nombre     string                   `json:"nombre"`
 	Vacantes   int                      `json:"vacantes"`
 	EdadMinima int                      `json:"edad_minima"`
