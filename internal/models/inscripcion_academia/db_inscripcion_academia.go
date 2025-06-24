@@ -39,7 +39,8 @@ func (r *inscripcionAcademiaRepositoryDB) ObtenerFamiliaresInscritosAcademia(idS
 			return nil, err
 		}
 		//leemos sus sesiones
-		sesiones, err := sesiones.ObtenerSesionesGrupo(inscrito.IdGrupo)
+		repo := sesiones.NewSesionRepositoryDB()
+		sesiones, err := repo.ObtenerSesionesGrupo(inscrito.IdGrupo)
 		if err != nil {
 			logs.Logger.Println("Error al obtener las sesiones del grupo :", err)
 			return nil, err

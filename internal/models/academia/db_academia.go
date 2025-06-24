@@ -49,11 +49,37 @@ func (r *academiaRespositoryDB) ObtenerAcademiaPorId(idAcademia int) (*Academia,
 	}
 
 	//leemos los grupos
-	grupos, err := grupoacademia.ObtenerGruposAcademiaPorId(idAcademia)
+	repo := grupoacademia.NewGrupoAcademiaRepositoryDB()
+	grupos, err := repo.ObtenerGruposAcademiaPorId(idAcademia)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los grupos:", err)
 		return nil, err
 	}
 	academia.Grupos = grupos
 	return &academia, nil
+}
+
+func (r *academiaRespositoryDB) InsertarAcademia(academia *Academia) error {
+	query := "CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := database.DB.Exec(query, academia.Nombre, academia.Descripcion, academia.Deporte.String(),
+		academia.Entrenador, academia.CostoUniforme, academia.CostoMatricula, academia.Reglamento,
+		academia.Imagen, academia.Indicaciones, academia.FechaInicio, academia.FechaFin)
+	if err != nil {
+		logs.Logger.Println("Error al insertar la academia:", err)
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la nueva academia:", err)
+		return err
+	}
+	repo := grupoacademia.NewGrupoAcademiaRepositoryDB()
+	for _, grupo := range academia.Grupos {
+		grupo.IdAcademia = id
+		if _, err := repo.InsertarGrupoAcademia(&grupo); err != nil {
+			logs.Logger.Println("Error al insertar el grupo de la academia:", err)
+			return err
+		}
+	}
+	return nil
 }
