@@ -205,3 +205,29 @@ func (r *eventoRepositoryDB) ListarParticipantesPorEvento(idEvento int) ([]Parti
 
 	return participantes, nil
 }
+
+func (r *eventoRepositoryDB) ListarBloquesBloqueados(idEspacio int, fecha string) ([]BloqueTiempoRequest, error) {
+	query := "CALL ListarBloquesBloqueadosPorEspacioYFecha(?,?)"
+	rows, err := database.DB.Query(query, idEspacio, fecha)
+	if err != nil {
+		return nil, fmt.Errorf("error ejecutando procedimiento: %v", err)
+	}
+	defer rows.Close()
+
+	var bloques []BloqueTiempoRequest
+
+	for rows.Next() {
+		var b BloqueTiempoRequest
+		err := rows.Scan(
+			&b.IdBloqueTiempo,
+			&b.RangoInicio,
+			&b.RangoFin,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error escaneando fila: %v", err)
+		}
+		bloques = append(bloques, b)
+	}
+
+	return bloques, nil
+}

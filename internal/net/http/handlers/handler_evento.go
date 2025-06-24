@@ -143,3 +143,25 @@ func ListarParticipantesEvento(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Participantes del evento listados con exito", participantes))
 }
+
+func ListarBloquesBloqueados(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	fecha := c.Params("fecha") 
+
+	idEspacio, err := strconv.Atoi(idStr)
+	if err != nil || fecha == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "ID de evento o fecha inválidos",
+		})
+	}
+
+	repo := evento.NewEventoRepositoryDB()
+	bloques, err := repo.ListarBloquesBloqueados(idEspacio, fecha)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Error al obtener bloques bloqueados",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Bloques bloqueados listados con éxito", bloques))
+}
