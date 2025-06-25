@@ -1,8 +1,6 @@
 package sesiones
 
 import (
-	"time"
-
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -22,28 +20,20 @@ func (r *sesionRepositoryDB) ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error)
 	}
 	defer sesionesRows.Close()
 	var sesiones []Sesion
-	var inicio string
-	var fin string
 	for sesionesRows.Next() {
 		var sesion Sesion
-		if err := sesionesRows.Scan(&sesion.IDsesion, &sesion.Dia, &inicio, &fin); err != nil {
+		if err := sesionesRows.Scan(&sesion.IDsesion, &sesion.Dia, &sesion.HoraInicio, &sesion.HoraFin); err != nil {
 			sesionesRows.Close()
 			logs.Logger.Println("Error al escanear la sesion del grupo:", err)
 			return nil, err
 		}
-
-		horaInicio, err := time.Parse("15:04:05", inicio)
-		if err != nil {
-			logs.Logger.Println("Error al parsear horaInicio: ", err)
-			return nil, err
+		// Convertimos la hora de formato "2006-01-02T15:04:05Z07:00" a "15:04:05"
+		if len(sesion.HoraInicio) >= 19 {
+			sesion.HoraInicio = sesion.HoraInicio[11:19]
 		}
-		horaFin, err := time.Parse("15:04:05", fin)
-		if err != nil {
-			logs.Logger.Println("Error al parsear horaFin: ", err)
-			return nil, err
+		if len(sesion.HoraFin) >= 19 {
+			sesion.HoraFin = sesion.HoraFin[11:19]
 		}
-		sesion.HoraInicio = horaInicio
-		sesion.HoraFin = horaFin
 		sesiones = append(sesiones, sesion)
 	}
 	return sesiones, nil
@@ -51,7 +41,7 @@ func (r *sesionRepositoryDB) ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error)
 
 func (r *sesionRepositoryDB) InsertarSesion(sesion *Sesion) (int64, error) {
 	query := "CALL InsertarSesion(?,?,?,?)"
-	result, err := database.DB.Exec(query, sesion.IdGrupo, sesion.Dia, sesion.HoraInicio.Format("15:04:05"), sesion.HoraFin.Format("15:04:05"))
+	result, err := database.DB.Exec(query, sesion.IdGrupo, sesion.Dia, sesion.HoraInicio, sesion.HoraFin)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la sesión:", err)
 		return 0, err

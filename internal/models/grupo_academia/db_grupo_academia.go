@@ -54,14 +54,15 @@ func (r *grupoAcademiaRepositoryDB) ObtenerGruposAcademiaPorId(idAcademia int) (
 }
 
 func (r *grupoAcademiaRepositoryDB) InsertarGrupoAcademia(grupo *GrupoAcademia) (int64, error) {
-	query := "CALL InsertarGrupoAcademia(?,?,?,?,?,?,?)"
-	result, err := database.DB.Exec(query, grupo.Nombre, grupo.Vacantes, grupo.EdadMinima, grupo.EdadMaxima,
+	query := "CALL InsertarGrupoAcademia(?,?,?,?,?,?,?,@p_id_grupo)"
+	_, err := database.DB.Exec(query, grupo.Nombre, grupo.Vacantes, grupo.EdadMinima, grupo.EdadMaxima,
 		grupo.Espacio.Id, 0, grupo.IdAcademia) //inscritos inicialmente es 0
 	if err != nil {
 		logs.Logger.Println("Error al insertar el grupo de la academia:", err)
 		return 0, err
 	}
-	id, err := result.LastInsertId()
+	var id int64
+	err = database.DB.QueryRow("SELECT @p_id_grupo").Scan(&id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el ID del nuevo grupo:", err)
 		return 0, err
