@@ -2,7 +2,9 @@ package detalledisponibilidad
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -82,7 +84,11 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPo
 }
 
 func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidadDto, error) {
-	query := "call ingesoft.ListarDetalleDisponibilidad(?,?)"
+	//aca el problema es que el anterior no trae los nombres de las personas, y este si, por eso se hace un procedimiento almacenado diferente
+	// de las nuevas reservas
+	// pero este nuevo no trae los nombres para las reservas antiguas D:
+	// de todoso modos si trae los ocupados
+	query := "call ingesoft.NewListarDetalleDisponibilidad(?,?)"
 	rows, err := database.DB.Query(query, idEspacio, fecha)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los de detalles tiempo: ", err)
@@ -124,4 +130,42 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerRangosInicioDisponibles(idEsp
 	}
 
 	return rangos, nil
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReservaTx(
+	tx *sql.Tx,
+	detalle DetalleRequestActualizar,
+) (int, error) {
+
+	if tx == nil {
+		return -1, errors.New("transaction cannot be nil")
+	}
+
+	stmt := "CALL ActualizaDisponibilidadSegunReserva(?,?,?,?,?,?, @p_nuevoIdHorarioDia)"
+	_, err := tx.Exec(stmt,
+		detalle.IdHorarioDia,
+		detalle.IdBloqueTiempo,
+		detalle.EstadoDisponibilidad.String(),
+		detalle.Id_Espacio,
+		detalle.Fecha,
+		detalle.Dia.String(),
+	)
+	if err != nil {
+		logs.Logger.Println("Error al ActualizarEstadoSegunReserva: ", err)
+		return -1, fmt.Errorf("error al ActualizarEstadoSegunReserva: %w", err)
+	}
+
+	var nuevoIdHorarioDia int
+	err = tx.QueryRow("SELECT @p_nuevoIdHorarioDia").Scan(&nuevoIdHorarioDia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener el nuevoIdHorarioDia: ", err)
+		return -1, fmt.Errorf("error al obtener el nuevoIdHorarioDia: %w", err)
+	}
+
+	if nuevoIdHorarioDia == -1 {
+		logs.Logger.Println("No se pudo obtener el nuevoIdHorarioDia")
+		return -1, errors.New("id de horario no válido devuelto por la base de datos")
+	}
+
+	return nuevoIdHorarioDia, nil
 }

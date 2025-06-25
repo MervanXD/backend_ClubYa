@@ -1,11 +1,14 @@
 package reserva
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
+	"github.com/MervanXD/backend_ClubYa/internal/models/pago"
 	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	servicios "github.com/MervanXD/backend_ClubYa/internal/services"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -16,43 +19,89 @@ func NewReservaRepositoryDB() ReservaRepository {
 	return &reservaRepositoryDB{}
 }
 
-func (r *reservaRepositoryDB) ReservarEspacio(idEspacio int, idHorarioDia int, idBloqueTiempo int) (err error) {
-	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
-	var detalle detalledisponibilidad.DetalleRequestActualizar
-	detalle.IdHorarioDia = idHorarioDia
-	detalle.IdBloqueTiempo = idBloqueTiempo
-	detalle.EstadoDisponibilidad = tipos.Reservado
-	detalle.Fecha = ""
-	detalle.Dia = tipos.Dia(1) // Asignar un valor por defecto o el correcto según tu lógica
-	detalle.Id_Espacio = idEspacio
-	err = repo.ActualizarEstadoDetalleDisponibilidad(detalle)
+func (r *reservaRepositoryDB) ReservarEspacio(ctx context.Context, re ReservaEspacio) error {
+	// 1) Pre‐validaciones
+	bloques := re.HorarioDia.BloquesTiempo
+	if len(bloques) == 0 {
+		return fmt.Errorf("no time blocks")
+	}
+	cantidad := len(bloques)
+	montoTotal := re.Espacio.Costo * float64(cantidad)
+	if (re.Pago != pago.Pago{}) && re.Pago.Monto != montoTotal {
+		return fmt.Errorf("expected payment %v, got %v", montoTotal, re.Pago.Monto)
+	}
+	intervalos := utils.ConvertBloquesToIntervals(bloques)
+	horaIni, horaFin, err := utils.ValidateAndSortIntervals(intervalos)
 	if err != nil {
-		logs.Logger.Println("Error al ReservarEspacio: ", err)
+		return fmt.Errorf("invalid time blocks: %w", err)
+	}
+
+	if re.HoraInicio != horaIni || re.HoraFin != horaFin {
+		return fmt.Errorf("expected time range %s-%s, got %s-%s", horaIni, horaFin, re.HoraInicio, re.HoraFin)
+	}
+
+	// 2) Start tx + defer rollback
+	tx, err := database.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	// 3) Actualiza disponibilidad
+	repo2 := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+	idHorario := re.HorarioDia.IdHorarioDia
+	for _, b := range bloques {
+		detalle := detalledisponibilidad.DetalleRequestActualizar{
+			IdHorarioDia:         idHorario,
+			IdBloqueTiempo:       b.IdBloqueTiempo,
+			EstadoDisponibilidad: tipos.Reservado,
+			Fecha:                re.Fecha,
+			Dia:                  re.HorarioDia.Dia,
+			Id_Espacio:           re.Espacio.Id,
+		}
+		nuevoID, err := repo2.ActualizarDisponibilidadSegunReservaTx(tx, detalle)
+		if err != nil {
+			return fmt.Errorf("update dispo: %w", err)
+		}
+		if idHorario < 0 {
+			idHorario = nuevoID
+		} else if nuevoID != idHorario {
+			return fmt.Errorf("horario mismatch %d != %d", idHorario, nuevoID)
+		}
+	}
+
+	// 4) Reserva espacio
+	if err := utils.ExecSPWithOut(ctx, tx, "ReservarEspacio", "id_Reserva", &re.Id,
+		re.IdSocio, re.Espacio.Id, re.Fecha, re.HoraInicio, re.HoraFin, idHorario,
+	); err != nil {
 		return err
 	}
-	return nil
-}
+	logs.Logger.Println("Datos pago:", re.Pago.Metodo, re.Pago.Monto)
 
-func (r *reservaRepositoryDB) ReservarEspacioSocial(reserva ReservaEspacio) error {
-	query := "call ingesoft.ReservarEspacioSocial(?, ?, ?, ?, ?, ?,?)"
-	_, err := database.DB.Exec(query, reserva.IdSocio, reserva.Espacio.Id, reserva.IdHorarioDia, reserva.IdBloqueTiempo, reserva.Fecha, reserva.HoraInicio, reserva.HoraFin)
-
-	if err != nil {
-		logs.Logger.Println("Error al reservar el espacio social: ", err)
-		return err
+	// 5) Enlaza bloques con reserva
+	for _, b := range bloques {
+		if err := utils.ExecSP(ctx, tx, "EnlazarBloqueReservaEspacio",
+			idHorario, b.IdBloqueTiempo, re.Id,
+		); err != nil {
+			return fmt.Errorf("link block to reservation: %w", err)
+		}
 	}
-	repo := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
-	var detalle detalledisponibilidad.DetalleRequestActualizar
-	detalle.IdHorarioDia = reserva.IdHorarioDia
-	detalle.IdBloqueTiempo = reserva.IdBloqueTiempo
-	detalle.EstadoDisponibilidad = tipos.Reservado
-	detalle.Fecha = reserva.Fecha
-	detalle.Dia = tipos.Dia(1)
-	detalle.Id_Espacio = reserva.Espacio.Id
-	err = repo.ActualizarEstadoDetalleDisponibilidad(detalle)
-	if err != nil {
-		logs.Logger.Println("Error al ReservarEspacio: ", err)
-		return err
+	// 6) Crea pago si corresponde
+	if (re.Pago != pago.Pago{}) {
+		if err := utils.ExecSPWithOut(ctx, tx, "CrearPagoReservaEspacio", "p_idPago", &re.Pago.IdPago,
+			re.IdSocio, re.Id, "Pago de reserva de espacio",
+			re.Pago.Metodo, re.Pago.Monto,
+		); err != nil {
+			return err
+		}
+	}
+
+	// 7) Commit
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit tx: %w", err)
 	}
 	return nil
 }
@@ -78,15 +127,6 @@ func (r *reservaRepositoryDB) ObtenerReservasEspaciosSocialesSocio(idSocio int) 
 	var reservasSocio []ReservaEspacioSocialRequest
 	for rows.Next() {
 		var reserva ReservaEspacioSocialRequest
-		//var actividad string
-		if err := rows.Scan(
-			&reserva.Id, &reserva.FechaReserva, &reserva.Fecha, &reserva.HoraInicio, &reserva.HoraFin,
-			&reserva.Estado, &reserva.IdBloqueTiempo, &reserva.IdHorarioDia, &reserva.Espacio.Id,
-			&reserva.Espacio.Codigo, &reserva.Espacio.Nombre, &reserva.Espacio.Ubicacion,
-			&reserva.Espacio.Capacidad, &reserva.Espacio.Costo, &reserva.Espacio.Actividad); err != nil {
-			logs.Logger.Println("Error al escanear el horario del espacio social del socio: ", err)
-			return nil, err
-		}
 
 		reservasSocio = append(reservasSocio, reserva)
 	}

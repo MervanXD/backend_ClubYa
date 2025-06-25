@@ -6,11 +6,10 @@ import (
 )
 
 func RutasReservaEspacio(api fiber.Router) {
-	api.Put("/reserva-espacio", handlers.ReservarEspacio)
-	api.Post("/reserva-espacio-social", handlers.ReservarEspacioSocial)
+	api.Post("/reserva-espacio", handlers.ReservarEspacio)
 	api.Put("/anulacion-reserva-espacio-social", handlers.AnularReservarEspacioSocial)
 	api.Get("/reservas-espacios-social-socio/:idSocio", handlers.ListarEspaciosSocialesSocio)
-	api.Get("/reserva-canchas/:idSocio",handlers.ListarCanchasSocio)
+	api.Get("/reserva-canchas/:idSocio", handlers.ListarCanchasSocio)
 	api.Get("/reservas-espacios/:idEspacio", handlers.ListarReservasPorEspacio)
 	api.Put("/anulacion-reserva/aceptar", handlers.AceptarDevolucionAnulacionReserva)
 }
