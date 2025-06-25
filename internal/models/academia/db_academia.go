@@ -60,15 +60,17 @@ func (r *academiaRespositoryDB) ObtenerAcademiaPorId(idAcademia int) (*Academia,
 }
 
 func (r *academiaRespositoryDB) InsertarAcademia(academia *Academia) error {
-	query := "CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	result, err := database.DB.Exec(query, academia.Nombre, academia.Descripcion, academia.Deporte.String(),
+	query := "CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@c_id_academia)"
+	_, err := database.DB.Exec(query, academia.Nombre, academia.Descripcion, academia.Deporte.String(),
 		academia.Entrenador, academia.CostoUniforme, academia.CostoMatricula, academia.Reglamento,
 		academia.Imagen, academia.Indicaciones, academia.FechaInicio, academia.FechaFin)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la academia:", err)
 		return err
 	}
-	id, err := result.LastInsertId()
+	// Obtenemos el ID de la nueva academia
+	var id int64
+	err = database.DB.QueryRow("SELECT @c_id_academia").Scan(&id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el ID de la nueva academia:", err)
 		return err
