@@ -99,8 +99,8 @@ func (r *academiaRespositoryDB) ListarAcademiasGenerales() ([]AcademiaListarRequ
 	for rows.Next() {
 		var academia AcademiaListarRequest
 		if err := rows.Scan(&academia.ID, &academia.Nombre, &academia.Deporte, &academia.Entrenador,
-			&academia.Imagen, &academia.FechaInicio, &academia.FechaFin,&academia.EdadMinima,&academia.EdadMaxima,
-			&academia.Vacantes,&academia.Inscritos); err != nil {
+			&academia.Imagen, &academia.FechaInicio, &academia.FechaFin, &academia.EdadMinima, &academia.EdadMaxima,
+			&academia.Vacantes, &academia.Inscritos); err != nil {
 			logs.Logger.Println("Error al escanear la academia general:", err)
 			return nil, err
 		}

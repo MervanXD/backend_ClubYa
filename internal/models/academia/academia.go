@@ -14,7 +14,7 @@ type Academia struct {
 	CostoUniforme  float64                       `json:"costo_uniforme"`
 	CostoMatricula float64                       `json:"costo_matricula"`
 	Reglamento     []byte                        `json:"reglamento"`
-	Imagen         []byte                        `json:"imagen"`
+	Imagen         string                        `json:"imagen"`
 	Indicaciones   string                        `json:"indicaciones"`
 	FechaInicio    string                        `json:"fecha_inicio"`
 	FechaFin       string                        `json:"fecha_fin"`
