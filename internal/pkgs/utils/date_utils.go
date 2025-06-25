@@ -14,6 +14,38 @@ type Interval struct {
 	End   string `json:"end"`
 }
 
+// ConvertBloquesToIntervals convierte una lista de bloques de tiempo a una lista de intervalos
+// de tiempo, donde cada bloque se convierte en un intervalo con hora de inicio y fin.
+// Los bloques de tiempo deben tener los campos RangoInicio y RangoFin en formato "HH:mm".
+// Si los bloques de tiempo no están en el formato correcto, la función retornará
+// un error al intentar parsear las horas.
+// Parámetros:
+//   - bloques: lista de bloques de tiempo a convertir.
+//
+// Retorna:
+//   - Una lista de intervalos de tiempo, donde cada intervalo tiene un campo Start y End en formato "HH:mm".
+//   - Un error si ocurre algún problema al convertir los bloques de tiempo.
+//   - Si la lista de bloques está vacía, retorna un error indicando que la lista de intervalos está vacía.
+//
+// Ejemplo de uso:
+//   - bloques := []bloque_tiempo.BloqueTiempo{
+//     {RangoInicio: "08:00", RangoFin: "10:00"},
+//     {RangoInicio: "10:00", RangoFin: "12:00"},
+//     }
+//   - intervals := ConvertBloquesToIntervals(bloques)
+//   - fmt.Println(intervals) // Output: [{08:00 10:00} {10:00 12:00}]
+//
+// // Ejemplo de error:
+//   - bloques := []bloque_tiempo.BloqueTiempo{
+//     {RangoInicio: "08:00", RangoFin: "10:00"},
+//     {RangoInicio: "10:00", RangoFin: "09:00"}, // Hora de fin antes de hora de inicio
+//     }
+//   - intervals, err := ConvertBloquesToIntervals(bloques)
+//   - if err != nil {
+//     fmt.Println("Error:", err)
+//     } else {
+//     fmt.Println(intervals)
+//     }
 func ConvertBloquesToIntervals(bloques []bloque_tiempo.BloqueTiempo) []Interval {
 	intervals := make([]Interval, len(bloques))
 	for i, bloque := range bloques {

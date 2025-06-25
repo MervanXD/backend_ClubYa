@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+// placeholders genera una cadena de texto que contiene una cantidad especificada de signos de interrogación ("?"),
+// separados por comas y espacios. Es útil para construir consultas SQL con parámetros.
+// Por ejemplo, placeholders(3) devuelve "?, ?, ?".
+// Si n es menor o igual a 0, retorna una cadena vacía.
+//
+// Parámetros:
+//   - n: número de marcadores de posición a generar.
+//
+// Retorna:
+//   - Una cadena con n signos de interrogación separados por coma y espacio.
 func placeholders(n int) string {
 	if n <= 0 {
 		return ""
@@ -19,6 +29,18 @@ func placeholders(n int) string {
 	return strings.Join(parts, ", ")
 }
 
+// ExecSP ejecuta un procedimiento almacenado en la base de datos utilizando una transacción existente.
+// Construye la consulta SQL utilizando el nombre del procedimiento y los argumentos proporcionados.
+// Si ocurre un error durante la ejecución del procedimiento, lo envuelve y lo retorna; de lo contrario, retorna nil.
+//
+// Parámetros:
+//   - ctx: contexto para controlar la cancelación y los tiempos de espera de la operación.
+//   - tx: transacción SQL activa donde se ejecutará el procedimiento almacenado.
+//   - name: nombre del procedimiento almacenado a ejecutar.
+//   - args: argumentos que se pasarán al procedimiento almacenado.
+//
+// Retorna:
+//   - error: error si la ejecución falla, nil en caso contrario.
 func ExecSP(ctx context.Context, tx *sql.Tx, name string, args ...interface{}) error {
 	q := fmt.Sprintf("CALL ingesoft.%s(%s)", name, placeholders(len(args)))
 	if _, err := tx.ExecContext(ctx, q, args...); err != nil {
@@ -27,6 +49,19 @@ func ExecSP(ctx context.Context, tx *sql.Tx, name string, args ...interface{}) e
 	return nil
 }
 
+// ExecSPWithOut ejecuta un procedimiento almacenado que tiene un parámetro de salida (OUT).
+// Utiliza una transacción existente para ejecutar el procedimiento y luego recupera el valor del parámetro OUT.
+// Construye la consulta SQL para llamar al procedimiento y luego realiza una consulta para obtener el valor del parámetro OUT.
+// // Parámetros:
+//   - ctx: contexto para controlar la cancelación y los tiempos de espera de la operación.
+//   - tx: transacción SQL activa donde se ejecutará el procedimiento almacenado.
+//   - name: nombre del procedimiento almacenado a ejecutar.
+//   - outVar: nombre de la variable de usuario OUT que se utilizará para almacenar el resultado.
+//   - dest: puntero al destino donde se almacenará el valor del parámetro OUT.
+//   - args: argumentos que se pasarán al procedimiento almacenado.
+//
+// // Retorna:
+//   - error: error si la ejecución falla o si no se puede recuperar el valor del parámetro OUT, nil en caso contrario.
 func ExecSPWithOut(ctx context.Context, tx *sql.Tx, name, outVar string, dest interface{}, args ...interface{}) error {
 	// Build the CALL clause: e.g. "CALL ingesoft.MyProc(?, ?, @outVar)"
 	inPlaceholders := placeholders(len(args))

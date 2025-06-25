@@ -84,6 +84,10 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPo
 }
 
 func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidadDto, error) {
+	//aca el problema es que el anterior no trae los nombres de las personas, y este si, por eso se hace un procedimiento almacenado diferente
+	// de las nuevas reservas
+	// pero este nuevo no trae los nombres para las reservas antiguas D:
+	// de todoso modos si trae los ocupados
 	query := "call ingesoft.NewListarDetalleDisponibilidad(?,?)"
 	rows, err := database.DB.Query(query, idEspacio, fecha)
 	if err != nil {
