@@ -1,11 +1,14 @@
 package detalledisponibilidad
 
-import "context"
+import (
+	"context"
+	"database/sql"
+)
 
 type DetalleDisponibilidadRepository interface {
 	ActualizarEstadoDetalleDisponibilidad(etalle DetalleRequestActualizar) (err error)
 	ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int, idHorarioDia int, idBloqueTiempo int) (*DisponibilidadEspacioResponse, error)
 	ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidadDto, error)
 	ObtenerRangosInicioDisponibles(idEspacio int, fecha string) ([]string, error)
-	ActualizarDisponibilidadSegunReserva(detalle DetalleRequestActualizar) (int, error)
+	ActualizarDisponibilidadSegunReservaTx(tx *sql.Tx, detalle DetalleRequestActualizar) (int, error)
 }

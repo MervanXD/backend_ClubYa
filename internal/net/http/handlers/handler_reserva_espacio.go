@@ -6,7 +6,6 @@ import (
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/reserva"
-	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,41 +24,20 @@ type AnulacionReservaRequest struct {
 	Motivo         string `json:"motivo"`
 }
 
-type ReservaEspacioRequest struct {
-	reserva.ReservaEspacio
-	Dia tipos.Dia `json:"dia"`
-}
-
 func ReservarEspacio(c *fiber.Ctx) (err error) {
-	var body EstadoReservaEspacioRequest
+	var body reserva.ReservaEspacio
 	if err := c.BodyParser(&body); err != nil {
 		logs.Logger.Println("Error al parsear el cuerpo: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
+	ctx := c.Context()
 	repo := reserva.NewReservaRepositoryDB()
-	err = repo.ReservarEspacio(body.IdEspacio, body.IdHorarioDia, body.IdBloqueTiempo)
+	err = repo.ReservarEspacio(ctx, body)
 	if err != nil {
-		logs.Logger.Println("Error al actualizar estado: ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo actualizar el estado", nil))
+		logs.Logger.Println("Error al reservar el espacio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo reservar el espacio", nil))
 	}
-
-	return c.Status(fiber.StatusOK).JSON(models.Succes("Estado actualizado correctamente", nil))
-}
-
-func ReservarEspacioSocial(c *fiber.Ctx) error {
-	var reservaEspacioSocial ReservaEspacioRequest
-
-	if err := c.BodyParser(&reservaEspacioSocial); err != nil {
-		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
-		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
-	}
-	repo := reserva.NewReservaRepositoryDB()
-	if err := repo.ReservarEspacioSocial(reservaEspacioSocial.ReservaEspacio, reservaEspacioSocial.Dia); err != nil {
-		logs.Logger.Println("Error al reservar el espacio social: ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al reservar el espacio social", nil))
-	}
-
-	return c.Status(fiber.StatusCreated).JSON(models.Succes("Espacio social reservado con exito", nil))
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Espacio reservado correctamente", nil))
 }
 
 func AnularReservarEspacioSocial(c *fiber.Ctx) error {

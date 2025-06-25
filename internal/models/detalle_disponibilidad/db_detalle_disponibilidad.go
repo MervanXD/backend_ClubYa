@@ -2,7 +2,9 @@ package detalledisponibilidad
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -82,7 +84,7 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPo
 }
 
 func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidadDto, error) {
-	query := "call ingesoft.ListarDetalleDisponibilidad(?,?)"
+	query := "call ingesoft.NewListarDetalleDisponibilidad(?,?)"
 	rows, err := database.DB.Query(query, idEspacio, fecha)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los de detalles tiempo: ", err)
@@ -126,9 +128,17 @@ func (r *detalleDisponibilidadRepositoryDB) ObtenerRangosInicioDisponibles(idEsp
 	return rangos, nil
 }
 
-func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReserva(detalle DetalleRequestActualizar) (int, error) {
-	stmt := "call ActualizaDisponibilidadSegunReserva(?,?,?,?,?,?, @p_nuevoIdHorarioDia)"
-	result, err := database.DB.Exec(stmt,
+func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReservaTx(
+	tx *sql.Tx,
+	detalle DetalleRequestActualizar,
+) (int, error) {
+
+	if tx == nil {
+		return -1, errors.New("transaction cannot be nil")
+	}
+
+	stmt := "CALL ActualizaDisponibilidadSegunReserva(?,?,?,?,?,?, @p_nuevoIdHorarioDia)"
+	_, err := tx.Exec(stmt,
 		detalle.IdHorarioDia,
 		detalle.IdBloqueTiempo,
 		detalle.EstadoDisponibilidad.String(),
@@ -138,30 +148,19 @@ func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReserva
 	)
 	if err != nil {
 		logs.Logger.Println("Error al ActualizarEstadoSegunReserva: ", err)
-		return -1, err
+		return -1, fmt.Errorf("error al ActualizarEstadoSegunReserva: %w", err)
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		logs.Logger.Println("Error al obtener rowsAffected:", err)
-		return -1, err
-	}
-
-	if rowsAffected == 0 {
-		return -1, errors.New("columnas no fueron afectadas")
-	}
-
-	// Recupera el valor del parámetro de salida
 	var nuevoIdHorarioDia int
-	row := database.DB.QueryRow("SELECT @p_nuevoIdHorarioDia")
-	if err := row.Scan(&nuevoIdHorarioDia); err != nil {
+	err = tx.QueryRow("SELECT @p_nuevoIdHorarioDia").Scan(&nuevoIdHorarioDia)
+	if err != nil {
 		logs.Logger.Println("Error al obtener el nuevoIdHorarioDia: ", err)
-		return -1, err
+		return -1, fmt.Errorf("error al obtener el nuevoIdHorarioDia: %w", err)
 	}
 
 	if nuevoIdHorarioDia == -1 {
 		logs.Logger.Println("No se pudo obtener el nuevoIdHorarioDia")
-		return -1, errors.New("no se pudo obtener el nuevoIdHorarioDia")
+		return -1, errors.New("id de horario no válido devuelto por la base de datos")
 	}
 
 	return nuevoIdHorarioDia, nil
