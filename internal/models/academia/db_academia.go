@@ -60,7 +60,7 @@ func (r *academiaRespositoryDB) ObtenerAcademiaPorId(idAcademia int) (*Academia,
 }
 
 func (r *academiaRespositoryDB) InsertarAcademia(academia *Academia) error {
-	query := "CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	query := "CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	result, err := database.DB.Exec(query, academia.Nombre, academia.Descripcion, academia.Deporte.String(),
 		academia.Entrenador, academia.CostoUniforme, academia.CostoMatricula, academia.Reglamento,
 		academia.Imagen, academia.Indicaciones, academia.FechaInicio, academia.FechaFin)
