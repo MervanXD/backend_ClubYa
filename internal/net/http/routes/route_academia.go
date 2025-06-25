@@ -7,4 +7,5 @@ import (
 
 func RutasAcademia(api fiber.Router) {
 	api.Post("/academias", handlers.InsertarAcademia)
+	api.Get("/academias", handlers.ListarAcademiasGenerales)
 }

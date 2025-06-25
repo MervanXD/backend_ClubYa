@@ -85,3 +85,26 @@ func (r *academiaRespositoryDB) InsertarAcademia(academia *Academia) error {
 	}
 	return nil
 }
+
+func (r *academiaRespositoryDB) ListarAcademiasGenerales() ([]AcademiaListarRequest, error) {
+	query := "CALL ListarAcademiasAdmin()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al listar las academias generales:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var academias []AcademiaListarRequest
+	for rows.Next() {
+		var academia AcademiaListarRequest
+		if err := rows.Scan(&academia.ID, &academia.Nombre, &academia.Deporte, &academia.Entrenador,
+			&academia.Imagen, &academia.FechaInicio, &academia.FechaFin,&academia.EdadMinima,&academia.EdadMaxima,
+			&academia.Vacantes,&academia.Inscritos); err != nil {
+			logs.Logger.Println("Error al escanear la academia general:", err)
+			return nil, err
+		}
+		academias = append(academias, academia)
+	}
+	return academias, nil
+}

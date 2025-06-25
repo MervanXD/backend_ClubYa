@@ -25,3 +25,14 @@ func InsertarAcademia(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusCreated).JSON(models.Succes("Academia creada con éxito", nil))
 }
+
+func ListarAcademiasGenerales(c *fiber.Ctx) error {
+	repo := academia.NewAcademiaRepositoryDB()
+	academias, err := repo.ListarAcademiasGenerales()
+	if err != nil {
+		logs.Logger.Println("Error al listar las academias: ", err)
+		return c.Status(http.StatusInternalServerError).JSON(models.Error("Error al listar las academias", nil))
+	}
+
+	return c.Status(http.StatusOK).JSON(models.Succes("Lista de academias obtenida con éxito", academias))
+}
