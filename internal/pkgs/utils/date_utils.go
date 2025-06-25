@@ -27,25 +27,6 @@ type Interval struct {
 //   - Un error si ocurre algún problema al convertir los bloques de tiempo.
 //   - Si la lista de bloques está vacía, retorna un error indicando que la lista de intervalos está vacía.
 //
-// Ejemplo de uso:
-//   - bloques := []bloque_tiempo.BloqueTiempo{
-//     {RangoInicio: "08:00", RangoFin: "10:00"},
-//     {RangoInicio: "10:00", RangoFin: "12:00"},
-//     }
-//   - intervals := ConvertBloquesToIntervals(bloques)
-//   - fmt.Println(intervals) // Output: [{08:00 10:00} {10:00 12:00}]
-//
-// // Ejemplo de error:
-//   - bloques := []bloque_tiempo.BloqueTiempo{
-//     {RangoInicio: "08:00", RangoFin: "10:00"},
-//     {RangoInicio: "10:00", RangoFin: "09:00"}, // Hora de fin antes de hora de inicio
-//     }
-//   - intervals, err := ConvertBloquesToIntervals(bloques)
-//   - if err != nil {
-//     fmt.Println("Error:", err)
-//     } else {
-//     fmt.Println(intervals)
-//     }
 func ConvertBloquesToIntervals(bloques []bloque_tiempo.BloqueTiempo) []Interval {
 	intervals := make([]Interval, len(bloques))
 	for i, bloque := range bloques {
