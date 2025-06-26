@@ -169,6 +169,16 @@ func (r *academiaRespositoryDB) ActualizarParcialAcademia(id int, dto AcademiaUp
 			return fmt.Errorf("error actualizando academia: %w", err)
 		}
 	}
+	if dto.Grupos != nil {
+		repoGrupo := grupoacademia.NewGrupoAcademiaRepositoryDB()
+		for _, grupo := range *dto.Grupos {
+			grupo.IdAcademia = &id
+			if err := repoGrupo.ActualizarGrupoAcademiaParcial(&grupo); err != nil {
+				logs.Logger.Println("Error al actualizar el grupo de la academia:", err)
+				return err
+			}
+		}
+	}
 
 	return nil
 }

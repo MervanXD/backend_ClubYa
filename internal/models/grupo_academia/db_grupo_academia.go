@@ -138,6 +138,17 @@ func (r *grupoAcademiaRepositoryDB) ActualizarGrupoAcademiaParcial(grupo *GrupoA
 			}
 		}
 	}
+	if grupo.Tarifas != nil {
+		repoTarifa := tarifas.NewTarifaAcademiaRepositoryDB()
+		for _, tarifa := range *grupo.Tarifas {
+			tarifa.IdGrupo = grupo.ID
+			if err := repoTarifa.ActualizarTarifaAcademia(&tarifa); err != nil {
+				logs.Logger.Println("Error al actualizar la tarifa del grupo:", err)
+				return err
+			}
+		}
+	}
+	logs.Logger.Println("Grupo de la academia actualizado correctamente")
 
 	return nil
 }
