@@ -118,8 +118,8 @@ func (r *eventoRepositoryDB) InsertarEvento(req EventoRequest) (int, error) {
 		horaInicio.Format("15:04:05"),
 		horaFin.Format("15:04:05"),
 		req.IdEspacio,
-		req.Imagen,
 		0,
+		req.Imagen,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al ejecutar SP InsertarEvento:", err)
