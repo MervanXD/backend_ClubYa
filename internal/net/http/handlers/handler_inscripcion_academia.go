@@ -91,3 +91,25 @@ func ListarFamiliaresSocioInscritos(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Academias deportivas del socio obtenidas con exito", academia))
 }
+
+func AnularInscripcionAcademia(c *fiber.Ctx) error {
+	var anulacionAcademia AnulacionAcademiaRequest
+
+	if err := c.BodyParser(&anulacionAcademia); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+	repo := inscripcionacademia.NewInscripcionAcademiaRepositoryDB()
+	if err := repo.AnularInscripcionAcademia(anulacionAcademia.IdInscripcion, anulacionAcademia.IdPersona, anulacionAcademia.Motivo); err != nil {
+		logs.Logger.Println("Error al anular la inscripción a la academia: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al anular la inscripción a la academia", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Inscripción a la academia anulada con éxito", nil))
+}
+
+type AnulacionAcademiaRequest struct {
+	IdInscripcion int    `json:"id_inscripcion"`
+	IdPersona     int    `json:"id_persona"`
+	Motivo        string `json:"motivo"`
+}

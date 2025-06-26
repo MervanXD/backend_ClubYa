@@ -51,3 +51,13 @@ func (r *inscripcionAcademiaRepositoryDB) ObtenerFamiliaresInscritosAcademia(idS
 
 	return inscritos, nil
 }
+
+func (r *inscripcionAcademiaRepositoryDB) AnularInscripcionAcademia(idInscripcion int, idPersona int, motivo string) error {
+	query := "call ingesoft.AnularInscripcionAcademia(?, ?, ?)"
+	_, err := database.DB.Exec(query, idInscripcion, idPersona, motivo)
+	if err != nil {
+		logs.Logger.Println("Error al anular la inscripcion a la academia ", err)
+		return err
+	}
+	return nil
+}

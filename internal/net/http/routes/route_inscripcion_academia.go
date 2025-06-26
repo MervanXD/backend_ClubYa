@@ -10,4 +10,6 @@ func RutasInscripcionAcademia(api fiber.Router) {
 	api.Get("/academia-deportiva-informacion/:id", handlers.ObtenerAcademiaId)
 	api.Get("/academia-deportiva-informacion-familiares/:id", handlers.ListarFamiliaresSocioInscritos)
 	api.Post("/academia/inscripcion", handlers.RegistrarInscripcionAcademia)
+	api.Put("/anulacion-inscripcion-academia", handlers.AnularInscripcionAcademia)
+	//api.Put("/anulacion-reserva/aceptar", handlers.AceptarDevolucionAnulacionAcademia)
 }
