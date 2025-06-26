@@ -51,3 +51,37 @@ func (r *inscripcionAcademiaRepositoryDB) ObtenerFamiliaresInscritosAcademia(idS
 
 	return inscritos, nil
 }
+
+
+func (r *inscripcionAcademiaRepositoryDB) ListarInscritosPorIdAcademia(idAcademia int) ([]InscritosAcademiaRequest, error) {
+	query := "CALL ListarInscritosPorIdAcademia(?)"
+	rows, err := database.DB.Query(query, idAcademia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los inscritos de la academia:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var inscritos []InscritosAcademiaRequest
+	for rows.Next() {
+    var inscrito InscritosAcademiaRequest
+    if err := rows.Scan(
+        &inscrito.IdPersona,
+        &inscrito.NombrePersona,
+        &inscrito.ApellidoPersona,
+        &inscrito.TipoSocio,
+        &inscrito.NombreGrupo,
+        &inscrito.IdGrupo,
+        &inscrito.EdadPersona,
+        &inscrito.FechaInscripcion,
+        &inscrito.Monto,
+        &inscrito.EstadoInscripcion,
+    ); err != nil {
+        logs.Logger.Println("Error al escanear el inscrito:", err)
+        return nil, err
+    }
+    inscritos = append(inscritos, inscrito)
+}
+
+	return inscritos, nil
+}
