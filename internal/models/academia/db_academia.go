@@ -133,11 +133,11 @@ func (r *academiaRespositoryDB) ActualizarParcialAcademia(id int, dto AcademiaUp
 		args = append(args, *dto.Entrenador)
 	}
 	if dto.CostoUniforme != nil {
-		setClauses = append(setClauses, "costo_uniforme = ?")
+		setClauses = append(setClauses, "costoUniforme = ?")
 		args = append(args, *dto.CostoUniforme)
 	}
 	if dto.CostoMatricula != nil {
-		setClauses = append(setClauses, "costo_matricula = ?")
+		setClauses = append(setClauses, "costoMatricula = ?")
 		args = append(args, *dto.CostoMatricula)
 	}
 	if dto.Reglamento != nil {
@@ -153,16 +153,16 @@ func (r *academiaRespositoryDB) ActualizarParcialAcademia(id int, dto AcademiaUp
 		args = append(args, *dto.Indicaciones)
 	}
 	if dto.FechaInicio != nil {
-		setClauses = append(setClauses, "fecha_inicio = ?")
+		setClauses = append(setClauses, "fechaInicio = ?")
 		args = append(args, *dto.FechaInicio)
 	}
 	if dto.FechaFin != nil {
-		setClauses = append(setClauses, "fecha_fin = ?")
+		setClauses = append(setClauses, "fechaFin = ?")
 		args = append(args, *dto.FechaFin)
 	}
 
 	if len(setClauses) > 0 {
-		query := fmt.Sprintf("UPDATE Academia SET %s WHERE idAcademia = ?", strings.Join(setClauses, ", "))
+		query := fmt.Sprintf("UPDATE Academias SET %s WHERE idAcademia = ?", strings.Join(setClauses, ", "))
 		args = append(args, id)
 		_, err := database.DB.Exec(query, args...)
 		if err != nil {

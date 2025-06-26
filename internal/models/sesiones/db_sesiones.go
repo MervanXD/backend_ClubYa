@@ -53,3 +53,34 @@ func (r *sesionRepositoryDB) InsertarSesion(sesion *Sesion) (int64, error) {
 	}
 	return idSesion, nil
 }
+
+func (r *sesionRepositoryDB) ActualizarSesionParcial(sesion *SesionUpdate) error {
+	setClauses := []string{}
+	args := []interface{}{}
+	if sesion.Dia != nil {
+		setClauses = append(setClauses, "dia = ?")
+		args = append(args, *sesion.Dia)
+	}
+	if sesion.HoraFin != nil {
+		setClauses= append(setClauses, "horaFin = ?")
+		args = append(args, *sesion.HoraFin)
+	}
+	if sesion.HoraInicio != nil {
+		setClauses= append(setClauses, "horaInicio = ?")
+		args = append(args, *sesion.HoraInicio)
+	}
+	query := "UPDATE grupo_academia SET " + setClauses[0]
+	for i := 1; i < len(setClauses); i++ {
+		query += ", " + setClauses[i]
+	}
+	query += " WHERE id = ?"
+	args = append(args, sesion.IDSesion)
+	_, err := database.DB.Exec(query, args...)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar la sesion:", err)
+		return err
+	}
+	
+	return nil
+
+}

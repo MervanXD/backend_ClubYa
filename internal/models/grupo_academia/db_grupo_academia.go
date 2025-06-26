@@ -70,3 +70,56 @@ func (r *grupoAcademiaRepositoryDB) InsertarGrupoAcademia(grupo *GrupoAcademia) 
 
 	return id, nil
 }
+
+func (r *grupoAcademiaRepositoryDB) ActualizarGrupoAcademiaParcial(grupo *GrupoAcademiaUpdate) error {
+	setClauses := []string{}
+	args := []interface{}{}
+
+	if grupo.Nombre != nil {
+		setClauses = append(setClauses, "nombre = ?")
+		args = append(args, *grupo.Nombre)
+	}
+	if grupo.Vacantes != nil {
+		setClauses = append(setClauses, "vacantes = ?")
+		args = append(args, *grupo.Vacantes)
+	}
+	if grupo.EdadMinima != nil {
+		setClauses = append(setClauses, "edadMinima = ?")
+		args = append(args, *grupo.EdadMinima)
+	}
+	if grupo.EdadMaxima != nil {
+		setClauses = append(setClauses, "edadMaxima = ?")
+		args = append(args, *grupo.EdadMaxima)
+	}
+	if grupo.Espacio !=nil {
+		setClauses = append(setClauses, "fid_Espacio = ?")
+		args = append(args, *grupo.Espacio)
+	}
+	if len(setClauses) == 0 {
+		logs.Logger.Println("No se proporcionaron campos para actualizar el grupo de la academia")
+		return nil // No hay nada que actualizar
+	}
+	query := "UPDATE grupo_academia SET " + setClauses[0]
+	for i := 1; i < len(setClauses); i++ {
+		query += ", " + setClauses[i]
+	}
+	query += " WHERE id = ?"
+	args = append(args, grupo.ID)
+	_, err := database.DB.Exec(query, args...)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar el grupo de la academia:", err)
+		return err
+	}
+	if grupo.Sesiones != nil {
+		repoSesion := sesiones.NewSesionRepositoryDB()
+		for _, sesion := range *grupo.Sesiones {
+			sesion.IdGrupo = grupo.ID
+			if err := repoSesion.ActualizarSesionParcial(&sesion); err != nil {
+				logs.Logger.Println("Error al actualizar la sesión del grupo:", err)
+				return err
+			}
+		}
+	}
+	
+	return nil
+}
