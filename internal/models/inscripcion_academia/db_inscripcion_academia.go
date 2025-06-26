@@ -1,8 +1,11 @@
 package inscripcionacademia
 
 import (
+	"fmt"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/internal/models/sesiones"
+	servicios "github.com/MervanXD/backend_ClubYa/internal/services"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -59,5 +62,36 @@ func (r *inscripcionAcademiaRepositoryDB) AnularInscripcionAcademia(idInscripcio
 		logs.Logger.Println("Error al anular la inscripcion a la academia ", err)
 		return err
 	}
+	return nil
+}
+
+func (r *inscripcionAcademiaRepositoryDB) AceptarAnulacionInscripcionAcademia(idAnulacion int) error {
+	query := "call ingesoft.AceptarAnulacionInscripcionAcademia(?,  @p_correo, @p_monto)"
+	_, err := database.DB.Exec(query, idAnulacion)
+	if err != nil {
+		logs.Logger.Println("Error al aceptar la devolución de la anulación de academia: ", err)
+		return err
+	}
+	// Recupera el valor del parámetro de salida
+	var correo string
+	var monto float64
+	row := database.DB.QueryRow("SELECT @p_correo, @p_monto")
+	if err := row.Scan(&correo, &monto); err != nil {
+		logs.Logger.Println("Error al obtener el correo de salida: ", err)
+		return err
+	}
+	//Mandamos un correo de confirmacion al socio
+
+	if correo != "" {
+		err = servicios.EnviarCorreo([]string{correo},
+			"Confirmación de devolución de anulación de reserva",
+			fmt.Sprintf("Su solicitud de devolución ha sido aceptada. El monto a devolver es: %.2f.", monto),
+		)
+		if err != nil {
+			logs.Logger.Println("Error al enviar correo de confirmación de devolución: ", err)
+			return err
+		}
+	}
+
 	return nil
 }

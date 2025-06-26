@@ -108,6 +108,23 @@ func AnularInscripcionAcademia(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inscripción a la academia anulada con éxito", nil))
 }
 
+func AceptarDevolucionAnulacionAcademia(c *fiber.Ctx) error {
+
+	idStr := c.Params("id")
+	idInscripcion, err := strconv.Atoi(idStr)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("ID inválido")
+	}
+	repo := inscripcionacademia.NewInscripcionAcademiaRepositoryDB()
+	if err := repo.AceptarAnulacionInscripcionAcademia(idInscripcion); err != nil {
+		logs.Logger.Println("Error al aceptar la devolución de la anulación de inscripción a la academia: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al aceptar la devolución de la anulación de inscripción a la academia", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Devolución de anulación aceptada con éxito", nil))
+}
+
 type AnulacionAcademiaRequest struct {
 	IdInscripcion int    `json:"id_inscripcion"`
 	IdPersona     int    `json:"id_persona"`
