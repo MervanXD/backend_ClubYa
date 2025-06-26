@@ -1,6 +1,9 @@
 package academia
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	grupoacademia "github.com/MervanXD/backend_ClubYa/internal/models/grupo_academia"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -107,4 +110,65 @@ func (r *academiaRespositoryDB) ListarAcademiasGenerales() ([]AcademiaListarRequ
 		academias = append(academias, academia)
 	}
 	return academias, nil
+}
+
+func (r *academiaRespositoryDB) ActualizarParcialAcademia(id int, dto AcademiaUpdateDTO) error {
+	setClauses := []string{}
+	args := []interface{}{}
+
+	if dto.Nombre != nil {
+		setClauses = append(setClauses, "nombre = ?")
+		args = append(args, *dto.Nombre)
+	}
+	if dto.Descripcion != nil {
+		setClauses = append(setClauses, "descripcion = ?")
+		args = append(args, *dto.Descripcion)
+	}
+	if dto.Deporte != nil {
+		setClauses = append(setClauses, "deporte = ?")
+		args = append(args, dto.Deporte.String())
+	}
+	if dto.Entrenador != nil {
+		setClauses = append(setClauses, "entrenador = ?")
+		args = append(args, *dto.Entrenador)
+	}
+	if dto.CostoUniforme != nil {
+		setClauses = append(setClauses, "costo_uniforme = ?")
+		args = append(args, *dto.CostoUniforme)
+	}
+	if dto.CostoMatricula != nil {
+		setClauses = append(setClauses, "costo_matricula = ?")
+		args = append(args, *dto.CostoMatricula)
+	}
+	if dto.Reglamento != nil {
+		setClauses = append(setClauses, "reglamento = ?")
+		args = append(args, *dto.Reglamento)
+	}
+	if dto.Imagen != nil {
+		setClauses = append(setClauses, "imagen = ?")
+		args = append(args, *dto.Imagen)
+	}
+	if dto.Indicaciones != nil {
+		setClauses = append(setClauses, "indicaciones = ?")
+		args = append(args, *dto.Indicaciones)
+	}
+	if dto.FechaInicio != nil {
+		setClauses = append(setClauses, "fecha_inicio = ?")
+		args = append(args, *dto.FechaInicio)
+	}
+	if dto.FechaFin != nil {
+		setClauses = append(setClauses, "fecha_fin = ?")
+		args = append(args, *dto.FechaFin)
+	}
+
+	if len(setClauses) > 0 {
+		query := fmt.Sprintf("UPDATE Academia SET %s WHERE idAcademia = ?", strings.Join(setClauses, ", "))
+		args = append(args, id)
+		_, err := database.DB.Exec(query, args...)
+		if err != nil {
+			return fmt.Errorf("error actualizando academia: %w", err)
+		}
+	}
+
+	return nil
 }
