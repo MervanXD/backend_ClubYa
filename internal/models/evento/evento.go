@@ -12,7 +12,7 @@ type Evento struct {
 	Aforo        int       `json:"aforo"`
 	Invitados    int       `json:"invitados"`
 	Precio       float64   `json:"precio"`
-	Imagen       []byte    `json:"imagen"`
+	Imagen       string    `json:"imagen"`
 	Reglamento   []byte    `json:"reglamento"`
 	NroInscritos int       `json:"nro_inscritos"`
 	Estado		 int 	   `json:"estado"`	
