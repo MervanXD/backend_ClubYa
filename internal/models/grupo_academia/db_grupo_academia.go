@@ -61,14 +61,32 @@ func (r *grupoAcademiaRepositoryDB) InsertarGrupoAcademia(grupo *GrupoAcademia) 
 		logs.Logger.Println("Error al insertar el grupo de la academia:", err)
 		return 0, err
 	}
-	var id int64
+	var id int
 	err = database.DB.QueryRow("SELECT @p_id_grupo").Scan(&id)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el ID del nuevo grupo:", err)
 		return 0, err
 	}
+	// Insertar las tarifas del grupo
+	repoTarifa := tarifas.NewTarifaAcademiaRepositoryDB()
+	for _, tarifa := range grupo.Tarifas {
+		tarifa.IDGrupo = id
+		if _, err := repoTarifa.InsertarTarifaAcademia(&tarifa); err != nil {
+			logs.Logger.Println("Error al insertar la tarifa del grupo:", err)
+			return 0, err
+		}
+	}
+	// Insertar las sesiones del grupo
+	repoSesion := sesiones.NewSesionRepositoryDB()
+	for _, sesion := range grupo.Sesiones {
+		sesion.IdGrupo = id
+		if _, err := repoSesion.InsertarSesion(&sesion); err != nil {
+			logs.Logger.Println("Error al insertar la sesión del grupo:", err)
+			return 0, err
+		}
+	}
 
-	return id, nil
+	return int64(id), nil
 }
 
 func (r *grupoAcademiaRepositoryDB) ActualizarGrupoAcademiaParcial(grupo *GrupoAcademiaUpdate) error {
@@ -91,7 +109,7 @@ func (r *grupoAcademiaRepositoryDB) ActualizarGrupoAcademiaParcial(grupo *GrupoA
 		setClauses = append(setClauses, "edadMaxima = ?")
 		args = append(args, *grupo.EdadMaxima)
 	}
-	if grupo.Espacio !=nil {
+	if grupo.Espacio != nil {
 		setClauses = append(setClauses, "fid_Espacio = ?")
 		args = append(args, *grupo.Espacio)
 	}
@@ -120,6 +138,6 @@ func (r *grupoAcademiaRepositoryDB) ActualizarGrupoAcademiaParcial(grupo *GrupoA
 			}
 		}
 	}
-	
+
 	return nil
 }
