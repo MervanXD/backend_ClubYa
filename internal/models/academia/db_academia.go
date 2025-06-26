@@ -63,30 +63,43 @@ func (r *academiaRespositoryDB) ObtenerAcademiaPorId(idAcademia int) (*Academia,
 }
 
 func (r *academiaRespositoryDB) InsertarAcademia(academia *Academia) error {
-	query := "CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@c_id_academia)"
-	_, err := database.DB.Exec(query, academia.Nombre, academia.Descripcion, academia.Deporte.String(),
-		academia.Entrenador, academia.CostoUniforme, academia.CostoMatricula, academia.Reglamento,
-		academia.Imagen, academia.Indicaciones, academia.FechaInicio, academia.FechaFin)
-	if err != nil {
-		logs.Logger.Println("Error al insertar la academia:", err)
-		return err
-	}
-	// Obtenemos el ID de la nueva academia
-	var id int64
-	err = database.DB.QueryRow("SELECT @c_id_academia").Scan(&id)
-	if err != nil {
-		logs.Logger.Println("Error al obtener el ID de la nueva academia:", err)
-		return err
-	}
-	repo := grupoacademia.NewGrupoAcademiaRepositoryDB()
-	for _, grupo := range academia.Grupos {
-		grupo.IdAcademia = id
-		if _, err := repo.InsertarGrupoAcademia(&grupo); err != nil {
-			logs.Logger.Println("Error al insertar el grupo de la academia:", err)
-			return err
-		}
-	}
-	return nil
+    tx, err := database.DB.Begin()
+    if err != nil {
+        return fmt.Errorf("error al iniciar transacción: %w", err)
+    }
+    defer func() {
+        if p := recover(); p != nil {
+            tx.Rollback()
+            panic(p)
+        }
+    }()
+
+    // 1. Insertar academia
+    var id int64
+    row := tx.QueryRow("CALL InsertarAcademia(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@c_id_academia)",
+        academia.Nombre, academia.Descripcion, academia.Deporte.String(),
+        academia.Entrenador, academia.CostoUniforme, academia.CostoMatricula, academia.Reglamento,
+        academia.Imagen, academia.Indicaciones, academia.FechaInicio, academia.FechaFin)
+    if err := row.Scan(&id); err != nil {
+        tx.Rollback()
+        return fmt.Errorf("error al insertar academia: %w", err)
+    }
+
+    // 2. Insertar grupos, sesiones y tarifas usando la misma tx
+    repo := grupoacademia.NewGrupoAcademiaRepositoryDB()
+    for _, grupo := range academia.Grupos {
+        grupo.IdAcademia = id
+        if _, err := repo.InsertarGrupoAcademiaTx(tx, &grupo); err != nil {
+            tx.Rollback()
+            return fmt.Errorf("error al insertar grupo: %w", err)
+        }
+    }
+
+    // 3. Commit si todo salió bien
+    if err := tx.Commit(); err != nil {
+        return fmt.Errorf("error al hacer commit: %w", err)
+    }
+    return nil
 }
 
 func (r *academiaRespositoryDB) ListarAcademiasGenerales() ([]AcademiaListarRequest, error) {

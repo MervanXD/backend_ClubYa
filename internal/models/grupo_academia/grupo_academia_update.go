@@ -14,6 +14,7 @@ type GrupoAcademiaUpdate struct {
 	EdadMaxima *int                            `json:"edad_maxima"`
 	Espacio    *int                            `json:"espacio"` // ID del espacio
 	Inscritos  *int                            `json:"cantidad_inscritos"`
-	Sesiones   *[]sesiones.SesionUpdate        `json:"sesiones"` // IDs de las sesiones
-	Tarifas    *[]tarifas.TarifaAcademiaUpdate `json:"tarifas"`  // IDs de las tarifas
+	EsVigente  *bool                           `json:"es_vigente"` // Indica si el grupo está vigente
+	Sesiones   *[]sesiones.SesionUpdate        `json:"sesiones"`   // IDs de las sesiones
+	Tarifas    *[]tarifas.TarifaAcademiaUpdate `json:"tarifas"`    // IDs de las tarifas
 }

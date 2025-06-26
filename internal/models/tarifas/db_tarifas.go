@@ -1,6 +1,7 @@
 package tarifas
 
 import (
+	"database/sql"
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -34,9 +35,9 @@ func (r *tarifaAcademiaRepositoryDB) ObtenerTarifasAcademiaPorId(idGrupoAcademia
 	return tarifas, nil
 }
 
-func (r *tarifaAcademiaRepositoryDB) InsertarTarifaAcademia(tarifa *TarifaAcademia) (int64, error) {
-	query := "call ingesoft.InsertarTarifaAcademia(?,?,?,?,?,?,?)"
-	result, err := database.DB.Exec(query, tarifa.UnidadFrecuenciaSem, tarifa.CantidadFrecuencia,
+func (r *tarifaAcademiaRepositoryDB) InsertarTarifaAcademiaTx(tx *sql.Tx, tarifa *TarifaAcademia) (int64, error) {
+	query := "call ingesoft.InsertarTarifaAcademia(?,?,?,?,?,?)"
+	result, err := tx.Exec(query, tarifa.UnidadFrecuenciaSem, tarifa.CantidadFrecuencia,
 		tarifa.TipoSocio, tarifa.Monto, true, tarifa.IDGrupo)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la tarifa de la academia:", err)
@@ -83,7 +84,7 @@ func (r *tarifaAcademiaRepositoryDB) ActualizarTarifaAcademia(tarifa *TarifaAcad
 		return nil // No fields to update
 	}
 
-	query := "UPDATE TarifaAcademia SET " + strings.Join(setClauses, ", ") + " WHERE ID = ?"
+	query := "UPDATE TarifaAcademia SET " + strings.Join(setClauses, ", ") + " WHERE idTarifaAcademia = ?"
 	args = append(args, tarifa.ID)
 
 	if _, err := database.DB.Exec(query, args...); err != nil {
