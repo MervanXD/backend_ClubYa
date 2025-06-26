@@ -93,6 +93,7 @@ func TestInsertarEvento_OK(t *testing.T) {
 		Invitados:   20,
 		Precio:      15.0,
 		IdEspacio:   2,
+		Imagen:      "www.google.com",
 	}
 	mockRepo.On("InsertarEvento", req).Return(5, nil)
 
@@ -131,6 +132,7 @@ func TestModificarEvento_OK(t *testing.T) {
 		Invitados:   15,
 		Precio:      25.5,
 		Estado:      1,
+		Imagen:      "www.google.com",
 	}
 	mockRepo.On("ModificarEvento", req).Return(nil)
 
