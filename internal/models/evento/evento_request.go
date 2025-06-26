@@ -13,4 +13,5 @@ type EventoRequest struct {
 	NroInscritos int     `json:"nro_inscritos"`
 	IdEspacio    int     `json:"id_espacio"`
 	Estado       int     `json:"estado"`
+	Imagen       string  `json:"imagen"`
 }
