@@ -36,3 +36,20 @@ func ListarAcademiasGenerales(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(models.Succes("Lista de academias obtenida con éxito", academias))
 }
+
+func ObtenerAcademiaPorId(c *fiber.Ctx) error {
+	idAcademia, err := c.ParamsInt("id")
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la academia: ", err)
+		return c.Status(http.StatusBadRequest).JSON(models.Error("ID de academia inválido", nil))
+	}
+
+	repo := academia.NewAcademiaRepositoryDB()
+	academia, err := repo.ObtenerAcademiaPorId(idAcademia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener la academia por ID: ", err)
+		return c.Status(http.StatusInternalServerError).JSON(models.Error("Error al obtener la academia", nil))
+	}
+
+	return c.Status(http.StatusOK).JSON(models.Succes("Academia obtenida con éxito", academia))
+}
