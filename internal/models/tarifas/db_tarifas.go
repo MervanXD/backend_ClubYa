@@ -37,8 +37,8 @@ func (r *tarifaAcademiaRepositoryDB) ObtenerTarifasAcademiaPorId(idGrupoAcademia
 
 func (r *tarifaAcademiaRepositoryDB) InsertarTarifaAcademiaTx(tx *sql.Tx, tarifa *TarifaAcademia) (int64, error) {
 	query := "call ingesoft.InsertarTarifaAcademia(?,?,?,?,?,?)"
-	result, err := tx.Exec(query, tarifa.UnidadFrecuenciaSem, tarifa.CantidadFrecuencia,
-		tarifa.TipoSocio, tarifa.Monto, true, tarifa.IDGrupo)
+	result, err := tx.Exec(query, tarifa.UnidadFrecuenciaSem.String(), tarifa.CantidadFrecuencia,
+		tarifa.TipoSocio.String(), tarifa.Monto, true, tarifa.IDGrupo)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la tarifa de la academia:", err)
 		return 0, err

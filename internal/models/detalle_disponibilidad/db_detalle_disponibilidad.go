@@ -169,3 +169,19 @@ func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReserva
 
 	return nuevoIdHorarioDia, nil
 }
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadPorSesion(
+	sesionID int64,
+	dia string,
+	horaInicio string,
+	horaFin string,
+	idGrupo int,
+) error {
+	query := "CALL ActualizarDisponibilidadPorSesion(?,?,?,?,?)"
+	_, err := database.DB.Exec(query, sesionID, dia, horaInicio, horaFin, idGrupo)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar la disponibilidad por sesión:", err)
+		return err
+	}
+	return nil
+}
