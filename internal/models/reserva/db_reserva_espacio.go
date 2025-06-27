@@ -127,7 +127,14 @@ func (r *reservaRepositoryDB) ObtenerReservasEspaciosSocialesSocio(idSocio int) 
 	var reservasSocio []ReservaEspacioSocialRequest
 	for rows.Next() {
 		var reserva ReservaEspacioSocialRequest
-
+		if err := rows.Scan(
+			&reserva.Id, &reserva.FechaReserva, &reserva.Fecha, &reserva.HoraInicio, &reserva.HoraFin,
+			&reserva.Estado, &reserva.IdHorarioDia, &reserva.Espacio.Id,
+			&reserva.Espacio.Codigo, &reserva.Espacio.Nombre, &reserva.Espacio.Ubicacion,
+			&reserva.Espacio.Capacidad, &reserva.Espacio.Costo, &reserva.Espacio.Actividad); err != nil {
+			logs.Logger.Println("Error al escanear el horario de la loza deportiva del socio: ", err)
+			return nil, err
+		}
 		reservasSocio = append(reservasSocio, reserva)
 	}
 	return reservasSocio, nil
@@ -146,7 +153,7 @@ func (r *reservaRepositoryDB) ObtenerReservasCanchasSocio(idSocio int) ([]Reserv
 		var reserva ReservaCanchaRequest
 		if err := rows.Scan(
 			&reserva.Id, &reserva.FechaReserva, &reserva.Fecha, &reserva.HoraInicio, &reserva.HoraFin,
-			&reserva.Estado, &reserva.IdBloqueTiempo, &reserva.IdHorarioDia, &reserva.Espacio.Id,
+			&reserva.Estado, &reserva.IdHorarioDia, &reserva.Espacio.Id,
 			&reserva.Espacio.Codigo, &reserva.Espacio.Nombre, &reserva.Espacio.Ubicacion,
 			&reserva.Espacio.Capacidad, &reserva.Espacio.Costo, &reserva.Espacio.Deporte); err != nil {
 			logs.Logger.Println("Error al escanear el horario de la loza deportiva del socio: ", err)
