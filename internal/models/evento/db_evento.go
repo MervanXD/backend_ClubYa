@@ -28,7 +28,7 @@ func (r *eventoRepositoryDB) ListarEventos() ([]Evento, error) {
 		var e Evento
 		var horaInicio string
 		var horaFin string
-		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Fecha, &e.Aforo, &e.Invitados, &e.Precio, &e.Imagen, &horaInicio, &horaFin, &e.NroInscritos); err != nil {
+		if err := rows.Scan(&e.IdEvento, &e.Nombre, &e.Descripcion, &e.Fecha, &e.Aforo, &e.Invitados, &e.Precio, &e.Imagen, &horaInicio, &horaFin, &e.NroInscritos, &e.Estado); err != nil {
 			logs.Logger.Println("Error al escanear evento: ", err)
 			return nil, err
 		}
