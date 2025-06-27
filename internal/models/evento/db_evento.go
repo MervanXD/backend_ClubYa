@@ -107,7 +107,7 @@ func (r *eventoRepositoryDB) InsertarEvento(req EventoRequest) (int, error) {
 		return -1, errors.New("formato de hora de fin inválido, se esperaba HH:MM:SS")
 	}
 
-	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@p_idEvento)"
+	query := "CALL InsertarEvento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,@p_idEvento)"
 	_, err = database.DB.Exec(query,
 		req.Nombre,
 		req.Descripcion,
@@ -119,6 +119,7 @@ func (r *eventoRepositoryDB) InsertarEvento(req EventoRequest) (int, error) {
 		horaFin.Format("15:04:05"),
 		req.IdEspacio,
 		0,
+		req.Imagen,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al ejecutar SP InsertarEvento:", err)
@@ -137,7 +138,7 @@ func (r *eventoRepositoryDB) InsertarEvento(req EventoRequest) (int, error) {
 
 func (r *eventoRepositoryDB) ModificarEvento(req EventoRequest) error {
 
-	query := "CALL ModificarEvento(?, ?, ?, ?, ?, ?, ?)"
+	query := "CALL ModificarEvento(?, ?, ?, ?, ?, ?, ?, ?)"
 	_, err := database.DB.Exec(query,
 		req.IdEvento,
 		req.Nombre,
@@ -146,6 +147,7 @@ func (r *eventoRepositoryDB) ModificarEvento(req EventoRequest) error {
 		req.Invitados,
 		req.Precio,
 		req.Estado,
+		req.Imagen,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al modificar el evento:", err)

@@ -26,7 +26,6 @@ type Interval struct {
 //   - Una lista de intervalos de tiempo, donde cada intervalo tiene un campo Start y End en formato "HH:mm".
 //   - Un error si ocurre algún problema al convertir los bloques de tiempo.
 //   - Si la lista de bloques está vacía, retorna un error indicando que la lista de intervalos está vacía.
-//
 func ConvertBloquesToIntervals(bloques []bloque_tiempo.BloqueTiempo) []Interval {
 	intervals := make([]Interval, len(bloques))
 	for i, bloque := range bloques {
@@ -52,12 +51,12 @@ func ValidateAndSortIntervals(intervals []Interval) (string, string, error) {
 	}, len(intervals))
 
 	for i, interval := range intervals {
-		start, err := time.Parse("15:04", interval.Start)
+		start, err := time.Parse("15:04:05", interval.Start)
 		if err != nil {
 			return "", "", fmt.Errorf("formato inválido en hora de inicio: %s", interval.Start)
 		}
 
-		end, err := time.Parse("15:04", interval.End)
+		end, err := time.Parse("15:04:05", interval.End)
 		if err != nil {
 			return "", "", fmt.Errorf("formato inválido en hora de fin: %s", interval.End)
 		}
@@ -107,8 +106,8 @@ func ValidateAndSortIntervals(intervals []Interval) (string, string, error) {
 	}
 
 	// Convertir a strings "HH:mm"
-	startStr := minStart.Format("15:04")
-	endStr := maxEnd.Format("15:04")
+	startStr := minStart.Format("15:04:05")
+	endStr := maxEnd.Format("15:04:05")
 
 	return startStr, endStr, nil
 }

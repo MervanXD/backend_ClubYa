@@ -48,7 +48,7 @@ func TestObtenerEventosSocio_OK(t *testing.T) {
 				Aforo:        100,
 				Invitados:    10,
 				Precio:       50.0,
-				Imagen:       []byte{},
+				Imagen:       "www.google.com",
 				Reglamento:   []byte{},
 				NroInscritos: 20,
 			},

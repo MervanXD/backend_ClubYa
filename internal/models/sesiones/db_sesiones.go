@@ -1,6 +1,8 @@
 package sesiones
 
 import (
+	"database/sql"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -39,9 +41,9 @@ func (r *sesionRepositoryDB) ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error)
 	return sesiones, nil
 }
 
-func (r *sesionRepositoryDB) InsertarSesion(sesion *Sesion) (int64, error) {
+func (r *sesionRepositoryDB) InsertarSesionTx(tx *sql.Tx, sesion *Sesion) (int64, error) {
 	query := "CALL InsertarSesion(?,?,?,?)"
-	result, err := database.DB.Exec(query, sesion.IdGrupo, sesion.Dia, sesion.HoraInicio, sesion.HoraFin)
+	result, err := tx.Exec(query, sesion.IdGrupo, sesion.Dia, sesion.HoraInicio, sesion.HoraFin)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la sesión:", err)
 		return 0, err
@@ -52,4 +54,35 @@ func (r *sesionRepositoryDB) InsertarSesion(sesion *Sesion) (int64, error) {
 		return 0, err
 	}
 	return idSesion, nil
+}
+
+func (r *sesionRepositoryDB) ActualizarSesionParcial(sesion *SesionUpdate) error {
+	setClauses := []string{}
+	args := []interface{}{}
+	if sesion.Dia != nil {
+		setClauses = append(setClauses, "dia = ?")
+		args = append(args, *sesion.Dia)
+	}
+	if sesion.HoraFin != nil {
+		setClauses = append(setClauses, "horaFin = ?")
+		args = append(args, *sesion.HoraFin)
+	}
+	if sesion.HoraInicio != nil {
+		setClauses = append(setClauses, "horaInicio = ?")
+		args = append(args, *sesion.HoraInicio)
+	}
+	query := "UPDATE Sesioin SET " + setClauses[0]
+	for i := 1; i < len(setClauses); i++ {
+		query += ", " + setClauses[i]
+	}
+	query += " WHERE id = ?"
+	args = append(args, sesion.IDSesion)
+	_, err := database.DB.Exec(query, args...)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar la sesion:", err)
+		return err
+	}
+
+	return nil
+
 }

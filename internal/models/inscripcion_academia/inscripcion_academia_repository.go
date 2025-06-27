@@ -5,4 +5,5 @@ type InscripcionAcademiaRepository interface {
 	ObtenerFamiliaresInscritosAcademia(idSocio int) ([]InscritoAcademiaDTO, error)
 	AnularInscripcionAcademia(idInscripcion int, idPersona int, motivo string) error
 	AceptarAnulacionInscripcionAcademia(idAnulacion int) error
+	ListarInscritosPorIdAcademia(idAcademia int) ([]InscritosAcademiaRequest, error)
 }

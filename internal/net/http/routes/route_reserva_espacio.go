@@ -7,7 +7,7 @@ import (
 
 func RutasReservaEspacio(api fiber.Router) {
 	api.Post("/reserva-espacio", handlers.ReservarEspacio)
-	api.Put("/anulacion-reserva-espacio-social", handlers.AnularReservarEspacioSocial)
+	api.Put("/anulacion-reserva", handlers.AnularReservarEspacio)
 	api.Get("/reservas-espacios-social-socio/:idSocio", handlers.ListarEspaciosSocialesSocio)
 	api.Get("/reserva-canchas/:idSocio", handlers.ListarCanchasSocio)
 	api.Get("/reservas-espacios/:idEspacio", handlers.ListarReservasPorEspacio)
