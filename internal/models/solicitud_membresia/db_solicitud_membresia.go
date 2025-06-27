@@ -81,7 +81,7 @@ func (r *solicitudRepositoryDB) ObtenerFamiliaresPorIdSolicitud(idSolicitud int)
 	var familiares []persona.Familiar
 	for rows.Next() {
 		var familia persona.Familiar
-		if err := rows.Scan(&familia.Id, &familia.Nombre, &familia.Apellidos, &familia.Dni, &familia.TipoFamiliar); err != nil {
+		if err := rows.Scan(&familia.Id, &familia.Nombre, &familia.Apellidos, &familia.Dni, &familia.TipoFamiliar, &familia.FechaNacimiento); err != nil {
 			logs.Logger.Println("Error al escanear al familiar: ", err)
 			return nil, err
 		}
