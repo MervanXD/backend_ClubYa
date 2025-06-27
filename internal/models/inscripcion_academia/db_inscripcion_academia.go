@@ -77,6 +77,11 @@ func (r *inscripcionAcademiaRepositoryDB) ListarInscritosPorIdAcademia(idAcademi
 			&inscrito.FechaInscripcion,
 			&inscrito.Monto,
 			&inscrito.EstadoInscripcion,
+			&inscrito.AnulaccionInscripcion.IdInscripcion,
+			&inscrito.AnulaccionInscripcion.IdAnulacion,
+			&inscrito.AnulaccionInscripcion.Fecha,
+			&inscrito.AnulaccionInscripcion.Motivo,
+			&inscrito.AnulaccionInscripcion.Devolucion,
 		); err != nil {
 			logs.Logger.Println("Error al escanear el inscrito:", err)
 			return nil, err
