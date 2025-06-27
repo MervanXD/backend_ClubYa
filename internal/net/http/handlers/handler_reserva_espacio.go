@@ -11,17 +11,15 @@ import (
 )
 
 type EstadoReservaEspacioRequest struct {
-	IdEspacio      int `json:"id_espacio"`
-	IdHorarioDia   int `json:"id_horario_dia"`
-	IdBloqueTiempo int `json:"id_bloque_tiempo"`
+	IdEspacio    int `json:"id_espacio"`
+	IdHorarioDia int `json:"id_horario_dia"`
 }
 
 type AnulacionReservaRequest struct {
-	IdReserva      int    `json:"id_reserva"`
-	IdEspacio      int    `json:"id_espacio"`
-	IdHorarioDia   int    `json:"id_horario_dia"`
-	IdBloqueTiempo int    `json:"id_bloque_tiempo"`
-	Motivo         string `json:"motivo"`
+	IdReserva    int    `json:"id_reserva"`
+	IdEspacio    int    `json:"id_espacio"`
+	IdHorarioDia int    `json:"id_horario_dia"`
+	Motivo       string `json:"motivo"`
 }
 
 func ReservarEspacio(c *fiber.Ctx) (err error) {
