@@ -1,15 +1,17 @@
 package academia
 
+import "github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
+
 type AcademiaListarRequest struct {
-	ID          int    `json:"id"`
-	Nombre      string `json:"nombre"`
-	Deporte     string `json:"deporte"`
-	Entrenador  string `json:"entrenador"`
-	Imagen      string `json:"imagen"`
-	FechaInicio string `json:"fecha_inicio"`
-	FechaFin    string `json:"fecha_fin"`
-	EdadMinima  int    `json:"edad_minima"`
-	EdadMaxima  int    `json:"edad_maxima"`
-	Vacantes    int    `json:"vacantes"`
-	Inscritos   int    `json:"inscritos"`
+	ID          int              `json:"id"`
+	Nombre      string           `json:"nombre"`
+	Deporte     string           `json:"deporte"`
+	Entrenador  string           `json:"entrenador"`
+	Imagen      utils.NullString `json:"imagen"`
+	FechaInicio string           `json:"fecha_inicio"`
+	FechaFin    string           `json:"fecha_fin"`
+	EdadMinima  int              `json:"edad_minima"`
+	EdadMaxima  int              `json:"edad_maxima"`
+	Vacantes    int              `json:"vacantes"`
+	Inscritos   int              `json:"inscritos"`
 }
