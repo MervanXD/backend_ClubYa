@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/MervanXD/backend_ClubYa/database"
+	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -81,6 +82,24 @@ func (r *sesionRepositoryDB) ActualizarSesionParcial(sesion *SesionUpdate) error
 	if err != nil {
 		logs.Logger.Println("Error al actualizar la sesion:", err)
 		return err
+	}
+	//actualizar los detalle disponibilidad en caso se haya modificado el dia o hora inicio y hora fin
+	if sesion.Dia != nil || sesion.HoraInicio != nil || sesion.HoraFin != nil {
+		repoDisponibilidad := detalledisponibilidad.NewDetalleDisponibilidadRepositoryDB()
+		var dia, horaInicio, horaFin string
+		if sesion.Dia != nil {
+			dia = *sesion.Dia
+		}
+		if sesion.HoraInicio != nil {
+			horaInicio = *sesion.HoraInicio
+		}
+		if sesion.HoraFin != nil {
+			horaFin = *sesion.HoraFin
+		}
+		if err := repoDisponibilidad.ActualizarDisponibilidadPorSesion(int64(*sesion.IDSesion), dia, horaInicio, horaFin, *sesion.IdGrupo); err != nil {
+			logs.Logger.Println("Error al actualizar la disponibilidad de la sesión:", err)
+			return err
+		}
 	}
 
 	return nil
