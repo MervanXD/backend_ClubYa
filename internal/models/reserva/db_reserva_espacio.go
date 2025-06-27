@@ -106,11 +106,11 @@ func (r *reservaRepositoryDB) ReservarEspacio(ctx context.Context, re ReservaEsp
 	return nil
 }
 
-func (r *reservaRepositoryDB) AnulacionReservaEspacioSocial(idReserva int, idEspacio int, idHorarioDia int, idBloque int, motivo string) error {
-	query := "call ingesoft.AnularReservaEspacioSocial(?, ?, ?, ?, ?)"
-	_, err := database.DB.Exec(query, idReserva, idEspacio, idHorarioDia, idBloque, motivo)
+func (r *reservaRepositoryDB) AnulacionReservaEspacio(idReserva int, idEspacio int, idHorarioDia int, motivo string) error {
+	query := "call ingesoft.AnularReservaEspacio(?, ?, ?, ?)"
+	_, err := database.DB.Exec(query, idReserva, idEspacio, idHorarioDia, motivo)
 	if err != nil {
-		logs.Logger.Println("Error al cancelar la reserva del espacio social ", err)
+		logs.Logger.Println("Error al cancelar la reserva del espacio", err)
 		return err
 	}
 	return nil
