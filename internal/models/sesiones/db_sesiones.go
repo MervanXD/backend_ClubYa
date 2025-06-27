@@ -72,7 +72,7 @@ func (r *sesionRepositoryDB) ActualizarSesionParcial(sesion *SesionUpdate) error
 		setClauses = append(setClauses, "horaInicio = ?")
 		args = append(args, *sesion.HoraInicio)
 	}
-	query := "UPDATE Sesioin SET " + setClauses[0]
+	query := "UPDATE Sesion SET " + setClauses[0]
 	for i := 1; i < len(setClauses); i++ {
 		query += ", " + setClauses[i]
 	}
