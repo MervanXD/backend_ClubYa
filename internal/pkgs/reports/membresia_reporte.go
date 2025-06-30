@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/MervanXD/backend_ClubYa/internal/models/membresia"
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/johnfercher/maroto/v2/pkg/components/row"
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
@@ -18,7 +19,7 @@ func GeneraReporteMembresias(membresias []membresia.MembresiaDTO) ([]byte, error
 	}
 
 	// Agregar titulo de la tabla
-	m.AddRow(10, getTituloTabla("Reporte de Membresias")...)
+	m.AddRow(20, getTituloTabla("Reporte de Membresias")...)
 
 	// Agregar encabezados de la tabla
 	encabezados := []Encabezado{
@@ -47,12 +48,14 @@ func GeneraReporteMembresias(membresias []membresia.MembresiaDTO) ([]byte, error
 func getDatosTabla(membresias []membresia.MembresiaDTO) []core.Row {
 	var rows []core.Row
 	for i, entry := range membresias {
+		fechaInicio := utils.FormatDate(entry.Membresia.FechaInicio)
+		fechaFin := utils.FormatDate(entry.Membresia.FechaFin.String)
 		r := row.New(10).Add(
 			text.NewCol(1, strconv.Itoa(entry.Membresia.Id), props.Text{Size: 9, Align: align.Center}),
 			text.NewCol(3, entry.NombreTitular, props.Text{Size: 9, Align: align.Center}),
 			text.NewCol(2, strconv.FormatFloat(entry.CuotaBase, 'f', 2, 64), props.Text{Size: 9, Align: align.Center}),
-			text.NewCol(2, entry.Membresia.FechaInicio, props.Text{Size: 9, Align: align.Center}),
-			text.NewCol(2, entry.Membresia.FechaFin.String, props.Text{Size: 9, Align: align.Center}),
+			text.NewCol(2, fechaInicio, props.Text{Size: 9, Align: align.Center}),
+			text.NewCol(2, fechaFin, props.Text{Size: 9, Align: align.Center}),
 		)
 
 		// Alternar color de fondo de las filas

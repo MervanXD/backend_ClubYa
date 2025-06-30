@@ -20,6 +20,7 @@ func getEncabezadosTabla(encabezados []Encabezado) []core.Col {
 			Top:   1.5,
 			Size:  9,
 			Style: fontstyle.Bold,
+			Align: align.Center,
 		})
 		cols = append(cols, col)
 	}
@@ -28,12 +29,7 @@ func getEncabezadosTabla(encabezados []Encabezado) []core.Col {
 
 func getTituloTabla(title string) []core.Col {
 	return []core.Col{
-		text.NewCol(10, title, props.Text{
-			Top:   3,
-			Size:  20,
-			Style: fontstyle.Bold,
-			Align: align.Center,
-		}),
+		text.NewCol(10, title, getTituloStyle(align.Center)),
 	}
 }
 
@@ -74,6 +70,22 @@ func getReporteBase() (core.Maroto, error) {
 	return m, nil
 }
 
+// ------------------------------ Tipos ------------------------------
+type Encabezado struct {
+	Nombre string
+	Size   int
+}
+
+// ------------------------------ Estilos Texto ------------------------------
+func getTituloStyle(align align.Type) props.Text {
+	return props.Text{
+		Top:   3,
+		Size:  20,
+		Style: fontstyle.Bold,
+		Align: align,
+	}
+}
+
 // ------------------------------ Colores ------------------------------
 
 func getGrayColor() *props.Color {
@@ -98,15 +110,4 @@ func getRedColor() *props.Color {
 		Green: 10,
 		Blue:  10,
 	}
-}
-
-// ------------------------------ Tipos de soporte ------------------------------
-type Encabezado struct {
-	Nombre string
-	Size   int
-}
-
-type Fila struct {
-	Contenido []string
-	Size      []int
 }

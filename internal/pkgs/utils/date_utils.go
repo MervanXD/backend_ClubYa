@@ -111,3 +111,16 @@ func ValidateAndSortIntervals(intervals []Interval) (string, string, error) {
 
 	return startStr, endStr, nil
 }
+
+// FormatDate convierte una fecha en formato string a formato "DD/MM/YYYY"
+// Si la fecha no está en formato ISO 8601 o "2006-01-02", la función retornará una cadena vacía.
+func FormatDate(date string) string {
+	dateTime, err := time.Parse(time.RFC3339, date)
+	if err != nil {
+		dateTime, err = time.Parse("2006-01-02", date)
+		if err != nil {
+			return ""
+		}
+	}
+	return dateTime.Format("02/01/2006")
+}
