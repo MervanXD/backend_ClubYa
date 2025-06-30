@@ -18,6 +18,6 @@ func GeneraReporteMembresias(c *fiber.Ctx) error {
 	}
 
 	c.Set("Content-Type", "application/pdf")
-	c.Set("Content-Disposition", "attachment; filename=reporte_membresias.pdf")
+	c.Set("Content-Disposition", "inline; filename=reporte_membresias.pdf")
 	return c.Send(pdfBytes)
 }
