@@ -61,28 +61,6 @@ func (r *configuracionDisponibilidadRepositoryDB) EliminarConfiguracionDisponibi
 	return nil
 }
 
-func (r *configuracionDisponibilidadRepositoryDB) CrearConfiguracionDisponibilidad(ctx context.Context, configuraciones []ConfiguracionDisponibilidad) error {
-	tx, err := database.DB.BeginTx(ctx, nil)
-	if err != nil {
-		logs.Logger.Println("Error al iniciar la transaccion: ", err)
-		return err
-	}
-	defer tx.Rollback()
-	for _, configuracion := range configuraciones {
-		err := r.InsertarConfiguracionDisponibilidad(ctx, tx, configuracion)
-		if err != nil {
-			logs.Logger.Println("Error al insertar la configuracion de disponibilidad: ", err)
-			return err
-		}
-	}
-	err = tx.Commit()
-	if err != nil {
-		logs.Logger.Println("Error al confirmar la transaccion: ", err)
-		return err
-	}
-	return nil
-}
-
 func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponibilidad(ctx context.Context, configuraciones []ConfiguracionDisponibilidad) error {
 	if len(configuraciones) == 0 {
 		return errors.New("no se proporcionaron configuraciones")
