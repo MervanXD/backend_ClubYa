@@ -33,7 +33,7 @@ func (r *configuracionDisponibilidadRepositoryDB) ObtenerConfiguracionDisponibil
 	} else {
 		queryer = database.DB
 	}
-	rows, err := utils.QuerySP(ctx, queryer, "ObtenerConfiguracionDisponibilidad", idEspacio)
+	rows, err := utils.QuerySP(ctx, queryer, "ObtenerConfiguracionDeEspacio", idEspacio)
 	if err != nil {
 		logs.Logger.Println("Error al obtener la configuracion de disponibilidad: ", err)
 		return nil, err
