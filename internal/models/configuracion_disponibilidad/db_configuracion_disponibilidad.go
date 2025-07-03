@@ -18,7 +18,7 @@ func NewConfiguracionDisponibilidadRepositoryDB() ConfiguracionDisponibilidadRep
 }
 
 func (r *configuracionDisponibilidadRepositoryDB) InsertarConfiguracionDisponibilidad(ctx context.Context, tx *sql.Tx, configuracion ConfiguracionDisponibilidad) error {
-	err := utils.ExecSP(ctx, tx, "InsertarConfiguracionDisponibilidad", configuracion.IdEspacio, configuracion.IdBloqueTiempo, configuracion.Dia)
+	err := utils.ExecSP(ctx, tx, "InsertarConfiguracionDisponibilidad", configuracion.IdEspacio, configuracion.IdBloqueTiempo, configuracion.Dia.String())
 	if err != nil {
 		logs.Logger.Println("Error al insertar la configuracion de disponibilidad: ", err)
 		return err
@@ -53,7 +53,7 @@ func (r *configuracionDisponibilidadRepositoryDB) ObtenerConfiguracionDisponibil
 }
 
 func (r *configuracionDisponibilidadRepositoryDB) EliminarConfiguracionDisponibilidad(ctx context.Context, tx *sql.Tx, configuracion ConfiguracionDisponibilidad) error {
-	err := utils.ExecSP(ctx, tx, "EliminarConfiguracionDisponibilidad", configuracion.IdEspacio, configuracion.IdBloqueTiempo, configuracion.Dia)
+	err := utils.ExecSP(ctx, tx, "EliminarConfiguracionDisponibilidad", configuracion.IdEspacio, configuracion.IdBloqueTiempo, configuracion.Dia.String())
 	if err != nil {
 		logs.Logger.Println("Error al eliminar la configuracion de disponibilidad: ", err)
 		return err
@@ -75,31 +75,38 @@ func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponi
 
 	idEspacio := configuraciones[0].IdEspacio
 
-	configuracionesAnteriores, err := r.ObtenerConfiguracionDisponibilidad(ctx, idEspacio, tx)
+	configAnteriores, err := r.ObtenerConfiguracionDisponibilidad(ctx, idEspacio, tx)
 	if err != nil {
 		logs.Logger.Println("Error al obtener las configuraciones anteriores: ", err)
 		return err
 	}
 
-	// Eliminar las configuraciones que ya no existen
-	for _, anterior := range configuracionesAnteriores {
-		if !slices.Contains(configuraciones, anterior) {
-			err := r.EliminarConfiguracionDisponibilidad(ctx, tx, anterior)
-			if err != nil {
-				logs.Logger.Println("Error al eliminar configuración: ", err)
-				return err
-			}
+	configAEliminar := []ConfiguracionDisponibilidad{}
+	configAInsertar := []ConfiguracionDisponibilidad{}
+	for _, configuracion := range configuraciones {
+		if slices.Contains(configAnteriores, configuracion) {
+			configAEliminar = append(configAEliminar, configuracion)
+		} else {
+			configAInsertar = append(configAInsertar, configuracion)
 		}
 	}
 
-	// Insertar las configuraciones que no existen
-	for _, nueva := range configuraciones {
-		if !slices.Contains(configuracionesAnteriores, nueva) {
-			err := r.InsertarConfiguracionDisponibilidad(ctx, tx, nueva)
-			if err != nil {
-				logs.Logger.Println("Error al insertar configuración: ", err)
-				return err
-			}
+	logs.Logger.Println("Configuraciones a eliminar: ", configAEliminar)
+	logs.Logger.Println("Configuraciones a insertar: ", configAInsertar)
+
+	for _, configuracion := range configAEliminar {
+		err := r.EliminarConfiguracionDisponibilidad(ctx, tx, configuracion)
+		if err != nil {
+			logs.Logger.Println("Error al eliminar configuración: ", err)
+			return err
+		}
+	}
+
+	for _, configuracion := range configAInsertar {
+		err := r.InsertarConfiguracionDisponibilidad(ctx, tx, configuracion)
+		if err != nil {
+			logs.Logger.Println("Error al insertar configuración: ", err)
+			return err
 		}
 	}
 
