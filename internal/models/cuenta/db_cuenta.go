@@ -45,14 +45,25 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	return cuentaDTO, nil
 }
 
-func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta Cuenta) error {
+func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) (int64, error) {
 	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
-	query := "CALL ingesoft.InsertarCuentaAdministrador(?, ?, ?)"
-	_, err := database.DB.Exec(query, usernameEncriptado, cuenta.Email, passwordEncriptado)
+	query := "CALL ingesoft.InsertarCuentaAdmin(?, ?, ?,?)"
+	var idCuenta int64
+	err := database.DB.QueryRow(query, usernameEncriptado, cuenta.Email, passwordEncriptado, cuenta.Rol.String()).Scan(&idCuenta)
 	if err != nil {
 		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
-		return err
+		return -1, err
 	}
-	return nil
+	query = "call ingesoft.InsertarPersona(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	_, err = database.DB.Exec(query, cuenta.Persona.Nombre, cuenta.Persona.Apellidos, cuenta.Persona.Sexo.String(),
+		cuenta.Persona.TipoDocumento.String(), cuenta.Persona.NroDocumento, cuenta.Persona.FechaNacimiento,
+		cuenta.Persona.Telefono, cuenta.Persona.Pais, cuenta.Persona.Provincia, cuenta.Persona.Distrito,
+		cuenta.Persona.TipoVia.String(),
+		cuenta.Persona.Direccion, cuenta.Persona.Referencia, cuenta.Persona.CodigoPostal)
+	if err != nil {
+		logs.Logger.Println("Error al insertar Familiar: ", err)
+		return -1, err
+	}
+	return idCuenta, nil
 }
