@@ -17,9 +17,9 @@ func NewFamiliarRepositoryDB() FamiliarRepository {
 }
 
 func (r *familiarRepositoryDB) InsertarFamiliar(f Familiar, idTitular int) error {
-	query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	_, err := database.DB.Exec(query, f.Nombre, f.Apellidos, f.Sexo.String(),
-		f.Dni, f.FechaNacimiento, f.Telefono, f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(),
+		f.TipoDocumento.String(), f.NroDocumento, f.FechaNacimiento, f.Telefono, f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(),
 		f.Direccion, f.Referencia, f.EsConyuge, idTitular, f.MismaDireccionPostulante, f.Ciudad, f.CodigoPostal, f.TipoFamiliar.String())
 	if err != nil {
 		logs.Logger.Println("Error al insertar Familiar: ", err)
@@ -66,7 +66,8 @@ func (r *familiarRepositoryDB) ObtenerIdsFamiliaresPorTitular(idTitular int) ([]
 			&fam.Nombre,
 			&fam.Apellidos,
 			&fam.Sexo,
-			&fam.Dni,
+			&fam.TipoDocumento,
+			&fam.NroDocumento,
 			&fam.FechaNacimiento,
 			&fam.Telefono,
 			&fam.Pais,
@@ -97,7 +98,8 @@ func (r *familiarRepositoryDB) ObtenerFamiliarPorIDPersona(idPersona int) (*Fami
 		&f.Nombre,
 		&f.Apellidos,
 		&f.Sexo,
-		&f.Dni,
+		&f.TipoDocumento,
+		&f.NroDocumento,
 		&f.FechaNacimiento,
 		&f.Telefono,
 		&f.Pais,

@@ -12,6 +12,7 @@ require (
 )
 
 require (
+
 	github.com/boombuler/barcode v1.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/f-amaral/go-async v0.3.0 // indirect
