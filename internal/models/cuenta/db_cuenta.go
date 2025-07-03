@@ -45,25 +45,33 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	return cuentaDTO, nil
 }
 
-func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) (int64, error) {
-	usernameEncriptado := security.Hash256(cuenta.Username)
-	passwordEncriptado := security.Hash256(cuenta.Contrasena)
-	query := "CALL ingesoft.InsertarCuentaAdmin(?, ?, ?,?)"
-	var idCuenta int64
-	err := database.DB.QueryRow(query, usernameEncriptado, cuenta.Email, passwordEncriptado, cuenta.Rol.String()).Scan(&idCuenta)
-	if err != nil {
-		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
-		return -1, err
-	}
-	query = "call ingesoft.InsertarPersona(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	_, err = database.DB.Exec(query, cuenta.Persona.Nombre, cuenta.Persona.Apellidos, cuenta.Persona.Sexo.String(),
+func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) error {
+	query := "call ingesoft.InsertarPersona(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	_, err := database.DB.Exec(query, cuenta.Persona.Nombre, cuenta.Persona.Apellidos, cuenta.Persona.Sexo.String(),
 		cuenta.Persona.TipoDocumento.String(), cuenta.Persona.NroDocumento, cuenta.Persona.FechaNacimiento,
 		cuenta.Persona.Telefono, cuenta.Persona.Pais, cuenta.Persona.Provincia, cuenta.Persona.Distrito,
 		cuenta.Persona.TipoVia.String(),
 		cuenta.Persona.Direccion, cuenta.Persona.Referencia, cuenta.Persona.CodigoPostal)
 	if err != nil {
 		logs.Logger.Println("Error al insertar Familiar: ", err)
-		return -1, err
+		return err
 	}
-	return idCuenta, nil
+
+	var idPersona int64
+	err = database.DB.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idPersona)
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la persona: ", err)
+		return err
+	}
+
+	usernameEncriptado := security.Hash256(cuenta.Username)
+	passwordEncriptado := security.Hash256(cuenta.Contrasena)
+	query = "CALL ingesoft.InsertarCuentaAdmin(?, ?, ?, ?, ?)"
+	_, err = database.DB.Exec(query, usernameEncriptado, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
+	if err != nil {
+		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
+		return err
+	}
+
+	return nil
 }
