@@ -1,12 +1,15 @@
 package cuenta
 
-import "github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+import (
+	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
+)
 
 type CuentaAdminRequest struct {
 	IdCuenta        int                          `json:"id_cuenta"`
 	IdPersona       int                          `json:"id_persona"`
 	Username        string                       `json:"username"`
-	Email           string                       `json:"email"`
+	Email           utils.NullString             `json:"email"`
 	Rol             tipos.Rol                    `json:"rol"`
 	Nombre          string                       `json:"nombre"`
 	Apellidos       string                       `json:"apellidos"`
@@ -15,12 +18,12 @@ type CuentaAdminRequest struct {
 	NroDocumento    string                       `json:"nro_documento"`
 	FechaNacimiento string                       `json:"fecha_nacimiento"`
 	Telefono        string                       `json:"telefono"`
-	Pais            string                       `json:"pais"`
-	Provincia       string                       `json:"provincia"`
-	Distrito        string                       `json:"distrito"`
+	Pais            utils.NullString             `json:"pais"`
+	Provincia       utils.NullString             `json:"provincia"`
+	Distrito        utils.NullString             `json:"distrito"`
 	TipoVia         tipos.TipoVia                `json:"tipo_via"`
-	Direccion       string                       `json:"direccion"`
-	Referencia      string                       `json:"referencia"`
-	Ciudad          string                       `json:"ciudad"`
-	CodigoPostal    string                       `json:"codigo_postal"`
+	Direccion       utils.NullString             `json:"direccion"`
+	Referencia      utils.NullString             `json:"referencia"`
+	Ciudad          utils.NullString             `json:"ciudad"`
+	CodigoPostal    utils.NullString             `json:"codigo_postal"`
 }
