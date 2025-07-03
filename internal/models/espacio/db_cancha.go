@@ -37,8 +37,20 @@ func (r *canchaRespositoryDB) ObtenerCanchasHorarios() ([]CanchaHorarioDTO, erro
 }
 
 func (r *canchaRespositoryDB) InsertarCancha(c Cancha) error {
-	query := "call ingesoft.InsertarCancha(?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
-	_, err := database.DB.Exec(query,
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+
+	query := "CALL ingesoft.InsertarCancha(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err = tx.Exec(query,
 		c.Codigo,
 		c.Nombre,
 		c.Ubicacion.String(),
@@ -46,18 +58,36 @@ func (r *canchaRespositoryDB) InsertarCancha(c Cancha) error {
 		c.Costo,
 		c.Imagen,
 		c.Reglamento,
-		1,
+		1, // EstadoEspacio activo por defecto
 		c.DuracionBloque,
 		c.Deporte.String(),
-		)
+	)
 	if err != nil {
 		logs.Logger.Println("Error al insertar espacio social: ", err)
+		tx.Rollback()
 		return err
 	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+
 func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) error {
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+
 	// ---------- Actualiza tabla Espacio ----------
 	espacioSet := []string{}
 	args := []interface{}{}
@@ -68,7 +98,7 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 	}
 	if dto.Ubicacion != nil {
 		espacioSet = append(espacioSet, "ubicacion = ?")
-		args = append(args, dto.Ubicacion.String()) // si es enum con método String()
+		args = append(args, dto.Ubicacion.String())
 	}
 	if dto.Capacidad != nil {
 		espacioSet = append(espacioSet, "capacidad = ?")
@@ -102,8 +132,8 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 	if len(espacioSet) > 0 {
 		query := fmt.Sprintf("UPDATE Espacio SET %s WHERE idEspacio = ?", strings.Join(espacioSet, ", "))
 		args = append(args, id)
-		_, err := database.DB.Exec(query, args...)
-		if err != nil {
+		if _, err := tx.Exec(query, args...); err != nil {
+			tx.Rollback()
 			return fmt.Errorf("error actualizando espacio: %w", err)
 		}
 	}
@@ -111,14 +141,20 @@ func (r *canchaRespositoryDB) ActualizarParcial(id int, dto CanchaUpdateDTO) err
 	// ---------- Actualiza tabla Canchas ----------
 	if dto.Deporte != nil {
 		query := "UPDATE Canchas SET deporte = ? WHERE fid_Espacio = ?"
-		_, err := database.DB.Exec(query, dto.Deporte.String(), id)
-		if err != nil {
+		if _, err := tx.Exec(query, dto.Deporte.String(), id); err != nil {
+			tx.Rollback()
 			return fmt.Errorf("error actualizando deporte: %w", err)
 		}
 	}
 
+	// ---------- Commit final ----------
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("error al hacer commit: %w", err)
+	}
+
 	return nil
 }
+
 
 
 func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
