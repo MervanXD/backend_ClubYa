@@ -59,13 +59,24 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 
 	// 1. Insertar persona
 	query := "call ingesoft.InsertarPersona(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	_, err = tx.Exec(query, cuenta.Persona.Nombre, cuenta.Persona.Apellidos, cuenta.Persona.Sexo.String(),
-		cuenta.Persona.TipoDocumento.String(), cuenta.Persona.NroDocumento, cuenta.Persona.FechaNacimiento,
-		cuenta.Persona.Telefono, cuenta.Persona.Pais, cuenta.Persona.Provincia, cuenta.Persona.Distrito,
+	_, err = tx.Exec(query,
+		cuenta.Persona.Nombre,
+		cuenta.Persona.Apellidos,
+		cuenta.Persona.Sexo.String(),
+		cuenta.Persona.TipoDocumento.String(),
+		cuenta.Persona.NroDocumento,
+		cuenta.Persona.FechaNacimiento,
+		cuenta.Persona.Telefono,
+		cuenta.Persona.Pais,
+		cuenta.Persona.Provincia,
+		cuenta.Persona.Distrito,
 		cuenta.Persona.TipoVia.String(),
-		cuenta.Persona.Direccion, cuenta.Persona.Referencia, cuenta.Persona.CodigoPostal)
+		cuenta.Persona.Direccion,
+		cuenta.Persona.Referencia,
+		cuenta.Persona.Ciudad,
+		cuenta.Persona.CodigoPostal)
 	if err != nil {
-		logs.Logger.Println("Error al insertar Familiar: ", err)
+		logs.Logger.Println("Error al insertar datos Personales: ", err)
 		tx.Rollback()
 		return err
 	}
