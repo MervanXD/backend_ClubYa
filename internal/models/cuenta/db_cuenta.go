@@ -13,12 +13,12 @@ func NewCuentaRepositoryDB() CuentaRepository {
 }
 
 func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
-	usernameEncriptado := security.Hash256(cuenta.Username)
+
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	query := "CALL ingesoft.InsertarCuenta(?, ?, ?)"
 	var idCuenta int64
 
-	err := database.DB.QueryRow(query, usernameEncriptado, cuenta.Email, passwordEncriptado).Scan(&idCuenta)
+	err := database.DB.QueryRow(query, cuenta.Username, cuenta.Email, passwordEncriptado).Scan(&idCuenta)
 	if err != nil {
 		return 0, err
 	}
@@ -27,10 +27,9 @@ func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
 }
 
 func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
-	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	query := "call ingesoft.LogIn(?, ?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud)"
-	_, err := database.DB.Exec(query, usernameEncriptado, passwordEncriptado)
+	_, err := database.DB.Exec(query, cuenta.Username, passwordEncriptado)
 	var cuentaDTO DTOCuenta
 	cuentaDTO.Username = cuenta.Username
 	if err != nil {
@@ -90,10 +89,9 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	}
 
 	// 2. Insertar cuenta admin
-	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	query = "CALL ingesoft.InsertarCuentaAdmin(?, ?, ?, ?, ?)"
-	_, err = tx.Exec(query, usernameEncriptado, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
+	_, err = tx.Exec(query, cuenta.Username, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
 		tx.Rollback()
