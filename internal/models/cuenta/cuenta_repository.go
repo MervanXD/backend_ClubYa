@@ -5,4 +5,6 @@ type CuentaRepository interface {
 	LogIn(cuenta Cuenta) (DTOCuenta, error)
 	CrearCuentaAdministrador(cuenta CuentaAdminDTO) error
 	ObtenerAdministradores() ([]CuentaAdminRequest, error)
+	ObtenerPerfilPorIdCuenta(idCuenta int64) (CuentaAdminDTO, error)
+	ActualizarCuentaAParcial(idCuenta int64, dto CuentaAdminUpdateDTO) error 
 }

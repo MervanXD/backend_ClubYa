@@ -1,6 +1,8 @@
 package cuenta
 
 import (
+	"strings"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/internal/pkgs/security"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -150,4 +152,177 @@ func (r *cuentaRepositoryDB) ObtenerAdministradores() ([]CuentaAdminRequest, err
 		return nil, err
 	}
 	return administradores, nil
+}
+
+func (r *cuentaRepositoryDB) ObtenerPerfilPorIdCuenta(idCuenta int64) (CuentaAdminDTO, error) {
+	query := "CALL ingesoft.ObtenerPerfilPorIdCuenta(?)"
+	row := database.DB.QueryRow(query, idCuenta)
+
+	var cuentaDTO CuentaAdminDTO
+	err := row.Scan(
+		&cuentaDTO.Username,
+		&cuentaDTO.Email,
+		&cuentaDTO.Rol,
+		&cuentaDTO.Persona.Id,
+		&cuentaDTO.Persona.Nombre,
+		&cuentaDTO.Persona.Apellidos,
+		&cuentaDTO.Persona.Sexo,
+		&cuentaDTO.Persona.TipoDocumento,
+		&cuentaDTO.Persona.NroDocumento,
+		&cuentaDTO.Persona.FechaNacimiento,
+		&cuentaDTO.Persona.Telefono,
+		&cuentaDTO.Persona.Pais,
+		&cuentaDTO.Persona.Provincia,
+		&cuentaDTO.Persona.Distrito,
+		&cuentaDTO.Persona.TipoVia,
+		&cuentaDTO.Persona.Direccion,
+		&cuentaDTO.Persona.Referencia,
+		&cuentaDTO.Persona.Ciudad,
+		&cuentaDTO.Persona.CodigoPostal,
+	)
+	if err != nil {
+		logs.Logger.Println("Error al obtener perfil por ID de cuenta: ", err)
+		return cuentaDTO, err
+	}
+
+	return cuentaDTO, nil
+}
+
+func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto CuentaAdminUpdateDTO) error {
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+	// 1. Actualizar tabla Cuenta
+	cuentaSet := []string{}
+	cuentaArgs := []interface{}{}
+
+	if dto.Username != nil {
+		cuentaSet = append(cuentaSet, "username = ?")
+		cuentaArgs = append(cuentaArgs, *dto.Username)
+	}
+	if dto.Email != nil {
+		cuentaSet = append(cuentaSet, "email = ?")
+		cuentaArgs = append(cuentaArgs, *dto.Email)
+	}
+	if dto.Contrasena != nil {
+		passwordEncriptado := security.Hash256(*dto.Contrasena)
+		cuentaSet = append(cuentaSet, "contrasena = ?")
+		cuentaArgs = append(cuentaArgs, passwordEncriptado)
+	}
+	if dto.Rol != nil {
+		cuentaSet = append(cuentaSet, "rol = ?")
+		cuentaArgs = append(cuentaArgs, dto.Rol.String())
+	}
+
+	if len(cuentaSet) > 0 {
+		query := "UPDATE Cuenta SET " + strings.Join(cuentaSet, ", ") + " WHERE idCuenta = ?"
+		cuentaArgs = append(cuentaArgs, idCuenta)
+		_, err := tx.Exec(query, cuentaArgs...)
+		if err != nil {
+			logs.Logger.Println("Error al actualizar cuenta: ", err)
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// 2. Actualizar tabla Persona (si se proporcionaron datos)
+	if dto.Titular != nil {
+		// Primero obtener el id_persona de la cuenta
+		var idPersona int
+		err := tx.QueryRow("SELECT fid_Persona FROM Cuenta WHERE idCuenta = ?", idCuenta).Scan(&idPersona)
+		if err != nil {
+			logs.Logger.Println("Error al obtener id_persona: ", err)
+			tx.Rollback()
+			return err
+		}
+
+		personaSet := []string{}
+		personaArgs := []interface{}{}
+
+		if dto.Titular.Nombre != nil {
+			personaSet = append(personaSet, "nombre = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Nombre)
+		}
+		if dto.Titular.Apellidos != nil {
+			personaSet = append(personaSet, "apellidos = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Apellidos)
+		}
+		if dto.Titular.Sexo != nil {
+			personaSet = append(personaSet, "sexo = ?")
+			personaArgs = append(personaArgs, dto.Titular.Sexo.String())
+		}
+		if dto.Titular.TipoDocumento != nil {
+			personaSet = append(personaSet, "tipoDocumento = ?")
+			personaArgs = append(personaArgs, dto.Titular.TipoDocumento.String())
+		}
+		if dto.Titular.NroDocumento != nil {
+			personaSet = append(personaSet, "nroDocumento = ?")
+			personaArgs = append(personaArgs, *dto.Titular.NroDocumento)
+		}
+		if dto.Titular.FechaNacimiento != nil {
+			personaSet = append(personaSet, "fechaNacimiento = ?")
+			personaArgs = append(personaArgs, *dto.Titular.FechaNacimiento)
+		}
+		if dto.Titular.Telefono != nil {
+			personaSet = append(personaSet, "telefono = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Telefono)
+		}
+		if dto.Titular.Pais != nil {
+			personaSet = append(personaSet, "pais = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Pais)
+		}
+		if dto.Titular.Provincia != nil {
+			personaSet = append(personaSet, "provincia = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Provincia)
+		}
+		if dto.Titular.Distrito != nil {
+			personaSet = append(personaSet, "distrito = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Distrito)
+		}
+		if dto.Titular.TipoVia != nil {
+			personaSet = append(personaSet, "tipoVia = ?")
+			personaArgs = append(personaArgs, dto.Titular.TipoVia.String())
+		}
+		if dto.Titular.Direccion != nil {
+			personaSet = append(personaSet, "direccion = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Direccion)
+		}
+		if dto.Titular.Referencia != nil {
+			personaSet = append(personaSet, "referencia = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Referencia)
+		}
+		if dto.Titular.Ciudad != nil {
+			personaSet = append(personaSet, "ciudad = ?")
+			personaArgs = append(personaArgs, *dto.Titular.Ciudad)
+		}
+		if dto.Titular.CodigoPostal != nil {
+			personaSet = append(personaSet, "codigoPostal = ?")
+			personaArgs = append(personaArgs, *dto.Titular.CodigoPostal)
+		}
+
+		if len(personaSet) > 0 {
+			query := "UPDATE Persona SET " + strings.Join(personaSet, ", ") + " WHERE idPersona = ?"
+			personaArgs = append(personaArgs, idPersona)
+			_, err := tx.Exec(query, personaArgs...)
+			if err != nil {
+				logs.Logger.Println("Error al actualizar persona: ", err)
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	// 3. Commit si todo salió bien
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
