@@ -13,7 +13,7 @@ const (
 	Administrador
 	AdministradorAcademias
 	AdminitradorMembresias
-	AdministradorCanchas
+	AdministradorEspacios
 	AdministradorEventos
 )
 
@@ -23,7 +23,7 @@ var rolStr = [...]string{
 	"Administrador",
 	"Administrador_Academias",
 	"Administrador_Membresias",
-	"Administrador_Canchas",
+	"Administrador_Espacios",
 	"Administrador_Eventos",
 }
 
