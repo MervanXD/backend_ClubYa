@@ -44,3 +44,15 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	}
 	return cuentaDTO, nil
 }
+
+func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta Cuenta) error {
+	usernameEncriptado := security.Hash256(cuenta.Username)
+	passwordEncriptado := security.Hash256(cuenta.Contrasena)
+	query := "CALL ingesoft.InsertarCuentaAdministrador(?, ?, ?)"
+	_, err := database.DB.Exec(query, usernameEncriptado, cuenta.Email, passwordEncriptado)
+	if err != nil {
+		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
+		return err
+	}
+	return nil
+}
