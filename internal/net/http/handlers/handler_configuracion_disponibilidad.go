@@ -36,5 +36,5 @@ func ActualizarConfiguracionDisponibilidad(c *fiber.Ctx) error {
 		logs.Logger.Println("Error al actualizar la configuracion de disponibilidad: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al actualizar la configuracion de disponibilidad", nil))
 	}
-	return c.Status(fiber.StatusOK).JSON(models.Succes("Configuraciones de disponibilidad actualizadas con éxito", configuraciones))
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Configuraciones de disponibilidad actualizadas con éxito", nil))
 }
