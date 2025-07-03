@@ -17,8 +17,19 @@ func NewEspacioSocialRepositoryDB() EspacioSocialRepository {
 }
 
 func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) error {
-	query := "call ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
-	_, err := database.DB.Exec(query,
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+
+	query := "CALL ingesoft.InsertarEspacioSocial(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err = tx.Exec(query,
 		es.Codigo,
 		es.Nombre,
 		es.Ubicacion.String(),
@@ -31,13 +42,31 @@ func (r *espacioSocialRespositoryDB) InsertarEspacioSocial(es EspacioSocial) err
 		es.DuracionBloque)
 	if err != nil {
 		logs.Logger.Println("Error al insertar espacio social: ", err)
+		tx.Rollback()
 		return err
 	}
+
+	if err := tx.Commit(); err != nil {
+		logs.Logger.Println("Error al hacer commit:", err)
+		return err
+	}
+
 	return nil
 }
 
+
 func (r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocialUpdateDTO) error {
-	// ---------- Actualiza tabla Espacio ----------
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+
 	espacioSet := []string{}
 	args := []interface{}{}
 
@@ -47,7 +76,7 @@ func (r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocial
 	}
 	if dto.Ubicacion != nil {
 		espacioSet = append(espacioSet, "ubicacion = ?")
-		args = append(args, dto.Ubicacion.String()) // si es enum con método String()
+		args = append(args, dto.Ubicacion.String())
 	}
 	if dto.Capacidad != nil {
 		espacioSet = append(espacioSet, "capacidad = ?")
@@ -81,23 +110,29 @@ func (r *espacioSocialRespositoryDB) ActualizarParcial(id int, dto EspacioSocial
 	if len(espacioSet) > 0 {
 		query := fmt.Sprintf("UPDATE Espacio SET %s WHERE idEspacio = ?", strings.Join(espacioSet, ", "))
 		args = append(args, id)
-		_, err := database.DB.Exec(query, args...)
+		_, err := tx.Exec(query, args...)
 		if err != nil {
+			tx.Rollback()
 			return fmt.Errorf("error actualizando espacio: %w", err)
 		}
 	}
 
-	// ---------- Actualiza tabla EspacioSocial ----------
 	if dto.Actividad != nil {
 		query := "UPDATE EspacioSocial SET actividad = ? WHERE fid_Espacio = ?"
-		_, err := database.DB.Exec(query, dto.Actividad.String(), id)
+		_, err := tx.Exec(query, dto.Actividad.String(), id)
 		if err != nil {
+			tx.Rollback()
 			return fmt.Errorf("error actualizando actividad: %w", err)
 		}
 	}
 
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("error al hacer commit: %w", err)
+	}
+
 	return nil
 }
+
 
 func (r *espacioSocialRespositoryDB) ObtenerEspaciosSociales() ([]EspacioSocial, error) {
 	query := "call ingesoft.ObtenerEspaciosSociales()"
