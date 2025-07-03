@@ -38,3 +38,19 @@ func LogIn(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inicio de sesión exitoso", cuentaMandar))
 }
+
+func CrearCuentaAdministrador(c *fiber.Ctx) error {
+	var cuentaDTO cuenta.CuentaAdminDTO
+	if err := c.BodyParser(&cuentaDTO); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+	repo := cuenta.NewCuentaRepositoryDB()
+	idCuenta, err := repo.CrearCuentaAdministrador(cuentaDTO)
+	if err != nil {
+		logs.Logger.Println("Error al crear la cuenta de administrador: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al crear la cuenta de administrador", nil))
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Cuenta de administrador creada con éxito", idCuenta))
+}
