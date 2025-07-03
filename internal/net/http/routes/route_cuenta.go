@@ -9,4 +9,5 @@ func RouteCuenta(api fiber.Router) {
 	api.Post("/cuenta/crear", handlers.CrearCuenta)
 	api.Post("/cuenta/login", handlers.LogIn)
 	api.Post("/cuenta/crear-administrador", handlers.CrearCuentaAdministrador)
+	api.Get("/cuenta/administradores", handlers.ObtenerAdministradores)
 }

@@ -54,3 +54,14 @@ func CrearCuentaAdministrador(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Cuenta de administrador creada con éxito", nil))
 }
+
+func ObtenerAdministradores(c *fiber.Ctx) error {
+	repo := cuenta.NewCuentaRepositoryDB()
+	administradores, err := repo.ObtenerAdministradores()
+	if err != nil {
+		logs.Logger.Println("Error al obtener administradores: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener administradores", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Administradores obtenidos con éxito", administradores))
+}

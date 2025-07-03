@@ -105,3 +105,49 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 
 	return nil
 }
+
+func (r *cuentaRepositoryDB) ObtenerAdministradores() ([]CuentaAdminRequest, error) {
+	query := "CALL ingesoft.ObtenerAdministradores()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener administradores: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var administradores []CuentaAdminRequest
+	for rows.Next() {
+		var cuenta CuentaAdminRequest
+		err := rows.Scan(
+			&cuenta.IdCuenta,
+			&cuenta.IdPersona,
+			&cuenta.Username,
+			&cuenta.Email,
+			&cuenta.Rol,
+			&cuenta.Nombre,
+			&cuenta.Apellidos,
+			&cuenta.Sexo,
+			&cuenta.TipoDocumento,
+			&cuenta.NroDocumento,
+			&cuenta.FechaNacimiento,
+			&cuenta.Telefono,
+			&cuenta.Pais,
+			&cuenta.Provincia,
+			&cuenta.Distrito,
+			&cuenta.TipoVia,
+			&cuenta.Direccion,
+			&cuenta.Referencia,
+			&cuenta.Ciudad,
+			&cuenta.CodigoPostal,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear fila de administrador: ", err)
+			return nil, err
+		}
+		administradores = append(administradores, cuenta)
+	}
+	if err := rows.Err(); err != nil {
+		logs.Logger.Println("Error al iterar filas de administradores: ", err)
+		return nil, err
+	}
+	return administradores, nil
+}
