@@ -8,8 +8,6 @@ import (
 )
 
 func SetupApp() *fiber.App {
-	//logs.Logger.Println("Iniciando configuración de la aplicación Fiber...")
-
 	app := fiber.New()
 	app.Use(cors.New())
 	api := app.Group("/api")
@@ -37,6 +35,7 @@ func SetupApp() *fiber.App {
 	routes.RutasAcademia(api)
 	routes.RutasConfiguracionDisponibilidad(api)
 	//logs.Logger.Println("Configuración de la aplicación Fiber completada.")
+	routes.RutasReporte(api)
 
 	routes.RutasPrueba(api)
 	return app

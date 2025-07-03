@@ -15,9 +15,9 @@ func NewTitularRepositoryDB() TitularRepository {
 }
 
 func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, error) {
-	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
+	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
 	_, err := database.DB.Exec(query, p.Nombre, p.Apellidos, p.Sexo.String(),
-		p.Dni, p.FechaNacimiento, p.Telefono, p.Pais, p.Provincia, p.Distrito, p.TipoVia.String(),
+		p.TipoDocumento.String(), p.NroDocumento, p.FechaNacimiento, p.Telefono, p.Pais, p.Provincia, p.Distrito, p.TipoVia.String(),
 		p.Direccion, p.Referencia, p.Ocupacion, p.NombreEmpresa, p.DireccionEmpresa, p.IngresoPromedio, p.EsPostulante, p.Ciudad, p.CodigoPostal, idCuenta)
 	if err != nil {
 		logs.Logger.Println("Error al insertar Persona: ", err)
@@ -51,7 +51,8 @@ func (r *titularRepositoryDB) ObtenerTitularPorID(ctx context.Context, idPersona
 		&t.Nombre,
 		&t.Apellidos,
 		&t.Sexo,
-		&t.Dni,
+		&t.TipoDocumento,
+		&t.NroDocumento,
 		&t.FechaNacimiento,
 		&t.Telefono,
 		&t.Pais,
