@@ -46,30 +46,51 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 }
 
 func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) error {
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+
+	// 1. Insertar persona
 	query := "call ingesoft.InsertarPersona(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	_, err := database.DB.Exec(query, cuenta.Persona.Nombre, cuenta.Persona.Apellidos, cuenta.Persona.Sexo.String(),
+	_, err = tx.Exec(query, cuenta.Persona.Nombre, cuenta.Persona.Apellidos, cuenta.Persona.Sexo.String(),
 		cuenta.Persona.TipoDocumento.String(), cuenta.Persona.NroDocumento, cuenta.Persona.FechaNacimiento,
 		cuenta.Persona.Telefono, cuenta.Persona.Pais, cuenta.Persona.Provincia, cuenta.Persona.Distrito,
 		cuenta.Persona.TipoVia.String(),
 		cuenta.Persona.Direccion, cuenta.Persona.Referencia, cuenta.Persona.CodigoPostal)
 	if err != nil {
 		logs.Logger.Println("Error al insertar Familiar: ", err)
+		tx.Rollback()
 		return err
 	}
 
 	var idPersona int64
-	err = database.DB.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idPersona)
+	err = tx.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el ID de la persona: ", err)
+		tx.Rollback()
 		return err
 	}
 
+	// 2. Insertar cuenta admin
 	usernameEncriptado := security.Hash256(cuenta.Username)
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
 	query = "CALL ingesoft.InsertarCuentaAdmin(?, ?, ?, ?, ?)"
-	_, err = database.DB.Exec(query, usernameEncriptado, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
+	_, err = tx.Exec(query, usernameEncriptado, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
+		tx.Rollback()
+		return err
+	}
+
+	// 3. Commit si todo salió bien
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 
