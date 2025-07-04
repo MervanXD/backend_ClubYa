@@ -33,8 +33,6 @@ func SetupApp() *fiber.App {
 	routes.RutasCancha(api)
 	routes.RutasInscripcionAcademia(api)
 	routes.RutasAcademia(api)
-	routes.RutasConfiguracionDisponibilidad(api)
-	//logs.Logger.Println("Configuración de la aplicación Fiber completada.")
 	routes.RutasReporte(api)
 
 	routes.RutasPrueba(api)
