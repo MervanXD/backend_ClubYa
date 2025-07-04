@@ -11,9 +11,8 @@ const (
 	Titular Rol = iota
 	Conyuge
 	Administrador
-	AdministradorAcademias
+	AdministradorDeportes
 	AdminitradorMembresias
-	AdministradorEspacios
 	AdministradorEventos
 )
 
@@ -21,9 +20,8 @@ var rolStr = [...]string{
 	"Titular",
 	"Conyuge",
 	"Administrador",
-	"Administrador_Academias",
+	"Administrador_Deportes",
 	"Administrador_Membresias",
-	"Administrador_Espacios",
 	"Administrador_Eventos",
 }
 
