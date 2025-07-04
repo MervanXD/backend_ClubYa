@@ -32,7 +32,6 @@ func main() {
 	// esto es para crear una app
 	logs.Logger.Println("🌐 Configurando aplicación Fiber...")
 	app := app.SetupApp()
-	logs.Logger.Println("✅ Aplicación Fiber configurada")
 
 	logs.Logger.Println("🌐 Servidor iniciando en puerto 4000...")
 	if err := app.Listen(":4000"); err != nil {
