@@ -145,3 +145,14 @@ func ObtenerIdCuentaPorPersona(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("ID de cuenta obtenido con éxito", idCuenta))
 }
+
+func ObtenerUsuarios(c *fiber.Ctx) error {
+	repo := cuenta.NewCuentaRepositoryDB()
+	usuarios, err := repo.ListarUsuarios()
+	if err != nil {
+		logs.Logger.Println("Error al obtener usuarios: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener usuarios", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Usuarios listados con éxito", usuarios))
+}
