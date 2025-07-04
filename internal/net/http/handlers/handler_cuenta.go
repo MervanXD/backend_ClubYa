@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/cuenta"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -53,4 +55,93 @@ func CrearCuentaAdministrador(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(models.Succes("Cuenta de administrador creada con éxito", nil))
+}
+
+func ObtenerAdministradores(c *fiber.Ctx) error {
+	repo := cuenta.NewCuentaRepositoryDB()
+	administradores, err := repo.ObtenerAdministradores()
+	if err != nil {
+		logs.Logger.Println("Error al obtener administradores: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener administradores", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Administradores obtenidos con éxito", administradores))
+}
+
+func ObtenerPerfilPorIdCuenta(c *fiber.Ctx) error {
+	idCuentaStr := c.Params("id")
+	if idCuentaStr == "" {
+		logs.Logger.Println("ID de cuenta no proporcionado")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta no proporcionado", nil))
+	}
+	idCuenta, err := strconv.Atoi(idCuentaStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir ID de cuenta a entero: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta inválido", nil))
+	}
+	idCuentaNew := int64(idCuenta)
+	repo := cuenta.NewCuentaRepositoryDB()
+	perfil, err := repo.ObtenerPerfilPorIdCuenta(idCuentaNew)
+	if err != nil {
+		logs.Logger.Println("Error al obtener perfil por ID de cuenta: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener perfil por ID de cuenta", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Perfil obtenido con éxito", perfil))
+}
+
+func ActualizarCuenta(c *fiber.Ctx) error {
+	idCuentaStr := c.Params("id")
+	if idCuentaStr == "" {
+		logs.Logger.Println("ID de cuenta no proporcionado")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta no proporcionado", nil))
+	}
+	idCuenta, err := strconv.Atoi(idCuentaStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir ID de cuenta a entero: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta inválido", nil))
+	}
+	idCuentaNew := int64(idCuenta)
+
+	var cuentaDTO cuenta.CuentaAdminUpdateDTO
+	if err := c.BodyParser(&cuentaDTO); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+	repo := cuenta.NewCuentaRepositoryDB()
+	err = repo.ActualizarCuentaAParcial(idCuentaNew, cuentaDTO)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar la cuenta: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al actualizar la cuenta", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Cuenta actualizada con éxito", nil))
+}
+
+func ObtenerIdCuentaPorPersona(c *fiber.Ctx) error {
+	idPersonaStr := c.Params("idPersona")
+	if idPersonaStr == "" {
+		logs.Logger.Println("ID de persona no proporcionado")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de persona no proporcionado", nil))
+	}
+
+	idPersona, err := strconv.Atoi(idPersonaStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir ID de persona a entero: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de persona inválido", nil))
+	}
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	idCuenta, err := repo.ObtenerIdCuentaPorPersona(int64(idPersona))
+	if err != nil {
+		logs.Logger.Println("Error al obtener ID de cuenta por persona: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener ID de cuenta por persona", nil))
+	}
+
+	if idCuenta == 0 {
+		logs.Logger.Println("No se encontró cuenta para la persona con ID:", idPersona)
+		return c.Status(fiber.StatusNotFound).JSON(models.Error("No se encontró cuenta para la persona especificada", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("ID de cuenta obtenido con éxito", idCuenta))
 }

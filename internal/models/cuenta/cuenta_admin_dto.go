@@ -10,5 +10,5 @@ type CuentaAdminDTO struct {
 	Email      string          `json:"email"`
 	Contrasena string          `json:"contrasena"`
 	Rol        tipos.Rol       `json:"rol"`
-	Persona    persona.Persona `json:"datosPersonales"`
+	Persona    persona.Titular `json:"datosPersonales"`
 }

@@ -22,7 +22,7 @@ func (d TipoDocumentoIdentidad) String() string {
 	if int(d) < 0 || int(d) >= len(tiposDocIdentidadStr) {
 		return "Desconocido"
 	}
-	return diasStr[d]
+	return tiposDocIdentidadStr[d]
 }
 
 func (d TipoDocumentoIdentidad) MarshalJSON() ([]byte, error) {
