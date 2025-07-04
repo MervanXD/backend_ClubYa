@@ -10,4 +10,5 @@ type ConfiguracionDisponibilidadRepository interface {
 	ObtenerConfiguracionDisponibilidad(ctx context.Context, idEspacio int, tx ...*sql.Tx) ([]ConfiguracionDisponibilidad, error)
 	EliminarConfiguracionDisponibilidad(ctx context.Context, tx *sql.Tx, configuracion ConfiguracionDisponibilidad) error
 	ActualizarConfiguracionDisponibilidad(ctx context.Context, configuraciones []ConfiguracionDisponibilidad) error
+	ObtenerCrucesEspacio(ctx context.Context, idEspacio int) ([]NroCruces, error)
 }

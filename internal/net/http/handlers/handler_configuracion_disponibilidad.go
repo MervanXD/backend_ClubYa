@@ -38,3 +38,18 @@ func ActualizarConfiguracionDisponibilidad(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Configuraciones de disponibilidad actualizadas con éxito", nil))
 }
+
+func ObtenerInscritosEspacio(c *fiber.Ctx) error {
+	idEspacio, err := strconv.Atoi(c.Params("id_espacio"))
+	if err != nil {
+		logs.Logger.Println("Error al convertir el id_espacio: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al convertir el id_espacio", nil))
+	}
+	repo := configuracion_disponibilidad.NewConfiguracionDisponibilidadRepositoryDB()
+	inscritos, err := repo.ObtenerCrucesEspacio(c.Context(), idEspacio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los inscritos del espacio: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener los inscritos del espacio", nil))
+	}
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Inscritos del espacio obtenidos con éxito", inscritos))
+}

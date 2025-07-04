@@ -91,9 +91,6 @@ func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponi
 		}
 	}
 
-	logs.Logger.Println("Configuraciones a eliminar: ", configAEliminar)
-	logs.Logger.Println("Configuraciones a insertar: ", configAInsertar)
-
 	for _, configuracion := range configAEliminar {
 		err := r.EliminarConfiguracionDisponibilidad(ctx, tx, configuracion)
 		if err != nil {
@@ -116,4 +113,30 @@ func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponi
 	}
 
 	return nil
+}
+
+type NroCruces struct {
+	Dia            string `json:"dia"`
+	IdBloqueTiempo int    `json:"id_bloque_tiempo"`
+	Cantidad       int    `json:"cantidad"`
+}
+
+func (r *configuracionDisponibilidadRepositoryDB) ObtenerCrucesEspacio(ctx context.Context, idEspacio int) ([]NroCruces, error) {
+	rows, err := utils.QuerySP(ctx, database.DB, "ObtenerNroCrucesPorDiaBloque", idEspacio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los inscritos del espacio: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var inscritos []NroCruces
+	for rows.Next() {
+		var inscrito NroCruces
+		err = rows.Scan(&inscrito.Dia, &inscrito.IdBloqueTiempo, &inscrito.Cantidad)
+		if err != nil {
+			return nil, err
+		}
+		inscritos = append(inscritos, inscrito)
+	}
+	return inscritos, nil
 }
