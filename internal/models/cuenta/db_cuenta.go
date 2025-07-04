@@ -179,6 +179,10 @@ func (r *cuentaRepositoryDB) ObtenerPerfilPorIdCuenta(idCuenta int64) (CuentaAdm
 		&cuentaDTO.Persona.Referencia,
 		&cuentaDTO.Persona.Ciudad,
 		&cuentaDTO.Persona.CodigoPostal,
+		&cuentaDTO.Persona.Ocupacion,
+		&cuentaDTO.Persona.NombreEmpresa,
+		&cuentaDTO.Persona.DireccionEmpresa,
+		&cuentaDTO.Persona.IngresoPromedio,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al obtener perfil por ID de cuenta: ", err)
