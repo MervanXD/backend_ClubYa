@@ -10,3 +10,5 @@ services:
     ports:
       - "4000:4000"
     restart: always
+    env_file:
+      - .env
