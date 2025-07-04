@@ -81,6 +81,12 @@ func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponi
 		return err
 	}
 
+	cruces, err := r.ObtenerCrucesEspacio(ctx, idEspacio)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los cruces del espacio: ", err)
+		return err
+	}
+
 	configAEliminar := []ConfiguracionDisponibilidad{}
 	configAInsertar := []ConfiguracionDisponibilidad{}
 	for _, configuracion := range configuraciones {
@@ -92,6 +98,13 @@ func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponi
 	}
 
 	for _, configuracion := range configAEliminar {
+		cruce := slices.ContainsFunc(cruces, func(c NroCruces) bool {
+			return c.IdBloqueTiempo == configuracion.IdBloqueTiempo && c.Dia == configuracion.Dia.String()
+		})
+		if cruce {
+			logs.Logger.Println("No se puede eliminar un bloque de tiempo que ya tiene inscritos")
+			return errors.New("no se puede eliminar un bloque de tiempo que ya tiene inscritos")
+		}
 		err := r.EliminarConfiguracionDisponibilidad(ctx, tx, configuracion)
 		if err != nil {
 			logs.Logger.Println("Error al eliminar configuración: ", err)
