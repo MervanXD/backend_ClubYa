@@ -339,4 +339,35 @@ func (r *cuentaRepositoryDB) ObtenerIdCuentaPorPersona(idPersona int64) (int64, 
 	return idCuenta, nil
 }
 
-
+func (r *cuentaRepositoryDB) ListarUsuarios() ([]CuentaUsuariosRequest, error) {
+	query := "CALL ingesoft.ListarUsuarios()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener usuarios: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var usuarios []CuentaUsuariosRequest
+	for rows.Next() {
+		var cuenta CuentaUsuariosRequest
+		err := rows.Scan(
+			&cuenta.IdCuenta,
+			&cuenta.Username,
+			&cuenta.Email,
+			&cuenta.Nombre,
+			&cuenta.NroDocumento,
+			&cuenta.Telefono,
+			&cuenta.Rol,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear fila de usuario: ", err)
+			return nil, err
+		}
+		usuarios = append(usuarios, cuenta)
+	}
+	if err := rows.Err(); err != nil {
+		logs.Logger.Println("Error al iterar filas de usuario: ", err)
+		return nil, err
+	}
+	return usuarios, nil
+}

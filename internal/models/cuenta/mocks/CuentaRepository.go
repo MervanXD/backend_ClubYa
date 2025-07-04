@@ -76,6 +76,36 @@ func (_m *CuentaRepository) CrearCuentaAdministrador(_a0 cuenta.CuentaAdminDTO) 
 	return r0
 }
 
+// ListarUsuarios provides a mock function with no fields
+func (_m *CuentaRepository) ListarUsuarios() ([]cuenta.CuentaUsuariosRequest, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListarUsuarios")
+	}
+
+	var r0 []cuenta.CuentaUsuariosRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]cuenta.CuentaUsuariosRequest, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []cuenta.CuentaUsuariosRequest); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]cuenta.CuentaUsuariosRequest)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // LogIn provides a mock function with given fields: _a0
 func (_m *CuentaRepository) LogIn(_a0 cuenta.Cuenta) (cuenta.DTOCuenta, error) {
 	ret := _m.Called(_a0)
