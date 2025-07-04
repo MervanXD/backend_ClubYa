@@ -29,27 +29,67 @@ func (r *familiarRepositoryDB) InsertarFamiliar(f Familiar, idTitular int) error
 }
 
 func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, error) {
-	for _, familiar := range req.Familiares {
-		err := r.InsertarFamiliar(familiar, req.IdTitular)
+	tx, err := database.DB.Begin()
+	if err != nil {
+		logs.Logger.Println("Error al iniciar transacción:", err)
+		return -1, err
+	}
+	defer func() {
 		if err != nil {
-			logs.Logger.Println("Error al insertar familiar: ", err)
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	// Insertar cada familiar dentro de la transacción
+	for _, familiar := range req.Familiares {
+		query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+		_, err = tx.Exec(query,
+			familiar.Nombre,
+			familiar.Apellidos,
+			familiar.Sexo.String(),
+			familiar.TipoDocumento.String(),
+			familiar.NroDocumento,
+			familiar.FechaNacimiento,
+			familiar.Telefono,
+			familiar.Pais,
+			familiar.Provincia,
+			familiar.Distrito,
+			familiar.TipoVia.String(),
+			familiar.Direccion,
+			familiar.Referencia,
+			familiar.EsConyuge,
+			req.IdTitular,
+			familiar.MismaDireccionPostulante,
+			familiar.Ciudad,
+			familiar.CodigoPostal,
+			familiar.TipoFamiliar.String(),
+		)
+		if err != nil {
+			logs.Logger.Println("Error al insertar familiar en transacción:", err)
 			return -1, err
 		}
 	}
-	query := "call ingesoft.InsertarSolicitudMembresia(?,@s_id_solicitud)"
-	_, err := database.DB.Exec(query, req.IdTitular)
+
+	// Insertar solicitud de membresía
+	_, err = tx.Exec("call ingesoft.InsertarSolicitudMembresia(?, @s_id_solicitud)", req.IdTitular)
 	if err != nil {
-		logs.Logger.Println("Error al insertar solicitud de membresia: ", err)
+		logs.Logger.Println("Error al insertar solicitud membresía:", err)
+		return -1, err
 	}
+
+	// Obtener id generado
 	var idSolicitud int
-	err = database.DB.QueryRow("SELECT @s_id_solicitud").Scan(&idSolicitud)
+	err = tx.QueryRow("SELECT @s_id_solicitud").Scan(&idSolicitud)
 	if err != nil {
-		logs.Logger.Println("Error al obtener idSolicitud: ", err)
+		logs.Logger.Println("Error al obtener idSolicitud:", err)
 		return -1, err
 	}
 
 	return idSolicitud, nil
 }
+
 
 func (r *familiarRepositoryDB) ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 	rows, err := database.DB.Query("CALL ObtenerFamiliaresPorTitular(?)", idTitular)
