@@ -117,3 +117,42 @@ func ActualizarCuenta(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Cuenta actualizada con éxito", nil))
 }
+
+func ObtenerIdCuentaPorPersona(c *fiber.Ctx) error {
+	idPersonaStr := c.Params("idPersona")
+	if idPersonaStr == "" {
+		logs.Logger.Println("ID de persona no proporcionado")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de persona no proporcionado", nil))
+	}
+
+	idPersona, err := strconv.Atoi(idPersonaStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir ID de persona a entero: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de persona inválido", nil))
+	}
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	idCuenta, err := repo.ObtenerIdCuentaPorPersona(int64(idPersona))
+	if err != nil {
+		logs.Logger.Println("Error al obtener ID de cuenta por persona: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener ID de cuenta por persona", nil))
+	}
+
+	if idCuenta == 0 {
+		logs.Logger.Println("No se encontró cuenta para la persona con ID:", idPersona)
+		return c.Status(fiber.StatusNotFound).JSON(models.Error("No se encontró cuenta para la persona especificada", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("ID de cuenta obtenido con éxito", idCuenta))
+}
+
+func ObtenerUsuarios(c *fiber.Ctx) error {
+	repo := cuenta.NewCuentaRepositoryDB()
+	usuarios, err := repo.ListarUsuarios()
+	if err != nil {
+		logs.Logger.Println("Error al obtener usuarios: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener usuarios", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Usuarios listados con éxito", usuarios))
+}

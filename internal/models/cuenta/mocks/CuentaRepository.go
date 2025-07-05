@@ -12,6 +12,24 @@ type CuentaRepository struct {
 	mock.Mock
 }
 
+// ActualizarCuentaAParcial provides a mock function with given fields: idCuenta, dto
+func (_m *CuentaRepository) ActualizarCuentaAParcial(idCuenta int64, dto cuenta.CuentaAdminUpdateDTO) error {
+	ret := _m.Called(idCuenta, dto)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ActualizarCuentaAParcial")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int64, cuenta.CuentaAdminUpdateDTO) error); ok {
+		r0 = rf(idCuenta, dto)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CrearCuenta provides a mock function with given fields: _a0
 func (_m *CuentaRepository) CrearCuenta(_a0 cuenta.Cuenta) (int64, error) {
 	ret := _m.Called(_a0)
@@ -40,6 +58,54 @@ func (_m *CuentaRepository) CrearCuenta(_a0 cuenta.Cuenta) (int64, error) {
 	return r0, r1
 }
 
+// CrearCuentaAdministrador provides a mock function with given fields: _a0
+func (_m *CuentaRepository) CrearCuentaAdministrador(_a0 cuenta.CuentaAdminDTO) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CrearCuentaAdministrador")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(cuenta.CuentaAdminDTO) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ListarUsuarios provides a mock function with no fields
+func (_m *CuentaRepository) ListarUsuarios() ([]cuenta.CuentaUsuariosRequest, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListarUsuarios")
+	}
+
+	var r0 []cuenta.CuentaUsuariosRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]cuenta.CuentaUsuariosRequest, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []cuenta.CuentaUsuariosRequest); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]cuenta.CuentaUsuariosRequest)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // LogIn provides a mock function with given fields: _a0
 func (_m *CuentaRepository) LogIn(_a0 cuenta.Cuenta) (cuenta.DTOCuenta, error) {
 	ret := _m.Called(_a0)
@@ -61,6 +127,92 @@ func (_m *CuentaRepository) LogIn(_a0 cuenta.Cuenta) (cuenta.DTOCuenta, error) {
 
 	if rf, ok := ret.Get(1).(func(cuenta.Cuenta) error); ok {
 		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ObtenerAdministradores provides a mock function with no fields
+func (_m *CuentaRepository) ObtenerAdministradores() ([]cuenta.CuentaAdminRequest, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerAdministradores")
+	}
+
+	var r0 []cuenta.CuentaAdminRequest
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]cuenta.CuentaAdminRequest, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []cuenta.CuentaAdminRequest); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]cuenta.CuentaAdminRequest)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ObtenerIdCuentaPorPersona provides a mock function with given fields: idPersona
+func (_m *CuentaRepository) ObtenerIdCuentaPorPersona(idPersona int64) (int64, error) {
+	ret := _m.Called(idPersona)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerIdCuentaPorPersona")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int64) (int64, error)); ok {
+		return rf(idPersona)
+	}
+	if rf, ok := ret.Get(0).(func(int64) int64); ok {
+		r0 = rf(idPersona)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
+		r1 = rf(idPersona)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ObtenerPerfilPorIdCuenta provides a mock function with given fields: idCuenta
+func (_m *CuentaRepository) ObtenerPerfilPorIdCuenta(idCuenta int64) (cuenta.CuentaAdminDTO, error) {
+	ret := _m.Called(idCuenta)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ObtenerPerfilPorIdCuenta")
+	}
+
+	var r0 cuenta.CuentaAdminDTO
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int64) (cuenta.CuentaAdminDTO, error)); ok {
+		return rf(idCuenta)
+	}
+	if rf, ok := ret.Get(0).(func(int64) cuenta.CuentaAdminDTO); ok {
+		r0 = rf(idCuenta)
+	} else {
+		r0 = ret.Get(0).(cuenta.CuentaAdminDTO)
+	}
+
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
+		r1 = rf(idCuenta)
 	} else {
 		r1 = ret.Error(1)
 	}

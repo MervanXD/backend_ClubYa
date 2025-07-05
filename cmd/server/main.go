@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	
 	logs.InitLogger()
 	defer logs.CloseLogger()
 
@@ -26,4 +27,5 @@ func main() {
 		panic(err)
 	}
 
+	
 }

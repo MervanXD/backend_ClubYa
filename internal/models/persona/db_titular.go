@@ -15,18 +15,56 @@ func NewTitularRepositoryDB() TitularRepository {
 }
 
 func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, error) {
-	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
-	_, err := database.DB.Exec(query, p.Nombre, p.Apellidos, p.Sexo.String(),
-		p.TipoDocumento.String(), p.NroDocumento, p.FechaNacimiento, p.Telefono, p.Pais, p.Provincia, p.Distrito, p.TipoVia.String(),
-		p.Direccion, p.Referencia, p.Ocupacion, p.NombreEmpresa, p.DireccionEmpresa, p.IngresoPromedio, p.EsPostulante, p.Ciudad, p.CodigoPostal, idCuenta)
+	tx, err := database.DB.Begin()
 	if err != nil {
-		logs.Logger.Println("Error al insertar Persona: ", err)
 		return -1, err
 	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		}
+	}()
+
+	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
+	_, err = tx.Exec(query,
+		p.Nombre,
+		p.Apellidos,
+		p.Sexo.String(),
+		p.TipoDocumento.String(),
+		p.NroDocumento,
+		p.FechaNacimiento,
+		p.Telefono,
+		p.Pais,
+		p.Provincia,
+		p.Distrito,
+		p.TipoVia.String(),
+		p.Direccion,
+		p.Referencia,
+		p.Ocupacion,
+		p.NombreEmpresa,
+		p.DireccionEmpresa,
+		p.IngresoPromedio,
+		p.EsPostulante,
+		p.Ciudad,
+		p.CodigoPostal,
+		idCuenta,
+	)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar InsertarTitular: ", err)
+		tx.Rollback()
+		return -1, err
+	}
+
 	var idTitular int
-	err = database.DB.QueryRow("SELECT @p_idTitular").Scan(&idTitular)
+	err = tx.QueryRow("SELECT @p_idTitular").Scan(&idTitular)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idTitular: ", err)
+		tx.Rollback()
+		return -1, err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return -1, err
 	}
 

@@ -12,4 +12,6 @@ func RouteCuenta(api fiber.Router) {
 	api.Get("/cuenta/administradores", handlers.ObtenerAdministradores)
 	api.Get("/cuenta/perfil/:id", handlers.ObtenerPerfilPorIdCuenta)
 	api.Patch("/cuenta/actualizar-perfil/:id", handlers.ActualizarCuenta)
+	api.Get("/cuenta/id-por-persona/:idPersona", handlers.ObtenerIdCuentaPorPersona)
+	api.Get("/cuenta/usuarios", handlers.ObtenerUsuarios)
 }
