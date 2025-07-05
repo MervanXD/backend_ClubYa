@@ -179,6 +179,10 @@ func (r *cuentaRepositoryDB) ObtenerPerfilPorIdCuenta(idCuenta int64) (CuentaAdm
 		&cuentaDTO.Persona.Referencia,
 		&cuentaDTO.Persona.Ciudad,
 		&cuentaDTO.Persona.CodigoPostal,
+		&cuentaDTO.Persona.Ocupacion,
+		&cuentaDTO.Persona.NombreEmpresa,
+		&cuentaDTO.Persona.DireccionEmpresa,
+		&cuentaDTO.Persona.IngresoPromedio,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al obtener perfil por ID de cuenta: ", err)
@@ -222,7 +226,7 @@ func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto Cuenta
 	}
 
 	if len(cuentaSet) > 0 {
-		query := "UPDATE Cuenta SET " + strings.Join(cuentaSet, ", ") + " WHERE idCuenta = ?"
+		query := "UPDATE Cuenta SET " + strings.Join(cuentaSet, ", ") + " WHERE id = ?"
 		cuentaArgs = append(cuentaArgs, idCuenta)
 		_, err := tx.Exec(query, cuentaArgs...)
 		if err != nil {
@@ -236,7 +240,7 @@ func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto Cuenta
 	if dto.Titular != nil {
 		// Primero obtener el id_persona de la cuenta
 		var idPersona int
-		err := tx.QueryRow("SELECT fid_Persona FROM Cuenta WHERE idCuenta = ?", idCuenta).Scan(&idPersona)
+		err := tx.QueryRow("SELECT fid_Persona FROM Cuenta WHERE id = ?", idCuenta).Scan(&idPersona)
 		if err != nil {
 			logs.Logger.Println("Error al obtener id_persona: ", err)
 			tx.Rollback()
@@ -247,7 +251,7 @@ func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto Cuenta
 		personaArgs := []interface{}{}
 
 		if dto.Titular.Nombre != nil {
-			personaSet = append(personaSet, "nombre = ?")
+			personaSet = append(personaSet, "nombres = ?")
 			personaArgs = append(personaArgs, *dto.Titular.Nombre)
 		}
 		if dto.Titular.Apellidos != nil {
@@ -308,7 +312,7 @@ func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto Cuenta
 		}
 
 		if len(personaSet) > 0 {
-			query := "UPDATE Persona SET " + strings.Join(personaSet, ", ") + " WHERE idPersona = ?"
+			query := "UPDATE Persona SET " + strings.Join(personaSet, ", ") + " WHERE id = ?"
 			personaArgs = append(personaArgs, idPersona)
 			_, err := tx.Exec(query, personaArgs...)
 			if err != nil {
@@ -371,3 +375,4 @@ func (r *cuentaRepositoryDB) ListarUsuarios() ([]CuentaUsuariosRequest, error) {
 	}
 	return usuarios, nil
 }
+
