@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   backend:
-    image: backend-clubya:latest
+    image: backend-clubya
     container_name: backend-clubya
     build:
       context: .
