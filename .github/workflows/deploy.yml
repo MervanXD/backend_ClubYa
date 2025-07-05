@@ -22,6 +22,15 @@ jobs:
     - name: Deploy via SSH
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@ec2-52-203-212-207.compute-1.amazonaws.com << 'EOF'
+          echo "🔄 Actualizando Docker Compose..."
+          
+          # Actualizar Docker Compose a la versión más reciente
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          
+          # Verificar versión
+          docker-compose --version
+        
           cd /home/ubuntu/backend_ClubYa
           git pull origin despliegue
           sudo systemctl start docker
