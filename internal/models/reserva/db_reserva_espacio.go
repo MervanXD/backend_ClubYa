@@ -182,6 +182,7 @@ func (r *reservaRepositoryDB) ObtenerReservasPorEspacio(idEspacio int) ([]Reserv
 			&reserva.IdReserva,
 			&reserva.NombreSocio,
 			&reserva.FechaReserva,
+			&reserva.Fecha,
 			&reserva.HoraInicio,
 			&reserva.HoraFin,
 			&reserva.Estado,
