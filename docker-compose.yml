@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    image: backend-clubya
+    container_name: backend-clubya
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "4000:4000"
+    restart: always
+    env_file:
+      - .env

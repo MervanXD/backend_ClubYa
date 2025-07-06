@@ -106,11 +106,20 @@ func (r *reservaRepositoryDB) ReservarEspacio(ctx context.Context, re ReservaEsp
 	return nil
 }
 
-func (r *reservaRepositoryDB) AnulacionReservaEspacio(idReserva int, idEspacio int, idHorarioDia int, motivo string) error {
+func (r *reservaRepositoryDB) AnulacionReservaEspacio(idReserva int, idEspacio int, idHorarioDia int, motivo string, correo string) error {
 	query := "call ingesoft.AnularReservaEspacio(?, ?, ?, ?)"
 	_, err := database.DB.Exec(query, idReserva, idEspacio, idHorarioDia, motivo)
 	if err != nil {
 		logs.Logger.Println("Error al cancelar la reserva del espacio", err)
+		return err
+	}
+	//mandamos un correo de confirmacion al socio
+	err = servicios.EnviarCorreo([]string{correo}, // destinatario
+		"Confirmación de anulación de reserva de espacio", // asunto
+		// cuerpo del mensaje
+		"Su reserva del espacio ha sido anulada. Motivo: "+motivo+".")
+	if err != nil {
+		logs.Logger.Println("Error al enviar correo de confirmación de anulación: ", err)
 		return err
 	}
 	return nil
