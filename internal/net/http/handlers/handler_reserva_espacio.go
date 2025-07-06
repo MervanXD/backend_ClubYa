@@ -20,6 +20,7 @@ type AnulacionReservaRequest struct {
 	IdEspacio    int    `json:"id_espacio"`
 	IdHorarioDia int    `json:"id_horario_dia"`
 	Motivo       string `json:"motivo"`
+	Correo       string `json:"correo"` // Agregado para enviar el correo de confirmación
 }
 
 func ReservarEspacio(c *fiber.Ctx) (err error) {
@@ -46,7 +47,7 @@ func AnularReservarEspacio(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
 	}
 	repo := reserva.NewReservaRepositoryDB()
-	err := repo.AnulacionReservaEspacio(reservaAnulada.IdReserva, reservaAnulada.IdEspacio, reservaAnulada.IdHorarioDia, reservaAnulada.Motivo)
+	err := repo.AnulacionReservaEspacio(reservaAnulada.IdReserva, reservaAnulada.IdEspacio, reservaAnulada.IdHorarioDia, reservaAnulada.Motivo,reservaAnulada.Correo)
 	if err != nil {
 		logs.Logger.Println("Error al anular la reserva: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("No se pudo anular la reserva", nil))
