@@ -1,11 +1,13 @@
 package cuenta
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/internal/pkgs/security"
 	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/go-sql-driver/mysql"
 )
 
 type cuentaRepositoryDB struct{}
@@ -376,3 +378,57 @@ func (r *cuentaRepositoryDB) ListarUsuarios() ([]CuentaUsuariosRequest, error) {
 	return usuarios, nil
 }
 
+func (r *cuentaRepositoryDB) RegistrarGmail(cuenta CuentaGmailDTO) (int, error) {
+	if !cuenta.EmailVerified {
+		logs.Logger.Println("Error: El correo electrónico no ha sido verificado")
+		return -1, nil
+	}
+	query := "CALL ingesoft.RegistrarCuentaGmail(?, ?,@p_id)"
+	_, err := database.DB.Exec(query, cuenta.Username, cuenta.Email)
+	if err != nil {
+		logs.Logger.Println("Error al registrar cuenta Gmail: ", err)
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "email") {
+					return -1, fmt.Errorf("el DNI ya está registrado")
+				}
+				if strings.Contains(mysqlErr.Message, "username") {
+					return -1, fmt.Errorf("el nombre de usuario ya está registrado")
+				}
+
+			}
+		}
+		return -1, err
+	}
+
+	var idCuenta int
+	err = database.DB.QueryRow("SELECT @p_id").Scan(&idCuenta)
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la cuenta Gmail: ", err)
+		return -1, err
+	}
+
+	return idCuenta, nil
+}
+
+func (r *cuentaRepositoryDB) LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error) {
+	if !cuenta.EmailVerified {
+		logs.Logger.Println("Error: El correo electrónico no ha sido verificado")
+		return DTOCuenta{}, nil
+	}
+	query := "CALL ingesoft.LoginGmail(?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud)"
+	_, err := database.DB.Exec(query, cuenta.Email)
+	if err != nil {
+		logs.Logger.Println("Error al iniciar sesión con Gmail: ", err)
+		return DTOCuenta{}, err
+	}
+	var cuentaDTO DTOCuenta
+	cuentaDTO.Username = *cuenta.Username
+	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud)
+	if err != nil {
+		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
+		return cuentaDTO, err
+	}
+	return cuentaDTO, nil
+}

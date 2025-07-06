@@ -156,3 +156,37 @@ func ObtenerUsuarios(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Usuarios listados con éxito", usuarios))
 }
+
+func RegistrarGmail(c *fiber.Ctx) error {
+	var cuentaDTO cuenta.CuentaGmailDTO
+	if err := c.BodyParser(&cuentaDTO); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	idCuenta, err := repo.RegistrarGmail(cuentaDTO)
+	if err != nil {
+		logs.Logger.Println("Error al registrar cuenta Gmail: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar cuenta Gmail", nil))
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Cuenta Gmail registrada con éxito", idCuenta))
+}
+
+func LoginGmail(c *fiber.Ctx) error {
+	var cuentaDTO cuenta.CuentaGmailDTO
+	if err := c.BodyParser(&cuentaDTO); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	cuentaMandar, err := repo.LoginGmail(cuentaDTO)
+	if err != nil {
+		logs.Logger.Println("Error al iniciar sesión con Gmail: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al iniciar sesión con Gmail", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Inicio de sesión con Gmail exitoso", cuentaMandar))
+}
