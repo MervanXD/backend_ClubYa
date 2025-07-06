@@ -25,7 +25,7 @@ func ListarConfiguracionDisponibilidad(c *fiber.Ctx) error {
 }
 
 func ActualizarConfiguracionDisponibilidad(c *fiber.Ctx) error {
-	var configuraciones []configuracion_disponibilidad.ConfiguracionDisponibilidad
+	var configuraciones []configuracion_disponibilidad.ConfiguracionDisponibilidadDTO
 	if err := c.BodyParser(&configuraciones); err != nil {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))

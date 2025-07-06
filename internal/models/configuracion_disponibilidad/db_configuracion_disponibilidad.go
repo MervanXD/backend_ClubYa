@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"slices"
+	"fmt"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
@@ -61,7 +61,12 @@ func (r *configuracionDisponibilidadRepositoryDB) EliminarConfiguracionDisponibi
 	return nil
 }
 
-func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponibilidad(ctx context.Context, configuraciones []ConfiguracionDisponibilidad) error {
+type ConfiguracionDisponibilidadDTO struct {
+	ConfiguracionDisponibilidad
+	Eliminada bool `json:"eliminada"`
+}
+
+func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponibilidad(ctx context.Context, configuraciones []ConfiguracionDisponibilidadDTO) error {
 	if len(configuraciones) == 0 {
 		return errors.New("no se proporcionaron configuraciones")
 	}
@@ -75,45 +80,47 @@ func (r *configuracionDisponibilidadRepositoryDB) ActualizarConfiguracionDisponi
 
 	idEspacio := configuraciones[0].IdEspacio
 
-	configAnteriores, err := r.ObtenerConfiguracionDisponibilidad(ctx, idEspacio, tx)
-	if err != nil {
-		logs.Logger.Println("Error al obtener las configuraciones anteriores: ", err)
-		return err
-	}
-
 	cruces, err := r.ObtenerCrucesEspacio(ctx, idEspacio)
 	if err != nil {
 		logs.Logger.Println("Error al obtener los cruces del espacio: ", err)
 		return err
 	}
 
-	configAEliminar := []ConfiguracionDisponibilidad{}
-	configAInsertar := []ConfiguracionDisponibilidad{}
-	for _, configuracion := range configuraciones {
-		if slices.Contains(configAnteriores, configuracion) {
-			configAEliminar = append(configAEliminar, configuracion)
+	crucesMap := make(map[string]bool)
+	for _, cruce := range cruces {
+		cruceKey := fmt.Sprintf("%s_%d", cruce.Dia, cruce.IdBloqueTiempo)
+		crucesMap[cruceKey] = true
+	}
+
+	var paraInsertar, paraEliminar []ConfiguracionDisponibilidad
+	for _, d := range configuraciones {
+		cfg := ConfiguracionDisponibilidad{
+			IdEspacio:      d.IdEspacio,
+			Dia:            d.Dia,
+			IdBloqueTiempo: d.IdBloqueTiempo,
+		}
+		if d.Eliminada {
+			cruceKey := fmt.Sprintf("%s_%d", d.Dia.String(), d.IdBloqueTiempo)
+			if crucesMap[cruceKey] {
+				logs.Logger.Println("No se puede eliminar un bloque de tiempo que ya tiene inscritos")
+				return errors.New("no se puede eliminar un bloque de tiempo que ya tiene inscritos")
+			}
+			paraEliminar = append(paraEliminar, cfg)
 		} else {
-			configAInsertar = append(configAInsertar, configuracion)
+			paraInsertar = append(paraInsertar, cfg)
 		}
 	}
 
-	for _, configuracion := range configAEliminar {
-		cruce := slices.ContainsFunc(cruces, func(c NroCruces) bool {
-			return c.IdBloqueTiempo == configuracion.IdBloqueTiempo && c.Dia == configuracion.Dia.String()
-		})
-		if cruce {
-			logs.Logger.Println("No se puede eliminar un bloque de tiempo que ya tiene inscritos")
-			return errors.New("no se puede eliminar un bloque de tiempo que ya tiene inscritos")
-		}
-		err := r.EliminarConfiguracionDisponibilidad(ctx, tx, configuracion)
+	for _, cfg := range paraEliminar {
+		err := r.EliminarConfiguracionDisponibilidad(ctx, tx, cfg)
 		if err != nil {
 			logs.Logger.Println("Error al eliminar configuración: ", err)
 			return err
 		}
 	}
 
-	for _, configuracion := range configAInsertar {
-		err := r.InsertarConfiguracionDisponibilidad(ctx, tx, configuracion)
+	for _, cfg := range paraInsertar {
+		err := r.InsertarConfiguracionDisponibilidad(ctx, tx, cfg)
 		if err != nil {
 			logs.Logger.Println("Error al insertar configuración: ", err)
 			return err
