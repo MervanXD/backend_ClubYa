@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/cuenta"
@@ -19,6 +20,13 @@ func CrearCuenta(c *fiber.Ctx) error {
 	idCuenta, err := repo.CrearCuenta(cuentaDTO)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la cuenta: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("La cuenta Gmail ya está registrada", nil))
+		}
+		if strings.Contains(errMsg, "no ha sido verificado") {
+			return c.Status(fiber.StatusForbidden).JSON(models.Error("La cuenta Gmail no ha sido verificada", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar la cuenta", nil))
 	}
 
@@ -51,6 +59,13 @@ func CrearCuentaAdministrador(c *fiber.Ctx) error {
 	err := repo.CrearCuentaAdministrador(cuentaDTO)
 	if err != nil {
 		logs.Logger.Println("Error al crear la cuenta de administrador: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("La cuenta Gmail ya está registrada", nil))
+		}
+		if strings.Contains(errMsg, "no ha sido verificado") {
+			return c.Status(fiber.StatusForbidden).JSON(models.Error("La cuenta Gmail no ha sido verificada", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al crear la cuenta de administrador", nil))
 	}
 
@@ -168,6 +183,13 @@ func RegistrarGmail(c *fiber.Ctx) error {
 	idCuenta, err := repo.RegistrarGmail(cuentaDTO)
 	if err != nil {
 		logs.Logger.Println("Error al registrar cuenta Gmail: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("La cuenta Gmail ya está registrada", nil))
+		}
+		if strings.Contains(errMsg, "no ha sido verificado") {
+			return c.Status(fiber.StatusForbidden).JSON(models.Error("La cuenta Gmail no ha sido verificada", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar cuenta Gmail", nil))
 	}
 

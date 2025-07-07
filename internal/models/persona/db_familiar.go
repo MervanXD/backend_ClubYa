@@ -1,8 +1,12 @@
 package persona
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/go-sql-driver/mysql"
 )
 
 type FamiliarResquest struct {
@@ -23,6 +27,15 @@ func (r *familiarRepositoryDB) InsertarFamiliar(f Familiar, idTitular int) error
 		f.Direccion, f.Referencia, f.EsConyuge, idTitular, f.MismaDireccionPostulante, f.Ciudad, f.CodigoPostal, f.TipoFamiliar.String())
 	if err != nil {
 		logs.Logger.Println("Error al insertar Familiar: ", err)
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "nroDocumento") {
+					return fmt.Errorf("el nroDocumento ya está registrado")
+				}
+
+			}
+		}
 		return err
 	}
 	return nil
@@ -89,7 +102,6 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 
 	return idSolicitud, nil
 }
-
 
 func (r *familiarRepositoryDB) ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
 	rows, err := database.DB.Query("CALL ObtenerFamiliaresPorTitular(?)", idTitular)

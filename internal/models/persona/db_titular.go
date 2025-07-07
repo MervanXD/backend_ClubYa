@@ -3,9 +3,12 @@ package persona
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/go-sql-driver/mysql"
 )
 
 type titularRepositoryDB struct{}
@@ -52,6 +55,15 @@ func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, err
 	)
 	if err != nil {
 		logs.Logger.Println("Error al ejecutar InsertarTitular: ", err)
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "nroDocumento") {
+					return -1,fmt.Errorf("el nroDocumento ya está registrado")
+				}
+
+			}
+		}
 		tx.Rollback()
 		return -1, err
 	}
