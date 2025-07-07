@@ -24,6 +24,18 @@ func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
 
 	err := database.DB.QueryRow(query, cuenta.Username, cuenta.Email, passwordEncriptado).Scan(&idCuenta)
 	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "email") {
+					return -1, fmt.Errorf("el DNI ya está registrado")
+				}
+				if strings.Contains(mysqlErr.Message, "username") {
+					return -1, fmt.Errorf("el nombre de usuario ya está registrado")
+				}
+
+			}
+		}
 		return 0, err
 	}
 
@@ -80,6 +92,15 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 		cuenta.Persona.CodigoPostal)
 	if err != nil {
 		logs.Logger.Println("Error al insertar datos Personales: ", err)
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "nroDocumento") {
+					return fmt.Errorf("el nroDocumento ya está registrado")
+				}
+
+			}
+		}
 		tx.Rollback()
 		return err
 	}
@@ -98,6 +119,18 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	_, err = tx.Exec(query, cuenta.Username, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "email") {
+					return fmt.Errorf("el DNI ya está registrado")
+				}
+				if strings.Contains(mysqlErr.Message, "username") {
+					return fmt.Errorf("el nombre de usuario ya está registrado")
+				}
+
+			}
+		}
 		tx.Rollback()
 		return err
 	}
@@ -424,7 +457,7 @@ func (r *cuentaRepositoryDB) LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error
 		return DTOCuenta{}, err
 	}
 	var cuentaDTO DTOCuenta
-	cuentaDTO.Username = *cuenta.Username
+
 	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)

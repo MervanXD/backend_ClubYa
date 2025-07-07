@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/persona"
@@ -19,6 +20,10 @@ func InsertarFamiliares(c *fiber.Ctx) error {
 	idSolicitud, err := repo.RegistrarFamiliares(req)
 	if err != nil {
 		logs.Logger.Println("Error al registrar familiares: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("Uno de los familiares ya está registrado", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar familiares", nil))
 	}
 
