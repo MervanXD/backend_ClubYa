@@ -57,7 +57,7 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 
 	// Insertar cada familiar dentro de la transacción
 	for _, familiar := range req.Familiares {
-		query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+		query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 		_, err = tx.Exec(query,
 			familiar.Nombre,
 			familiar.Apellidos,
@@ -78,6 +78,7 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 			familiar.Ciudad,
 			familiar.CodigoPostal,
 			familiar.TipoFamiliar.String(),
+			familiar.DocumentoIdentidad,
 		)
 		if err != nil {
 			logs.Logger.Println("Error al insertar familiar en transacción:", err)
