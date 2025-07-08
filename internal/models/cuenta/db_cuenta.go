@@ -67,11 +67,11 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	}
 
 	// Función para manejar el rollback de forma segura
-    rollbackSafe := func() {
-        if err := tx.Rollback(); err != nil {
-            logs.Logger.Println("Error en rollback: ", err)
-        }
-    }
+	rollbackSafe := func() {
+		if err := tx.Rollback(); err != nil {
+			logs.Logger.Println("Error en rollback: ", err)
+		}
+	}
 
 	defer func() {
 		if p := recover(); p != nil {
@@ -473,5 +473,77 @@ func (r *cuentaRepositoryDB) LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error
 		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
 		return cuentaDTO, err
 	}
+	return cuentaDTO, nil
+}
+
+func (r *cuentaRepositoryDB) ListarCuentasSocios() ([]CuentaSocioRequest, error) {
+	query := "CALL ingesoft.ListarCuentasSocios()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener cuentas de socios: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var cuentas []CuentaSocioRequest
+	for rows.Next() {
+		var cuenta CuentaSocioRequest
+		err := rows.Scan(
+			&cuenta.IDCuenta,
+			&cuenta.Username,
+			&cuenta.Email,
+			&cuenta.Nombre,
+			&cuenta.Apellidos,
+			&cuenta.FechaInicioMembresia,
+			&cuenta.EstadoMembresia,
+			&cuenta.Activo,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear fila de cuenta de socio: ", err)
+			return nil, err
+		}
+		cuentas = append(cuentas, cuenta)
+	}
+	if err := rows.Err(); err != nil {
+		logs.Logger.Println("Error al iterar filas de cuentas de socios: ", err)
+		return nil, err
+	}
+	return cuentas, nil
+
+}
+
+func (r *cuentaRepositoryDB)VisualizarCuentaSocioPorIdCuenta(idCuenta int64) (CuentaSocioDTO, error){
+	query := "CALL ingesoft.VisualizarCuentaSocioPorIdCuenta(?)"
+	row := database.DB.QueryRow(query, idCuenta)
+
+	var cuentaDTO CuentaSocioDTO
+	err := row.Scan(
+		&cuentaDTO.IdCuenta,
+		&cuentaDTO.IdPersona,
+		&cuentaDTO.Username,
+		&cuentaDTO.Email,
+		&cuentaDTO.Rol,
+		&cuentaDTO.Nombre,
+		&cuentaDTO.Apellidos,
+		&cuentaDTO.Sexo,
+		&cuentaDTO.TipoDocumento,
+		&cuentaDTO.NroDocumento,
+		&cuentaDTO.FechaNacimiento,
+		&cuentaDTO.Telefono,
+		&cuentaDTO.Pais,
+		&cuentaDTO.Provincia,
+		&cuentaDTO.Distrito,
+		&cuentaDTO.TipoVia,
+		&cuentaDTO.Direccion,
+		&cuentaDTO.Referencia,
+		&cuentaDTO.Ciudad,
+		&cuentaDTO.CodigoPostal,
+		&cuentaDTO.FechaInicioMembresia,
+		&cuentaDTO.EstadoMembresia,
+	)
+	if err != nil {
+		logs.Logger.Println("Error al obtener cuenta de socio por ID de cuenta: ", err)
+		return cuentaDTO, err
+	}
+
 	return cuentaDTO, nil
 }
