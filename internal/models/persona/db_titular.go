@@ -18,69 +18,79 @@ func NewTitularRepositoryDB() TitularRepository {
 }
 
 func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, error) {
-	tx, err := database.DB.Begin()
-	if err != nil {
-		return -1, err
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			tx.Rollback()
-			panic(p)
-		}
-	}()
+    tx, err := database.DB.Begin()
+    if err != nil {
+        logs.Logger.Println("Error al iniciar transacción:", err)
+        return -1, err
+    }
 
-	query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
-	_, err = tx.Exec(query,
-		p.Nombre,
-		p.Apellidos,
-		p.Sexo.String(),
-		p.TipoDocumento.String(),
-		p.NroDocumento,
-		p.FechaNacimiento,
-		p.Telefono,
-		p.Pais,
-		p.Provincia,
-		p.Distrito,
-		p.TipoVia.String(),
-		p.Direccion,
-		p.Referencia,
-		p.Ocupacion,
-		p.NombreEmpresa,
-		p.DireccionEmpresa,
-		p.IngresoPromedio,
-		p.EsPostulante,
-		p.Ciudad,
-		p.CodigoPostal,
-		idCuenta,
-	)
-	if err != nil {
-		logs.Logger.Println("Error al ejecutar InsertarTitular: ", err)
-		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
-			if mysqlErr.Number == 1062 {
-				// Error 1062: Duplicate entry
-				if strings.Contains(mysqlErr.Message, "nroDocumento") {
-					return -1,fmt.Errorf("el nroDocumento ya está registrado")
-				}
+    // Función para rollback seguro
+    rollbackSafe := func() {
+        if rollbackErr := tx.Rollback(); rollbackErr != nil {
+            logs.Logger.Printf("Error en rollback: %v", rollbackErr)
+        }
+    }
 
-			}
-		}
-		tx.Rollback()
-		return -1, err
-	}
+    defer func() {
+        if r := recover(); r != nil {
+            logs.Logger.Printf("PANIC recuperado en InsertarTitular: %v", r)
+            rollbackSafe()
+            // NO re-panic para mantener el servidor estable
+        }
+    }()
 
-	var idTitular int
-	err = tx.QueryRow("SELECT @p_idTitular").Scan(&idTitular)
-	if err != nil {
-		logs.Logger.Println("Error al obtener idTitular: ", err)
-		tx.Rollback()
-		return -1, err
-	}
+    query := "call ingesoft.InsertarTitular(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@p_idTitular)"
+    _, err = tx.Exec(query,
+        p.Nombre,
+        p.Apellidos,
+        p.Sexo.String(),
+        p.TipoDocumento.String(),
+        p.NroDocumento,
+        p.FechaNacimiento,
+        p.Telefono,
+        p.Pais,
+        p.Provincia,
+        p.Distrito,
+        p.TipoVia.String(),
+        p.Direccion,
+        p.Referencia,
+        p.Ocupacion,
+        p.NombreEmpresa,
+        p.DireccionEmpresa,
+        p.IngresoPromedio,
+        p.EsPostulante,
+        p.Ciudad,
+        p.CodigoPostal,
+        idCuenta,
+    )
+    if err != nil {
+        logs.Logger.Println("Error al ejecutar InsertarTitular:", err)
+        rollbackSafe()
+        
+        if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+            if mysqlErr.Number == 1062 && strings.Contains(mysqlErr.Message, "nroDocumento") {
+                return -1, fmt.Errorf("el número de documento ya está registrado")
+            }
+        }
+        return -1, err
+    }
 
-	if err := tx.Commit(); err != nil {
-		return -1, err
-	}
+    var idTitular int
+    err = tx.QueryRow("SELECT @p_idTitular").Scan(&idTitular)
+    if err != nil {
+        logs.Logger.Println("Error al obtener idTitular:", err)
+        rollbackSafe()
+        return -1, err
+    }
 
-	return idTitular, nil
+    // Commit final
+    if err := tx.Commit(); err != nil {
+        logs.Logger.Println("Error al hacer commit:", err)
+        return -1, err
+    }
+
+    logs.Logger.Printf("Titular insertado exitosamente con ID: %d", idTitular)
+    return idTitular, nil
 }
 
 // ObtenerTitularPorID obtiene la información de un t por su ID

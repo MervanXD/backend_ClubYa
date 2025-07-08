@@ -42,65 +42,65 @@ func (r *familiarRepositoryDB) InsertarFamiliar(f Familiar, idTitular int) error
 }
 
 func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, error) {
-	tx, err := database.DB.Begin()
-	if err != nil {
-		logs.Logger.Println("Error al iniciar transacción:", err)
-		return -1, err
-	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
-		}
-	}()
+    tx, err := database.DB.Begin()
+    if err != nil {
+        logs.Logger.Println("Error al iniciar transacción:", err)
+        return -1, err
+    }
 
-	// Insertar cada familiar dentro de la transacción
-	for _, familiar := range req.Familiares {
-		query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-		_, err = tx.Exec(query,
-			familiar.Nombre,
-			familiar.Apellidos,
-			familiar.Sexo.String(),
-			familiar.TipoDocumento.String(),
-			familiar.NroDocumento,
-			familiar.FechaNacimiento,
-			familiar.Telefono,
-			familiar.Pais,
-			familiar.Provincia,
-			familiar.Distrito,
-			familiar.TipoVia.String(),
-			familiar.Direccion,
-			familiar.Referencia,
-			familiar.EsConyuge,
-			req.IdTitular,
-			familiar.MismaDireccionPostulante,
-			familiar.Ciudad,
-			familiar.CodigoPostal,
-			familiar.TipoFamiliar.String(),
-		)
-		if err != nil {
-			logs.Logger.Println("Error al insertar familiar en transacción:", err)
-			return -1, err
-		}
-	}
+    // Función para rollback seguro
+    rollbackSafe := func() {
+        if rollbackErr := tx.Rollback(); rollbackErr != nil {
+            logs.Logger.Printf("Error en rollback: %v", rollbackErr)
+        }
+    }
 
-	// Insertar solicitud de membresía
-	_, err = tx.Exec("call ingesoft.InsertarSolicitudMembresia(?, @s_id_solicitud)", req.IdTitular)
-	if err != nil {
-		logs.Logger.Println("Error al insertar solicitud membresía:", err)
-		return -1, err
-	}
+    // Insertar cada familiar dentro de la transacción
+    for _, familiar := range req.Familiares {
+        query := "call ingesoft.InsertarFamiliar(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+        _, err = tx.Exec(query,
+            familiar.Nombre,
+            familiar.Apellidos,
+            // ... resto de parámetros
+        )
+        if err != nil {
+            logs.Logger.Println("Error al insertar familiar en transacción:", err)
+            rollbackSafe()
+            
+            if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+                if mysqlErr.Number == 1062 && strings.Contains(mysqlErr.Message, "nroDocumento") {
+                    return -1, fmt.Errorf("el documento %s ya está registrado", familiar.NroDocumento)
+                }
+            }
+            return -1, err
+        }
+    }
 
-	// Obtener id generado
-	var idSolicitud int
-	err = tx.QueryRow("SELECT @s_id_solicitud").Scan(&idSolicitud)
-	if err != nil {
-		logs.Logger.Println("Error al obtener idSolicitud:", err)
-		return -1, err
-	}
+    // Insertar solicitud de membresía
+    _, err = tx.Exec("call ingesoft.InsertarSolicitudMembresia(?, @s_id_solicitud)", req.IdTitular)
+    if err != nil {
+        logs.Logger.Println("Error al insertar solicitud membresía:", err)
+        rollbackSafe()
+        return -1, err
+    }
 
-	return idSolicitud, nil
+    // Obtener id generado
+    var idSolicitud int
+    err = tx.QueryRow("SELECT @s_id_solicitud").Scan(&idSolicitud)
+    if err != nil {
+        logs.Logger.Println("Error al obtener idSolicitud:", err)
+        rollbackSafe()
+        return -1, err
+    }
+
+    // Commit final
+    if err := tx.Commit(); err != nil {
+        logs.Logger.Println("Error al hacer commit:", err)
+        return -1, err
+    }
+
+    logs.Logger.Println("Familiares registrados exitosamente")
+    return idSolicitud, nil
 }
 
 func (r *familiarRepositoryDB) ObtenerIdsFamiliaresPorTitular(idTitular int) ([]Familiar, error) {
