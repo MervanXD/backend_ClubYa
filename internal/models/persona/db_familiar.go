@@ -47,13 +47,13 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 		logs.Logger.Println("Error al iniciar transacción:", err)
 		return -1, err
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
+
+	// Función para rollback seguro
+	rollbackSafe := func() {
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			logs.Logger.Printf("Error en rollback: %v", rollbackErr)
 		}
-	}()
+	}
 
 	// Insertar cada familiar dentro de la transacción
 	for _, familiar := range req.Familiares {
@@ -78,10 +78,16 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 			familiar.Ciudad,
 			familiar.CodigoPostal,
 			familiar.TipoFamiliar.String(),
-			familiar.DocumentoIdentidad,
-		)
+			familiar.DocumentoIdentidad)
 		if err != nil {
 			logs.Logger.Println("Error al insertar familiar en transacción:", err)
+			rollbackSafe()
+
+			if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+				if mysqlErr.Number == 1062 && strings.Contains(mysqlErr.Message, "nroDocumento") {
+					return -1, fmt.Errorf("el documento %s ya está registrado", familiar.NroDocumento)
+				}
+			}
 			return -1, err
 		}
 	}
@@ -90,6 +96,7 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 	_, err = tx.Exec("call ingesoft.InsertarSolicitudMembresia(?, @s_id_solicitud)", req.IdTitular)
 	if err != nil {
 		logs.Logger.Println("Error al insertar solicitud membresía:", err)
+		rollbackSafe()
 		return -1, err
 	}
 
@@ -98,9 +105,17 @@ func (r *familiarRepositoryDB) RegistrarFamiliares(req FamiliarResquest) (int, e
 	err = tx.QueryRow("SELECT @s_id_solicitud").Scan(&idSolicitud)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idSolicitud:", err)
+		rollbackSafe()
 		return -1, err
 	}
 
+	// Commit final
+	if err := tx.Commit(); err != nil {
+		logs.Logger.Println("Error al hacer commit:", err)
+		return -1, err
+	}
+
+	logs.Logger.Println("Familiares registrados exitosamente")
 	return idSolicitud, nil
 }
 
