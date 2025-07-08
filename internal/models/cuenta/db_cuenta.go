@@ -65,10 +65,17 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	if err != nil {
 		return err
 	}
+
+	// Función para manejar el rollback de forma segura
+    rollbackSafe := func() {
+        if err := tx.Rollback(); err != nil {
+            logs.Logger.Println("Error en rollback: ", err)
+        }
+    }
+
 	defer func() {
 		if p := recover(); p != nil {
-			tx.Rollback()
-			panic(p)
+			rollbackSafe()
 		}
 	}()
 
@@ -96,12 +103,13 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 			if mysqlErr.Number == 1062 {
 				// Error 1062: Duplicate entry
 				if strings.Contains(mysqlErr.Message, "nroDocumento") {
+					rollbackSafe()
 					return fmt.Errorf("el nroDocumento ya está registrado")
 				}
 
 			}
 		}
-		tx.Rollback()
+		rollbackSafe()
 		return err
 	}
 
@@ -109,7 +117,7 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	err = tx.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el ID de la persona: ", err)
-		tx.Rollback()
+		rollbackSafe()
 		return err
 	}
 
@@ -123,15 +131,17 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 			if mysqlErr.Number == 1062 {
 				// Error 1062: Duplicate entry
 				if strings.Contains(mysqlErr.Message, "email") {
+					rollbackSafe()
 					return fmt.Errorf("el DNI ya está registrado")
 				}
 				if strings.Contains(mysqlErr.Message, "username") {
+					rollbackSafe()
 					return fmt.Errorf("el nombre de usuario ya está registrado")
 				}
 
 			}
 		}
-		tx.Rollback()
+		rollbackSafe()
 		return err
 	}
 
