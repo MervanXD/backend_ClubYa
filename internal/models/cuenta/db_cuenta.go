@@ -511,35 +511,42 @@ func (r *cuentaRepositoryDB) ListarCuentasSocios() ([]CuentaSocioRequest, error)
 
 }
 
-func (r *cuentaRepositoryDB)VisualizarCuentaSocioPorIdCuenta(idCuenta int64) (CuentaSocioDTO, error){
+func (r *cuentaRepositoryDB) VisualizarCuentaSocioPorIdCuenta(idCuenta int64) (CuentaSocioDTO, error) {
 	query := "CALL ingesoft.VisualizarCuentaSocioPorIdCuenta(?)"
 	row := database.DB.QueryRow(query, idCuenta)
 
 	var cuentaDTO CuentaSocioDTO
+
 	err := row.Scan(
 		&cuentaDTO.IdCuenta,
-		&cuentaDTO.IdPersona,
+		&cuentaDTO.Persona.Id,
 		&cuentaDTO.Username,
 		&cuentaDTO.Email,
 		&cuentaDTO.Rol,
-		&cuentaDTO.Nombre,
-		&cuentaDTO.Apellidos,
-		&cuentaDTO.Sexo,
-		&cuentaDTO.TipoDocumento,
-		&cuentaDTO.NroDocumento,
-		&cuentaDTO.FechaNacimiento,
-		&cuentaDTO.Telefono,
-		&cuentaDTO.Pais,
-		&cuentaDTO.Provincia,
-		&cuentaDTO.Distrito,
-		&cuentaDTO.TipoVia,
-		&cuentaDTO.Direccion,
-		&cuentaDTO.Referencia,
-		&cuentaDTO.Ciudad,
-		&cuentaDTO.CodigoPostal,
+
+		&cuentaDTO.Persona.Nombre,
+		&cuentaDTO.Persona.Apellidos,
+		&cuentaDTO.Persona.Sexo,
+		&cuentaDTO.Persona.TipoDocumento,
+		&cuentaDTO.Persona.NroDocumento,
+		&cuentaDTO.Persona.FechaNacimiento,
+		&cuentaDTO.Persona.Telefono,
+		&cuentaDTO.Persona.Pais,
+		&cuentaDTO.Persona.Provincia,
+		&cuentaDTO.Persona.Distrito,
+		&cuentaDTO.Persona.TipoVia,
+		&cuentaDTO.Persona.Direccion,
+		&cuentaDTO.Persona.Referencia,
+		&cuentaDTO.Persona.Ciudad,
+		&cuentaDTO.Persona.CodigoPostal,
+		&cuentaDTO.Persona.Ocupacion,
+		&cuentaDTO.Persona.NombreEmpresa,
+		&cuentaDTO.Persona.DireccionEmpresa,
+		&cuentaDTO.Persona.IngresoPromedio,
 		&cuentaDTO.FechaInicioMembresia,
 		&cuentaDTO.EstadoMembresia,
 	)
+
 	if err != nil {
 		logs.Logger.Println("Error al obtener cuenta de socio por ID de cuenta: ", err)
 		return cuentaDTO, err

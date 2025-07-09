@@ -225,7 +225,7 @@ func ListarCuentasSocios(c *fiber.Ctx) error {
 }
 
 func VisualizarCuentaSocioPorIdCuenta(c *fiber.Ctx) error {
-	idCuentaStr := c.Params("id")
+	idCuentaStr := c.Params("idCuenta")
 	if idCuentaStr == "" {
 		logs.Logger.Println("ID de cuenta no proporcionado")
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta no proporcionado", nil))
