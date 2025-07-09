@@ -44,7 +44,7 @@ func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
 
 func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
-	query := "call ingesoft.LogIn(?, ?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud)"
+	query := "call ingesoft.LogIn(?, ?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud,@c_activo)"
 	_, err := database.DB.Exec(query, cuenta.Username, passwordEncriptado)
 	var cuentaDTO DTOCuenta
 	cuentaDTO.Username = cuenta.Username
@@ -52,7 +52,7 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 		logs.Logger.Println("Error al iniciar sesion: ", err)
 		return cuentaDTO, err
 	}
-	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud)
+	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud,@c_activo").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud, &cuentaDTO.Activo)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
 		return cuentaDTO, err
@@ -269,6 +269,10 @@ func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto Cuenta
 		cuentaSet = append(cuentaSet, "rol = ?")
 		cuentaArgs = append(cuentaArgs, dto.Rol.String())
 	}
+	if dto.Activo != nil {
+		cuentaSet = append(cuentaSet, "activo = ?")
+		cuentaArgs = append(cuentaArgs, *dto.Activo)
+	}
 
 	if len(cuentaSet) > 0 {
 		query := "UPDATE Cuenta SET " + strings.Join(cuentaSet, ", ") + " WHERE id = ?"
@@ -460,7 +464,7 @@ func (r *cuentaRepositoryDB) LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error
 		logs.Logger.Println("Error: El correo electrónico no ha sido verificado")
 		return DTOCuenta{}, nil
 	}
-	query := "CALL ingesoft.LoginGmail(?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud)"
+	query := "CALL ingesoft.LoginGmail(?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud, @c_activo)"
 	_, err := database.DB.Exec(query, cuenta.Email)
 	if err != nil {
 		logs.Logger.Println("Error al iniciar sesión con Gmail: ", err)
@@ -468,7 +472,7 @@ func (r *cuentaRepositoryDB) LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error
 	}
 	var cuentaDTO DTOCuenta
 
-	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud)
+	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud,@c_activo").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud, &cuentaDTO.Activo)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
 		return cuentaDTO, err
