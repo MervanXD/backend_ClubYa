@@ -11,4 +11,7 @@ type CuentaRepository interface {
 	ListarUsuarios() ([]CuentaUsuariosRequest, error)
 	RegistrarGmail(cuenta CuentaGmailDTO) (int, error)
 	LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error)
+	ListarCuentasSocios() ([]CuentaSocioRequest, error)
+	VisualizarCuentaSocioPorIdCuenta(idCuenta int64) (CuentaSocioDTO, error)
+
 }

@@ -212,3 +212,37 @@ func LoginGmail(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Inicio de sesión con Gmail exitoso", cuentaMandar))
 }
+
+func ListarCuentasSocios(c *fiber.Ctx) error {
+	repo := cuenta.NewCuentaRepositoryDB()
+	cuentasSocios, err := repo.ListarCuentasSocios()
+	if err != nil {
+		logs.Logger.Println("Error al listar cuentas de socios: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al listar cuentas de socios", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Cuentas de socios listadas con éxito", cuentasSocios))
+}
+
+func VisualizarCuentaSocioPorIdCuenta(c *fiber.Ctx) error {
+	idCuentaStr := c.Params("idCuenta")
+	if idCuentaStr == "" {
+		logs.Logger.Println("ID de cuenta no proporcionado")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta no proporcionado", nil))
+	}
+	idCuenta, err := strconv.Atoi(idCuentaStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir ID de cuenta a entero: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta inválido", nil))
+	}
+	idCuentaNew := int64(idCuenta)
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	cuentaSocio, err := repo.VisualizarCuentaSocioPorIdCuenta(idCuentaNew)
+	if err != nil {
+		logs.Logger.Println("Error al visualizar cuenta de socio por ID de cuenta: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al visualizar cuenta de socio por ID de cuenta", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Cuenta de socio visualizada con éxito", cuentaSocio))
+}

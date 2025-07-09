@@ -16,4 +16,6 @@ func RouteCuenta(api fiber.Router) {
 	api.Get("/cuenta/usuarios", handlers.ObtenerUsuarios)
 	api.Post("/cuenta/registrar-gmail", handlers.RegistrarGmail)
 	api.Post("/cuenta/login-gmail", handlers.LoginGmail)
+	api.Get("/cuenta/socios", handlers.ListarCuentasSocios)
+	api.Get("/cuenta/socio/:idCuenta", handlers.VisualizarCuentaSocioPorIdCuenta)
 }
