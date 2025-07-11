@@ -61,3 +61,18 @@ func ObtenerTitularPorID(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Información de titular obtenida correctamente", titular))
 }
+
+func BuscarTitulares(c *fiber.Ctx) error {
+	nroDocumento := c.Query("nro_documento")
+	nombre := c.Query("nombre")
+
+	repo := persona.NewTitularRepositoryDB()
+	logs.Logger.Println("Buscando titulares con nroDocumento:", nroDocumento, "y nombre:", nombre)
+	titulares, err := repo.BuscarTitulares(nroDocumento, nombre)
+	if err != nil {
+		logs.Logger.Println("Error al buscar los titulares: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al buscar los titulares", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Titulares encontrados correctamente", titulares))
+}
