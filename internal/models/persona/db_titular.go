@@ -138,3 +138,24 @@ func (r *titularRepositoryDB) ObtenerTitularPorID(ctx context.Context, idPersona
 
 	return &t, nil
 }
+
+func (r *titularRepositoryDB) BuscarTitulares(nroDocumento string, nombre string) ([]TitularResumen, error) {
+	sesionesQuery := "CALL BuscarTitulares(?,?)"
+	rows, err := database.DB.Query(sesionesQuery, nroDocumento, nombre)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los titulares:", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var titulares []TitularResumen
+	for rows.Next() {
+		var titular TitularResumen
+		err := rows.Scan(&titular.IdPersona, &titular.NumeroDocumento, &titular.NombreCompleto)
+		if err != nil {
+			logs.Logger.Println("Error al escanear el titular:", err)
+			return nil, err
+		}
+		titulares = append(titulares, titular)
+	}
+	return titulares, nil
+}
