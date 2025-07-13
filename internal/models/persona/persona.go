@@ -22,7 +22,7 @@ type Persona struct {
 	Referencia          utils.NullString             `json:"referencia"`
 	Ciudad              utils.NullString             `json:"ciudad"`
 	CodigoPostal        utils.NullString             `json:"codigo_postal"`
-	DocumentoIdentidad  utils.NullString             `json:"documento_identidad"`
-	CartaRecomendacion1 utils.NullString             `json:"carta_recomendacion_1"`
+	DocumentoIdentidad  utils.NullString             `json:"archivo_dni"`
+	CartaRecomendacion1 utils.NullString             `json:"carta_recomendacion"`
 	CartaRecomendacion2 utils.NullString             `json:"carta_recomendacion_2"`
 }
