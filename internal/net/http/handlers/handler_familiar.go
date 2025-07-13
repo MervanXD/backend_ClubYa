@@ -57,3 +57,28 @@ func ObtenerFamiliarPorIdPersona(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiar obtenido correctamente", familiar))
 }
+
+func RegistrarFamiliarConSolicitud(c *fiber.Ctx) error {
+	var familiar persona.Familiar
+
+	if err := c.BodyParser(&familiar); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	idTitular, err := strconv.Atoi(c.Params("id"))
+	if err != nil || idTitular == 0 {
+		logs.Logger.Println("idTitular inválido o no proporcionado en la URL")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("idTitular inválido o no proporcionado en la URL", nil))
+	}
+
+	repo := persona.NewFamiliarRepositoryDB()
+	err = repo.RegistrarFamiliarConSolicitud(familiar, idTitular)
+	if err != nil {
+		logs.Logger.Println("Error al registrar familiar con solicitud: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar familiar con solicitud", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiar y solicitud registrados correctamente", nil))
+}
+

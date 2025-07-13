@@ -90,6 +90,24 @@ func (_m *FamiliarRepository) ObtenerIdsFamiliaresPorTitular(idTitular int) ([]p
 	return r0, r1
 }
 
+// RegistrarFamiliarConSolicitud provides a mock function with given fields: f, idTitular
+func (_m *FamiliarRepository) RegistrarFamiliarConSolicitud(f persona.Familiar, idTitular int) error {
+	ret := _m.Called(f, idTitular)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RegistrarFamiliarConSolicitud")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(persona.Familiar, int) error); ok {
+		r0 = rf(f, idTitular)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // RegistrarFamiliares provides a mock function with given fields: req
 func (_m *FamiliarRepository) RegistrarFamiliares(req persona.FamiliarResquest) (int, error) {
 	ret := _m.Called(req)

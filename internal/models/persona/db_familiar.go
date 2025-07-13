@@ -159,3 +159,18 @@ func (r *familiarRepositoryDB) ObtenerFamiliarPorIDPersona(idPersona int) (*Fami
 	}
 	return &f, nil
 }
+
+func (r *familiarRepositoryDB) RegistrarFamiliarConSolicitud(f Familiar, idTitular int) error {
+	query := "call ingesoft.RegistrarFamiliarConSolicitud(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	_, err := database.DB.Exec(query,
+		f.Nombre, f.Apellidos, f.Sexo.String(),
+		f.TipoDocumento.String(), f.NroDocumento, f.FechaNacimiento, f.Telefono,
+		f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(), f.Direccion, f.Referencia,
+		f.EsConyuge, idTitular, f.MismaDireccionPostulante, f.Ciudad, f.CodigoPostal,
+		f.TipoFamiliar.String())
+	if err != nil {
+		logs.Logger.Println("Error al registrar Familiar con Solicitud: ", err)
+		return err
+	}
+	return nil
+}

@@ -2,6 +2,7 @@ package sesiones
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"
@@ -45,6 +46,7 @@ func (r *sesionRepositoryDB) ObtenerSesionesGrupo(idGrupo int) ([]Sesion, error)
 func (r *sesionRepositoryDB) InsertarSesionTx(tx *sql.Tx, sesion *Sesion) (int64, error) {
 	query := "CALL InsertarSesion(?,?,?,?)"
 	result, err := tx.Exec(query, sesion.IdGrupo, sesion.Dia, sesion.HoraInicio, sesion.HoraFin)
+	fmt.Println(sesion.Dia)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la sesión:", err)
 		return 0, err
