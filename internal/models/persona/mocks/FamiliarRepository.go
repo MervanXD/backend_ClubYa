@@ -12,6 +12,24 @@ type FamiliarRepository struct {
 	mock.Mock
 }
 
+// CrearSolicitudRetiro provides a mock function with given fields: idFamiliar, motivo
+func (_m *FamiliarRepository) CrearSolicitudRetiro(idFamiliar int, motivo string) error {
+	ret := _m.Called(idFamiliar, motivo)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CrearSolicitudRetiro")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, string) error); ok {
+		r0 = rf(idFamiliar, motivo)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // InsertarFamiliar provides a mock function with given fields: f, idTitular
 func (_m *FamiliarRepository) InsertarFamiliar(f persona.Familiar, idTitular int) error {
 	ret := _m.Called(f, idTitular)

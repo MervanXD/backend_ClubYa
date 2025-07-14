@@ -82,3 +82,28 @@ func RegistrarFamiliarConSolicitud(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiar y solicitud registrados correctamente", nil))
 }
 
+func CrearSolicitudRetiro(c *fiber.Ctx) error {
+	idFamiliar, err := strconv.Atoi(c.Params("id"))
+	if err != nil || idFamiliar <= 0 {
+		logs.Logger.Println("idFamiliar inválido o no proporcionado en la URL")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("idFamiliar inválido o no proporcionado en la URL", nil))
+	}
+
+	var req struct {
+		Motivo string `json:"motivo"`
+	}
+	
+	if err := c.BodyParser(&req); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := persona.NewFamiliarRepositoryDB()
+	err = repo.CrearSolicitudRetiro(idFamiliar, req.Motivo)
+	if err != nil {
+		logs.Logger.Println("Error al crear solicitud de retiro: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al crear solicitud de retiro", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Solicitud de retiro creada correctamente", nil))
+}

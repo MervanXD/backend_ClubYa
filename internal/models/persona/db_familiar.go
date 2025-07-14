@@ -174,3 +174,13 @@ func (r *familiarRepositoryDB) RegistrarFamiliarConSolicitud(f Familiar, idTitul
 	}
 	return nil
 }
+
+func (r *familiarRepositoryDB) CrearSolicitudRetiro(idFamiliar int, motivo string) error {
+	query := "CALL ingesoft.CrearSolicitudRetiro(?, ?)"
+	_, err := database.DB.Exec(query, idFamiliar, motivo)
+	if err != nil {
+		logs.Logger.Println("Error al crear solicitud de retiro: ", err)
+		return err
+	}
+	return nil
+}
