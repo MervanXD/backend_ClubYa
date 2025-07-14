@@ -42,12 +42,12 @@ func (d MiembroFamiliar) MarshalJSON() ([]byte, error) {
 
 func (d *MiembroFamiliar) UnmarshalJSON(data []byte) error {
 	idx, err := utils.EnumUnmarshalJSON(data, miembroFamiliarStr[:])
-	*d = MiembroFamiliar(idx)
 	if err != nil {
 		logs.Logger.Println("Error unmarshaling MiembroFamiliar:", err)
 		return err
 	}
-	return err
+	*d = MiembroFamiliar(idx)
+	return nil
 }
 
 func (d *MiembroFamiliar) Scan(value interface{}) error {
