@@ -187,3 +187,91 @@ func (r *familiarRepositoryDB) ObtenerFamiliarPorIDPersona(idPersona int) (*Fami
 	}
 	return &f, nil
 }
+
+func (r *familiarRepositoryDB) RegistrarFamiliarConSolicitud(f Familiar, idTitular int) error {
+	query := "call ingesoft.RegistrarFamiliarConSolicitud(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	_, err := database.DB.Exec(query,
+		f.Nombre, f.Apellidos, f.Sexo.String(),
+		f.TipoDocumento.String(), f.NroDocumento, f.FechaNacimiento, f.Telefono,
+		f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(), f.Direccion, f.Referencia,
+		f.EsConyuge, idTitular, f.MismaDireccionPostulante, f.Ciudad, f.CodigoPostal,
+		f.TipoFamiliar.String())
+	if err != nil {
+		logs.Logger.Println("Error al registrar Familiar con Solicitud: ", err)
+		return err
+	}
+	return nil
+}
+
+func (r *familiarRepositoryDB) CrearSolicitudRetiro(idFamiliar int, motivo string) error {
+	query := "CALL ingesoft.CrearSolicitudRetiro(?, ?)"
+	_, err := database.DB.Exec(query, idFamiliar, motivo)
+	if err != nil {
+		logs.Logger.Println("Error al crear solicitud de retiro: ", err)
+		return err
+	}
+	return nil
+}
+
+func (r *familiarRepositoryDB) AnularSolicitud(idFamiliar int) error {
+	query := "CALL ingesoft.AnularSolicitud(?)"
+	_, err := database.DB.Exec(query, idFamiliar)
+	if err != nil {
+		logs.Logger.Println("Error al anular la solicitud: ", err)
+		return err
+	}
+	return nil
+}
+
+func (r *familiarRepositoryDB) ListarFamiliaresConSolicitudes(idSocio int) ([]FamiliarConSolicitud, error) {
+	query := "CALL ingesoft.ListarFamiliaresConSolicitudes(?)"
+	rows, err := database.DB.Query(query, idSocio)
+	if err != nil {
+		logs.Logger.Println("Error al listar familiares con solicitudes: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var familiares []FamiliarConSolicitud
+
+	for rows.Next() {
+		var fam FamiliarConSolicitud
+
+		err := rows.Scan(
+			&fam.FidPersona,
+			&fam.Nombre,
+			&fam.Apellidos,
+			&fam.Sexo,
+			&fam.TipoDocumento,
+			&fam.NroDocumento,
+			&fam.FechaNacimiento,
+			&fam.Telefono,
+			&fam.Pais,
+			&fam.Provincia,
+			&fam.Distrito,
+			&fam.Direccion,
+			&fam.TipoVia,
+			&fam.Referencia,
+			&fam.Ciudad,
+			&fam.CodigoPostal,
+			&fam.MismaDireccionPostulante,
+			&fam.EsConyuge,
+			&fam.TipoFamiliar,
+			&fam.FechaSolicitud,
+			&fam.FechaDecision,
+			&fam.Estado,
+			&fam.Motivo,
+			&fam.TipoSolicitud,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear familiar con solicitud: ", err)
+			return nil, err
+		}
+
+		familiares = append(familiares, fam)
+	}
+
+	return familiares, nil
+}
+
+
