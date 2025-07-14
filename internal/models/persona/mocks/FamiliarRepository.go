@@ -12,6 +12,24 @@ type FamiliarRepository struct {
 	mock.Mock
 }
 
+// AnularSolicitud provides a mock function with given fields: idFamiliar
+func (_m *FamiliarRepository) AnularSolicitud(idFamiliar int) error {
+	ret := _m.Called(idFamiliar)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AnularSolicitud")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(idFamiliar)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CrearSolicitudRetiro provides a mock function with given fields: idFamiliar, motivo
 func (_m *FamiliarRepository) CrearSolicitudRetiro(idFamiliar int, motivo string) error {
 	ret := _m.Called(idFamiliar, motivo)
@@ -46,6 +64,36 @@ func (_m *FamiliarRepository) InsertarFamiliar(f persona.Familiar, idTitular int
 	}
 
 	return r0
+}
+
+// ListarFamiliaresConSolicitudes provides a mock function with given fields: idSocio
+func (_m *FamiliarRepository) ListarFamiliaresConSolicitudes(idSocio int) ([]persona.FamiliarConSolicitud, error) {
+	ret := _m.Called(idSocio)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListarFamiliaresConSolicitudes")
+	}
+
+	var r0 []persona.FamiliarConSolicitud
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) ([]persona.FamiliarConSolicitud, error)); ok {
+		return rf(idSocio)
+	}
+	if rf, ok := ret.Get(0).(func(int) []persona.FamiliarConSolicitud); ok {
+		r0 = rf(idSocio)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]persona.FamiliarConSolicitud)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(idSocio)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // ObtenerFamiliarPorIDPersona provides a mock function with given fields: idPersona

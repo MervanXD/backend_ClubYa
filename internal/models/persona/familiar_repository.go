@@ -7,4 +7,6 @@ type FamiliarRepository interface {
 	ObtenerFamiliarPorIDPersona(idPersona int) (*Familiar, error)
 	RegistrarFamiliarConSolicitud(f Familiar, idTitular int) error 
 	CrearSolicitudRetiro(idFamiliar int, motivo string) error
+	AnularSolicitud(idFamiliar int) error
+	ListarFamiliaresConSolicitudes(idSocio int) ([]FamiliarConSolicitud, error) 
 }

@@ -11,6 +11,8 @@ func RutasFamiliar(api fiber.Router) {
 	api.Get("/familiar/:id", handlers.ObtenerFamiliarPorIdPersona)
 	api.Post("/familiar/registrar-con-solicitud/:id", handlers.RegistrarFamiliarConSolicitud)
 	api.Post("/familiar/solicitud-retiro/:id", handlers.CrearSolicitudRetiro)
+	api.Post("/familiar/solicitud-anular/:id", handlers.AnularSolicitudes)
+	api.Get("/familiar/solicitudes/:id", handlers.ListarFamiliaresConSolicitudes)
 	// app.Get("/persona/:id", handlers.ObtenerPersonaPorID)
 	// app.Put("/persona/:id", handlers.ActualizarPersona)
 	// app.Delete("/persona/:id", handlers.EliminarPersona)

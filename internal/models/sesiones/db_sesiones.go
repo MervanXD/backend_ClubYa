@@ -2,7 +2,6 @@ package sesiones
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	detalledisponibilidad "github.com/MervanXD/backend_ClubYa/internal/models/detalle_disponibilidad"

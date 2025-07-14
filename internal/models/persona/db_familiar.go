@@ -184,3 +184,66 @@ func (r *familiarRepositoryDB) CrearSolicitudRetiro(idFamiliar int, motivo strin
 	}
 	return nil
 }
+
+func (r *familiarRepositoryDB) AnularSolicitud(idFamiliar int) error {
+	query := "CALL ingesoft.AnularSolicitud(?)"
+	_, err := database.DB.Exec(query, idFamiliar)
+	if err != nil {
+		logs.Logger.Println("Error al anular la solicitud: ", err)
+		return err
+	}
+	return nil
+}
+
+func (r *familiarRepositoryDB) ListarFamiliaresConSolicitudes(idSocio int) ([]FamiliarConSolicitud, error) {
+	query := "CALL ingesoft.ListarFamiliaresConSolicitudes(?)"
+	rows, err := database.DB.Query(query, idSocio)
+	if err != nil {
+		logs.Logger.Println("Error al listar familiares con solicitudes: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var familiares []FamiliarConSolicitud
+
+	for rows.Next() {
+		var fam FamiliarConSolicitud
+
+		err := rows.Scan(
+			&fam.FidPersona,
+			&fam.Nombre,
+			&fam.Apellidos,
+			&fam.Sexo,
+			&fam.TipoDocumento,
+			&fam.NroDocumento,
+			&fam.FechaNacimiento,
+			&fam.Telefono,
+			&fam.Pais,
+			&fam.Provincia,
+			&fam.Distrito,
+			&fam.Direccion,
+			&fam.TipoVia,
+			&fam.Referencia,
+			&fam.Ciudad,
+			&fam.CodigoPostal,
+			&fam.MismaDireccionPostulante,
+			&fam.EsConyuge,
+			&fam.TipoFamiliar,
+			&fam.FechaSolicitud,
+			&fam.FechaDecision,
+			&fam.Estado,
+			&fam.Motivo,
+			&fam.TipoSolicitud,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear familiar con solicitud: ", err)
+			return nil, err
+		}
+
+		familiares = append(familiares, fam)
+	}
+
+	return familiares, nil
+}
+
+

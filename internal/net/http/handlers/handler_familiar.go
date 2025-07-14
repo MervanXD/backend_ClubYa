@@ -92,7 +92,7 @@ func CrearSolicitudRetiro(c *fiber.Ctx) error {
 	var req struct {
 		Motivo string `json:"motivo"`
 	}
-	
+
 	if err := c.BodyParser(&req); err != nil {
 		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
@@ -106,4 +106,37 @@ func CrearSolicitudRetiro(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Solicitud de retiro creada correctamente", nil))
+}
+
+func AnularSolicitudes(c *fiber.Ctx) error {
+	idFamiliar, err := strconv.Atoi(c.Params("id"))
+	if err != nil || idFamiliar <= 0 {
+		logs.Logger.Println("idFamiliar inválido o no proporcionado en la URL")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("idFamiliar inválido o no proporcionado en la URL", nil))
+	}
+
+	repo := persona.NewFamiliarRepositoryDB()
+	err = repo.AnularSolicitud(idFamiliar)
+	if err != nil {
+		logs.Logger.Println("Error al anular la solicitud: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al crear solicitud de retiro", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Solicitud anulada correctamente", nil))
+}
+
+func ListarFamiliaresConSolicitudes(c *fiber.Ctx) error {
+	idSocio, err := strconv.Atoi(c.Params("id"))
+	if err != nil || idSocio <= 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("idSocio inválido", nil))
+	}
+
+	repo := persona.NewFamiliarRepositoryDB()
+	familiares, err := repo.ListarFamiliaresConSolicitudes(idSocio)
+	if err != nil {
+		logs.Logger.Println("Error al listar familiares con solicitudes: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al listar familiares", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiares con solicitudes listados correctamente", familiares))
 }
