@@ -6,4 +6,5 @@ type TarifaMora struct {
 	NombreMora         string  `json:"nombre_mora"`
 	CostoMora          float64 `json:"costo_mora"`
 	Estado             bool    `json:"estado"`
+	FrecuenciaDias     int     `json:"frecuencia_dias"`
 }
