@@ -6,4 +6,5 @@ type AcademiaRepository interface {
 	InsertarAcademia(academia *Academia) error
 	ListarAcademiasGenerales() ([]AcademiaListarRequest, error)
 	ActualizarParcialAcademia(id int, dto AcademiaUpdateDTO) error
+	GenerarReporteAcademias(filtros ReporteAcademiaRequest) ([]ReporteAcademiaDTO, error)
 }
