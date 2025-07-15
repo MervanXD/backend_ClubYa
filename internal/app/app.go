@@ -37,5 +37,6 @@ func SetupApp() *fiber.App {
 	routes.RutasConfiguracionDisponibilidad(api)
 
 	routes.RutasPrueba(api)
+	routes.RutasTarifas(api)
 	return app
 }
