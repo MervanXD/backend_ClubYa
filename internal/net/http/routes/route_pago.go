@@ -7,4 +7,5 @@ import (
 
 func RutasPago(api fiber.Router) {
 	api.Post("/pago/registrar", handlers.RegistrarPago)
+	api.Post("/pago/membresia/pagar-pendientes", handlers.PagarTodosPendientes)
 }
