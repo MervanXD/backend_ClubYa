@@ -202,7 +202,7 @@ func (r *academiaRespositoryDB) GenerarReporteAcademias(filtros ReporteAcademiaR
         filtros.MesInicio, 
         filtros.MesFin, 
         filtros.Anio, 
-        filtros.Deporte.String(), 
+        filtros.Deporte, 
         filtros.OrdenIngreso, 
         filtros.OrdenInscritos)
     
