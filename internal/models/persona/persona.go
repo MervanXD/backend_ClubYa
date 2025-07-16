@@ -24,8 +24,11 @@ type Persona struct {
 	CodigoPostal              utils.NullString             `json:"codigo_postal"`
 	DocumentoIdentidad        []byte                       `json:"archivo_dni"`
 	NombreDocumentoIdentidad  utils.NullString             `json:"nombre_archivo_dni"`
+	UrlDocumentoIdentidad     string                       `json:"url_documento_identidad"`
 	CartaRecomendacion1       []byte                       `json:"carta_recomendacion"`
 	NombreCartaRecomendacion1 utils.NullString             `json:"nombre_carta_recomendacion"`
+	UrlCartaRecomendacion1    string                       `json:"url_carta_recomendacion_1"`
 	CartaRecomendacion2       []byte                       `json:"carta_recomendacion_2"`
 	NombreCartaRecomendacion2 utils.NullString             `json:"nombre_carta_recomendacion_2"`
+	UrlCartaRecomendacion2    string                       `json:"url_carta_recomendacion_2"`
 }

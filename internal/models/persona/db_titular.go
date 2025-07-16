@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/awss3"
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/go-sql-driver/mysql"
 )
@@ -18,6 +19,19 @@ func NewTitularRepositoryDB() TitularRepository {
 }
 
 func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, error) {
+	var urlDocumentoIdentidad, urlCartaRecomendacion1, urlCartaRecomendacion2 string
+	if p.DocumentoIdentidad != nil {
+		urlDocumentoIdentidad, _ = awss3.UploadFromBytesAuto(p.DocumentoIdentidad, p.NombreDocumentoIdentidad.String)
+	}
+	if p.CartaRecomendacion1 != nil {
+		urlCartaRecomendacion1, _ = awss3.UploadFromBytesAuto(p.CartaRecomendacion1, p.NombreCartaRecomendacion1.String)
+	}
+	if p.CartaRecomendacion2 != nil {
+		urlCartaRecomendacion2, _ = awss3.UploadFromBytesAuto(p.CartaRecomendacion2, p.NombreCartaRecomendacion2.String)
+	}
+
+
+
 	tx, err := database.DB.Begin()
 	if err != nil {
 		logs.Logger.Println("Error al iniciar transacción:", err)
@@ -62,9 +76,9 @@ func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, err
 		p.Ciudad,
 		p.CodigoPostal,
 		idCuenta,
-		p.DocumentoIdentidad,
-		p.CartaRecomendacion1,
-		p.CartaRecomendacion2,
+		urlDocumentoIdentidad,
+		urlCartaRecomendacion1,
+		urlCartaRecomendacion2,
 	)
 	if err != nil {
 		logs.Logger.Println("Error al ejecutar InsertarTitular:", err)
