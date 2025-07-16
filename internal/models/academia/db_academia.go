@@ -195,3 +195,40 @@ func (r *academiaRespositoryDB) ActualizarParcialAcademia(id int, dto AcademiaUp
 
 	return nil
 }
+
+func (r *academiaRespositoryDB) GenerarReporteAcademias(filtros ReporteAcademiaRequest) ([]ReporteAcademiaDTO, error) {
+    query := "CALL GenerarReporteAcademias(?, ?, ?, ?, ?, ?)"
+    rows, err := database.DB.Query(query, 
+        filtros.MesInicio, 
+        filtros.MesFin, 
+        filtros.Anio, 
+        filtros.Deporte, 
+        filtros.OrdenIngreso, 
+        filtros.OrdenInscritos)
+    
+    if err != nil {
+        logs.Logger.Println("Error al generar reporte de academias:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var academias []ReporteAcademiaDTO
+    for rows.Next() {
+        var academia ReporteAcademiaDTO
+        if err := rows.Scan(
+            &academia.NombreAcademia,
+            &academia.Deporte,
+            &academia.Entrenador,
+            &academia.Inscritos,
+            &academia.FechaInicio,
+            &academia.FechaFin,
+            &academia.IngresoTotal,
+        ); err != nil {
+            logs.Logger.Println("Error al escanear reporte de academia:", err)
+            return nil, err
+        }
+        academias = append(academias, academia)
+    }
+
+    return academias, nil
+}

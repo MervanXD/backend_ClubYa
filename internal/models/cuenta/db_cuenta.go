@@ -1,11 +1,13 @@
 package cuenta
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/internal/pkgs/security"
 	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/go-sql-driver/mysql"
 )
 
 type cuentaRepositoryDB struct{}
@@ -22,6 +24,18 @@ func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
 
 	err := database.DB.QueryRow(query, cuenta.Username, cuenta.Email, passwordEncriptado).Scan(&idCuenta)
 	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "email") {
+					return -1, fmt.Errorf("el DNI ya está registrado")
+				}
+				if strings.Contains(mysqlErr.Message, "username") {
+					return -1, fmt.Errorf("el nombre de usuario ya está registrado")
+				}
+
+			}
+		}
 		return 0, err
 	}
 
@@ -30,7 +44,7 @@ func (r *cuentaRepositoryDB) CrearCuenta(cuenta Cuenta) (int64, error) {
 
 func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 	passwordEncriptado := security.Hash256(cuenta.Contrasena)
-	query := "call ingesoft.LogIn(?, ?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud)"
+	query := "call ingesoft.LogIn(?, ?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud,@c_activo)"
 	_, err := database.DB.Exec(query, cuenta.Username, passwordEncriptado)
 	var cuentaDTO DTOCuenta
 	cuentaDTO.Username = cuenta.Username
@@ -38,7 +52,7 @@ func (r *cuentaRepositoryDB) LogIn(cuenta Cuenta) (DTOCuenta, error) {
 		logs.Logger.Println("Error al iniciar sesion: ", err)
 		return cuentaDTO, err
 	}
-	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud)
+	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud,@c_activo").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud, &cuentaDTO.Activo)
 	if err != nil {
 		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
 		return cuentaDTO, err
@@ -51,10 +65,17 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	if err != nil {
 		return err
 	}
+
+	// Función para manejar el rollback de forma segura
+	rollbackSafe := func() {
+		if err := tx.Rollback(); err != nil {
+			logs.Logger.Println("Error en rollback: ", err)
+		}
+	}
+
 	defer func() {
 		if p := recover(); p != nil {
-			tx.Rollback()
-			panic(p)
+			rollbackSafe()
 		}
 	}()
 
@@ -78,7 +99,17 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 		cuenta.Persona.CodigoPostal)
 	if err != nil {
 		logs.Logger.Println("Error al insertar datos Personales: ", err)
-		tx.Rollback()
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "nroDocumento") {
+					rollbackSafe()
+					return fmt.Errorf("el nroDocumento ya está registrado")
+				}
+
+			}
+		}
+		rollbackSafe()
 		return err
 	}
 
@@ -86,7 +117,7 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	err = tx.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al obtener el ID de la persona: ", err)
-		tx.Rollback()
+		rollbackSafe()
 		return err
 	}
 
@@ -96,7 +127,21 @@ func (r *cuentaRepositoryDB) CrearCuentaAdministrador(cuenta CuentaAdminDTO) err
 	_, err = tx.Exec(query, cuenta.Username, cuenta.Email, passwordEncriptado, cuenta.Rol.String(), idPersona)
 	if err != nil {
 		logs.Logger.Println("Error al crear cuenta de administrador: ", err)
-		tx.Rollback()
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "email") {
+					rollbackSafe()
+					return fmt.Errorf("el DNI ya está registrado")
+				}
+				if strings.Contains(mysqlErr.Message, "username") {
+					rollbackSafe()
+					return fmt.Errorf("el nombre de usuario ya está registrado")
+				}
+
+			}
+		}
+		rollbackSafe()
 		return err
 	}
 
@@ -223,6 +268,10 @@ func (r *cuentaRepositoryDB) ActualizarCuentaAParcial(idCuenta int64, dto Cuenta
 	if dto.Rol != nil {
 		cuentaSet = append(cuentaSet, "rol = ?")
 		cuentaArgs = append(cuentaArgs, dto.Rol.String())
+	}
+	if dto.Activo != nil {
+		cuentaSet = append(cuentaSet, "activo = ?")
+		cuentaArgs = append(cuentaArgs, *dto.Activo)
 	}
 
 	if len(cuentaSet) > 0 {
@@ -376,3 +425,136 @@ func (r *cuentaRepositoryDB) ListarUsuarios() ([]CuentaUsuariosRequest, error) {
 	return usuarios, nil
 }
 
+func (r *cuentaRepositoryDB) RegistrarGmail(cuenta CuentaGmailDTO) (int, error) {
+	if !cuenta.EmailVerified {
+		logs.Logger.Println("Error: El correo electrónico no ha sido verificado")
+		return -1, nil
+	}
+	query := "CALL ingesoft.RegistrarCuentaGmail(?, ?,@p_id)"
+	_, err := database.DB.Exec(query, cuenta.Username, cuenta.Email)
+	if err != nil {
+		logs.Logger.Println("Error al registrar cuenta Gmail: ", err)
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 {
+				// Error 1062: Duplicate entry
+				if strings.Contains(mysqlErr.Message, "email") {
+					return -1, fmt.Errorf("el DNI ya está registrado")
+				}
+				if strings.Contains(mysqlErr.Message, "username") {
+					return -1, fmt.Errorf("el nombre de usuario ya está registrado")
+				}
+
+			}
+		}
+		return -1, err
+	}
+
+	var idCuenta int
+	err = database.DB.QueryRow("SELECT @p_id").Scan(&idCuenta)
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la cuenta Gmail: ", err)
+		return -1, err
+	}
+
+	return idCuenta, nil
+}
+
+func (r *cuentaRepositoryDB) LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error) {
+	if !cuenta.EmailVerified {
+		logs.Logger.Println("Error: El correo electrónico no ha sido verificado")
+		return DTOCuenta{}, nil
+	}
+	query := "CALL ingesoft.LoginGmail(?,@c_fid_persona,@c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia, @c_id_solicitud, @c_activo)"
+	_, err := database.DB.Exec(query, cuenta.Email)
+	if err != nil {
+		logs.Logger.Println("Error al iniciar sesión con Gmail: ", err)
+		return DTOCuenta{}, err
+	}
+	var cuentaDTO DTOCuenta
+
+	err = database.DB.QueryRow("SELECT @c_fid_persona, @c_rol,@c_esPostulante, @c_estadoSolicitud, @c_id_membresia,@c_id_solicitud,@c_activo").Scan(&cuentaDTO.IdPersona, &cuentaDTO.Rol, &cuentaDTO.Postulante, &cuentaDTO.EstadoSolicitud, &cuentaDTO.IdMembresia, &cuentaDTO.IdSolicitud, &cuentaDTO.Activo)
+	if err != nil {
+		logs.Logger.Println("Error al obtener idPersona, rol y postulante: ", err)
+		return cuentaDTO, err
+	}
+	return cuentaDTO, nil
+}
+
+func (r *cuentaRepositoryDB) ListarCuentasSocios() ([]CuentaSocioRequest, error) {
+	query := "CALL ingesoft.ListarCuentasSocios()"
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		logs.Logger.Println("Error al obtener cuentas de socios: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var cuentas []CuentaSocioRequest
+	for rows.Next() {
+		var cuenta CuentaSocioRequest
+		err := rows.Scan(
+			&cuenta.IDCuenta,
+			&cuenta.Username,
+			&cuenta.Email,
+			&cuenta.Nombre,
+			&cuenta.Apellidos,
+			&cuenta.FechaInicioMembresia,
+			&cuenta.EstadoMembresia,
+			&cuenta.Activo,
+		)
+		if err != nil {
+			logs.Logger.Println("Error al escanear fila de cuenta de socio: ", err)
+			return nil, err
+		}
+		cuentas = append(cuentas, cuenta)
+	}
+	if err := rows.Err(); err != nil {
+		logs.Logger.Println("Error al iterar filas de cuentas de socios: ", err)
+		return nil, err
+	}
+	return cuentas, nil
+
+}
+
+func (r *cuentaRepositoryDB) VisualizarCuentaSocioPorIdCuenta(idCuenta int64) (CuentaSocioDTO, error) {
+	query := "CALL ingesoft.VisualizarCuentaSocioPorIdCuenta(?)"
+	row := database.DB.QueryRow(query, idCuenta)
+
+	var cuentaDTO CuentaSocioDTO
+
+	err := row.Scan(
+		&cuentaDTO.IdCuenta,
+		&cuentaDTO.Persona.Id,
+		&cuentaDTO.Username,
+		&cuentaDTO.Email,
+		&cuentaDTO.Rol,
+
+		&cuentaDTO.Persona.Nombre,
+		&cuentaDTO.Persona.Apellidos,
+		&cuentaDTO.Persona.Sexo,
+		&cuentaDTO.Persona.TipoDocumento,
+		&cuentaDTO.Persona.NroDocumento,
+		&cuentaDTO.Persona.FechaNacimiento,
+		&cuentaDTO.Persona.Telefono,
+		&cuentaDTO.Persona.Pais,
+		&cuentaDTO.Persona.Provincia,
+		&cuentaDTO.Persona.Distrito,
+		&cuentaDTO.Persona.TipoVia,
+		&cuentaDTO.Persona.Direccion,
+		&cuentaDTO.Persona.Referencia,
+		&cuentaDTO.Persona.Ciudad,
+		&cuentaDTO.Persona.CodigoPostal,
+		&cuentaDTO.Persona.Ocupacion,
+		&cuentaDTO.Persona.NombreEmpresa,
+		&cuentaDTO.Persona.DireccionEmpresa,
+		&cuentaDTO.Persona.IngresoPromedio,
+		&cuentaDTO.FechaInicioMembresia,
+		&cuentaDTO.EstadoMembresia,
+	)
+
+	if err != nil {
+		logs.Logger.Println("Error al obtener cuenta de socio por ID de cuenta: ", err)
+		return cuentaDTO, err
+	}
+
+	return cuentaDTO, nil
+}

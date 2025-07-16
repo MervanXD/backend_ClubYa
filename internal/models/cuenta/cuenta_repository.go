@@ -9,4 +9,9 @@ type CuentaRepository interface {
 	ActualizarCuentaAParcial(idCuenta int64, dto CuentaAdminUpdateDTO) error
 	ObtenerIdCuentaPorPersona(idPersona int64) (int64, error)
 	ListarUsuarios() ([]CuentaUsuariosRequest, error)
+	RegistrarGmail(cuenta CuentaGmailDTO) (int, error)
+	LoginGmail(cuenta CuentaGmailDTO) (DTOCuenta, error)
+	ListarCuentasSocios() ([]CuentaSocioRequest, error)
+	VisualizarCuentaSocioPorIdCuenta(idCuenta int64) (CuentaSocioDTO, error)
+
 }

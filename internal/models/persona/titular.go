@@ -14,3 +14,9 @@ type Titular struct {
 	EsPostulante     bool              `json:"es_postulante"`
 	TipoTrabajo      tipos.TipoTrabajo `json:"tipo_trabajo"`
 }
+
+type TitularResumen struct {
+	IdPersona       int    `json:"id_persona"`
+	NumeroDocumento string `json:"numero_documento"`
+	NombreCompleto  string `json:"nombre_completo"`
+}

@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
@@ -31,6 +32,10 @@ func CrearTitular(c *fiber.Ctx) error {
 	idTitular, err := repo.InsertarTitular(personaData, idCuenta)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la persona: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("El ya está registrado", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar la persona", nil))
 	}
 
@@ -55,4 +60,19 @@ func ObtenerTitularPorID(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Información de titular obtenida correctamente", titular))
+}
+
+func BuscarTitulares(c *fiber.Ctx) error {
+	nroDocumento := c.Query("nro_documento")
+	nombre := c.Query("nombre")
+
+	repo := persona.NewTitularRepositoryDB()
+	logs.Logger.Println("Buscando titulares con nroDocumento:", nroDocumento, "y nombre:", nombre)
+	titulares, err := repo.BuscarTitulares(nroDocumento, nombre)
+	if err != nil {
+		logs.Logger.Println("Error al buscar los titulares: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al buscar los titulares", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Titulares encontrados correctamente", titulares))
 }

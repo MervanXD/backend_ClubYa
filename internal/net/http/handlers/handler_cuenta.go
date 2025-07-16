@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/cuenta"
@@ -19,6 +20,13 @@ func CrearCuenta(c *fiber.Ctx) error {
 	idCuenta, err := repo.CrearCuenta(cuentaDTO)
 	if err != nil {
 		logs.Logger.Println("Error al insertar la cuenta: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("La cuenta Gmail ya está registrada", nil))
+		}
+		if strings.Contains(errMsg, "no ha sido verificado") {
+			return c.Status(fiber.StatusForbidden).JSON(models.Error("La cuenta Gmail no ha sido verificada", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al insertar la cuenta", nil))
 	}
 
@@ -51,6 +59,13 @@ func CrearCuentaAdministrador(c *fiber.Ctx) error {
 	err := repo.CrearCuentaAdministrador(cuentaDTO)
 	if err != nil {
 		logs.Logger.Println("Error al crear la cuenta de administrador: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("La cuenta Gmail ya está registrada", nil))
+		}
+		if strings.Contains(errMsg, "no ha sido verificado") {
+			return c.Status(fiber.StatusForbidden).JSON(models.Error("La cuenta Gmail no ha sido verificada", nil))
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al crear la cuenta de administrador", nil))
 	}
 
@@ -155,4 +170,79 @@ func ObtenerUsuarios(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Usuarios listados con éxito", usuarios))
+}
+
+func RegistrarGmail(c *fiber.Ctx) error {
+	var cuentaDTO cuenta.CuentaGmailDTO
+	if err := c.BodyParser(&cuentaDTO); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	idCuenta, err := repo.RegistrarGmail(cuentaDTO)
+	if err != nil {
+		logs.Logger.Println("Error al registrar cuenta Gmail: ", err)
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("La cuenta Gmail ya está registrada", nil))
+		}
+		if strings.Contains(errMsg, "no ha sido verificado") {
+			return c.Status(fiber.StatusForbidden).JSON(models.Error("La cuenta Gmail no ha sido verificada", nil))
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar cuenta Gmail", nil))
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(models.Succes("Cuenta Gmail registrada con éxito", idCuenta))
+}
+
+func LoginGmail(c *fiber.Ctx) error {
+	var cuentaDTO cuenta.CuentaGmailDTO
+	if err := c.BodyParser(&cuentaDTO); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	cuentaMandar, err := repo.LoginGmail(cuentaDTO)
+	if err != nil {
+		logs.Logger.Println("Error al iniciar sesión con Gmail: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al iniciar sesión con Gmail", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Inicio de sesión con Gmail exitoso", cuentaMandar))
+}
+
+func ListarCuentasSocios(c *fiber.Ctx) error {
+	repo := cuenta.NewCuentaRepositoryDB()
+	cuentasSocios, err := repo.ListarCuentasSocios()
+	if err != nil {
+		logs.Logger.Println("Error al listar cuentas de socios: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al listar cuentas de socios", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Cuentas de socios listadas con éxito", cuentasSocios))
+}
+
+func VisualizarCuentaSocioPorIdCuenta(c *fiber.Ctx) error {
+	idCuentaStr := c.Params("idCuenta")
+	if idCuentaStr == "" {
+		logs.Logger.Println("ID de cuenta no proporcionado")
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta no proporcionado", nil))
+	}
+	idCuenta, err := strconv.Atoi(idCuentaStr)
+	if err != nil {
+		logs.Logger.Println("Error al convertir ID de cuenta a entero: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID de cuenta inválido", nil))
+	}
+	idCuentaNew := int64(idCuenta)
+
+	repo := cuenta.NewCuentaRepositoryDB()
+	cuentaSocio, err := repo.VisualizarCuentaSocioPorIdCuenta(idCuentaNew)
+	if err != nil {
+		logs.Logger.Println("Error al visualizar cuenta de socio por ID de cuenta: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al visualizar cuenta de socio por ID de cuenta", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Cuenta de socio visualizada con éxito", cuentaSocio))
 }

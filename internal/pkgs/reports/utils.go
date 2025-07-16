@@ -1,6 +1,9 @@
 package reports
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
@@ -110,4 +113,136 @@ func getRedColor() *props.Color {
 		Green: 10,
 		Blue:  10,
 	}
+}
+
+// Función reutilizable para crear sección de métricas
+func CrearSeccionMetricas(titulo string, metricas []MetricaItem) []core.Row {
+	var rows []core.Row
+
+	// Título de la sección
+	tituloRow := row.New(15).Add(
+		text.NewCol(12, titulo, props.Text{
+			Size:  12,
+			Style: fontstyle.Bold,
+			Align: align.Center,
+			Color: getBlueColor(),
+		}),
+	)
+	rows = append(rows, tituloRow)
+
+	// Crear filas de métricas (2 métricas por fila)
+	for i := 0; i < len(metricas); i += 2 {
+		metricaRow := row.New(12)
+
+		// Primera métrica
+		metricaRow.Add(
+			text.NewCol(3, metricas[i].Label+":", props.Text{
+				Size:  10,
+				Style: fontstyle.Bold,
+				Align: align.Right,
+			}),
+			text.NewCol(3, metricas[i].Valor, props.Text{
+				Size:  10,
+				Align: align.Left,
+				Color: metricas[i].Color,
+			}),
+		)
+
+		// Segunda métrica (si existe)
+		if i+1 < len(metricas) {
+			metricaRow.Add(
+				text.NewCol(3, metricas[i+1].Label+":", props.Text{
+					Size:  10,
+					Style: fontstyle.Bold,
+					Align: align.Right,
+				}),
+				text.NewCol(3, metricas[i+1].Valor, props.Text{
+					Size:  10,
+					Align: align.Left,
+					Color: metricas[i+1].Color,
+				}),
+			)
+		} else {
+			// Llenar espacio vacío
+			metricaRow.Add(
+				text.NewCol(3, "", props.Text{}),
+				text.NewCol(3, "", props.Text{}),
+			)
+		}
+
+		rows = append(rows, metricaRow)
+	}
+
+	// Línea separadora
+	separadorRow := row.New(8).Add(
+		text.NewCol(12, "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", props.Text{
+			Size:  8,
+			Align: align.Center,
+			Color: getGrayColor(),
+		}),
+	)
+	rows = append(rows, separadorRow)
+
+	return rows
+}
+
+// Función para formatear moneda
+func FormatearMoneda(valor float64) string {
+	return "S/ " + strconv.FormatFloat(valor, 'f', 2, 64)
+}
+
+// Función para formatear número con separadores
+func FormatearNumero(valor int) string {
+	return strconv.Itoa(valor)
+}
+
+func ConvertirHoraAMinutos(duracionHora string) string {
+	// Limpiar espacios y posibles sufijos
+	duracionHora = strings.TrimSpace(duracionHora)
+	duracionHora = strings.Replace(duracionHora, " hrs", "", -1)
+	duracionHora = strings.Replace(duracionHora, " hr", "", -1)
+
+	// Dividir por ":"
+	partes := strings.Split(duracionHora, ":")
+
+	if len(partes) >= 2 {
+		// Convertir horas y minutos
+		horas, errH := strconv.Atoi(partes[0])
+		minutos, errM := strconv.Atoi(partes[1])
+
+		if errH == nil && errM == nil {
+			totalMinutos := (horas * 60) + minutos
+			return strconv.Itoa(totalMinutos)
+		}
+	} else if len(partes) == 1 {
+		// Si solo viene un número, asumimos que son minutos
+		if minutos, err := strconv.Atoi(partes[0]); err == nil {
+			return strconv.Itoa(minutos)
+		}
+	}
+
+	// Si no se puede convertir, retornar el valor original
+	return duracionHora
+}
+
+func ConvertirHoraAHoras(duracionHora string) string {
+	// Limpiar espacios y posibles sufijos
+	duracionHora = strings.TrimSpace(duracionHora)
+	duracionHora = strings.Replace(duracionHora, " hrs", "", -1)
+	duracionHora = strings.Replace(duracionHora, " hr", "", -1)
+
+	// Dividir por ":"
+	partes := strings.Split(duracionHora, ":")
+
+	if len(partes) >= 1 {
+		// Solo nos interesa la primera parte (horas)
+		horas, errH := strconv.Atoi(partes[0])
+
+		if errH == nil {
+			return strconv.Itoa(horas) // Solo retornar las horas
+		}
+	}
+
+	// Si no se puede convertir, retornar el valor original
+	return duracionHora
 }

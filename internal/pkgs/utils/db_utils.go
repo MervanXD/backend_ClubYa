@@ -85,3 +85,30 @@ func ExecSPWithOut(ctx context.Context, tx *sql.Tx, name, outVar string, dest in
 
 	return nil
 }
+
+// QuerySP ejecuta un procedimiento almacenado y retorna el resultado de la consulta.
+// Puede ejecutarse tanto en una transacción como directamente en la base de datos.
+//
+// Parámetros:
+//   - ctx: contexto para controlar la cancelación y los tiempos de espera.
+//   - dbContext: puede ser *sql.DB (conexión directa) o *sql.Tx (transacción).
+//   - name: nombre del procedimiento almacenado.
+//   - args: argumentos para el procedimiento.
+//
+// Retorna:
+//   - *sql.Rows: resultado de la consulta.
+//   - error: error si la ejecución falla.
+func QuerySP(ctx context.Context, dbContext interface{}, name string, args ...interface{}) (*sql.Rows, error) {
+	// Construimos la consulta
+	q := fmt.Sprintf("CALL ingesoft.%s(%s)", name, placeholders(len(args)))
+
+	// Determinamos si es transacción o conexión directa
+	switch v := dbContext.(type) {
+	case *sql.DB:
+		return v.QueryContext(ctx, q, args...)
+	case *sql.Tx:
+		return v.QueryContext(ctx, q, args...)
+	default:
+		return nil, fmt.Errorf("dbContext debe ser *sql.DB o *sql.Tx, recibido: %T", dbContext)
+	}
+}

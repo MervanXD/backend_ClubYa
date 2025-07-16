@@ -34,7 +34,10 @@ func SetupApp() *fiber.App {
 	routes.RutasInscripcionAcademia(api)
 	routes.RutasAcademia(api)
 	routes.RutasReporte(api)
+	routes.RutasConfiguracionDisponibilidad(api)
 
 	routes.RutasPrueba(api)
+	routes.RutasTarifas(api)
+	routes.RutasMoras(api)
 	return app
 }
