@@ -233,3 +233,36 @@ func (r *eventoRepositoryDB) ListarBloquesBloqueados(idEspacio int, fecha string
 
 	return bloques, nil
 }
+
+func (r *eventoRepositoryDB) GenerarReporteEventos(filtros ReporteEventoRequest) ([]ReporteEventoDTO, error) {
+    query := "CALL GenerarReporteEventos(?, ?, ?, ?)"
+    rows, err := database.DB.Query(query, 
+        filtros.FechaInicio, 
+        filtros.FechaFin, 
+        filtros.OrdenIngreso, 
+        filtros.OrdenAsistentes)
+    
+    if err != nil {
+        logs.Logger.Println("Error al generar reporte de eventos:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    var eventos []ReporteEventoDTO
+    for rows.Next() {
+        var evento ReporteEventoDTO
+        if err := rows.Scan(
+            &evento.NombreEvento,
+            &evento.FechaEvento,
+            &evento.Duracion,
+            &evento.NroInscritos,
+            &evento.IngresoTotal,
+        ); err != nil {
+            logs.Logger.Println("Error al escanear reporte de evento:", err)
+            return nil, err
+        }
+        eventos = append(eventos, evento)
+    }
+
+    return eventos, nil
+}
