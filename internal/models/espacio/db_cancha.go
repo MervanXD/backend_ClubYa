@@ -180,3 +180,56 @@ func (r *canchaRespositoryDB) ObtenerCanchasConfiguracion() ([]Cancha, error) {
 	return canchas, nil
 
 }
+
+func (r *canchaRespositoryDB) GenerarReporteCanchas(filtros ReporteCanchaRequest) (ReporteCanchaDTO, error) {
+    var reporte ReporteCanchaDTO
+    
+    // 1. Obtener métricas generales
+    queryMetricas := "CALL ObtenerMetricasCanchas(?, ?, ?)"
+    row := database.DB.QueryRow(queryMetricas, filtros.FechaInicio, filtros.FechaFin, filtros.CanchaID)
+    
+    err := row.Scan(
+        &reporte.Metricas.IngresosTotales,
+        &reporte.Metricas.HorasReservadas,
+        &reporte.Metricas.ReservasConfirmadas,
+        &reporte.Metricas.ReservasAnuladas,
+    )
+    if err != nil {
+        logs.Logger.Println("Error al obtener métricas de canchas:", err)
+        return reporte, err
+    }
+
+    // 2. Obtener datos por socio
+    queryDatos := "CALL ObtenerDatosSociosCanchas(?, ?, ?, ?, ?)"
+    rows, err := database.DB.Query(queryDatos, 
+        filtros.FechaInicio, 
+        filtros.FechaFin, 
+        filtros.CanchaID,
+        filtros.OrdenIngreso,
+        filtros.OrdenHoras)
+    
+    if err != nil {
+        logs.Logger.Println("Error al obtener datos de socios:", err)
+        return reporte, err
+    }
+    defer rows.Close()
+
+    var socios []ReporteCanchaSocioDTO
+    for rows.Next() {
+        var socio ReporteCanchaSocioDTO
+        if err := rows.Scan(
+            &socio.NombreSocio,
+            &socio.ReservasConfirmadas,
+            &socio.ReservasAnuladas,
+            &socio.HorasReservadas,
+            &socio.IngresosPorSocio,
+        ); err != nil {
+            logs.Logger.Println("Error al escanear datos de socio:", err)
+            return reporte, err
+        }
+        socios = append(socios, socio)
+    }
+    
+    reporte.DatosSocios = socios
+    return reporte, nil
+}
