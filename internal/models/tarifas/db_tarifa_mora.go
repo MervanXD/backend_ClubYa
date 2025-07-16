@@ -43,8 +43,8 @@ func (r *tarifaMoraRepositoryDB) InsertarTarifaMora(tarifa TarifaMora) error {
 	return nil
 }
 
-func (r *tarifaMoraRepositoryDB) ObtenerTarifaMoraPorId(id int64) (TarifaMora, error) {
-	query := "CALL ObtenerTarifaMoraPorId(?)"
+func (r *tarifaMoraRepositoryDB) ObtenerTarifaMoraPorMembresia(id int64) (TarifaMora, error) {
+	query := "CALL ObtenerTarifaMoraPorMembresia(?)"
 	row := database.DB.QueryRow(query, id)
 	var tarifa TarifaMora
 	if err := row.Scan(&tarifa.IdTarifaMora, &tarifa.FidTarifaMembresia, &tarifa.NombreMora,
