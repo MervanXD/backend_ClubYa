@@ -6,23 +6,26 @@ import (
 )
 
 type Persona struct {
-	Id                  int                          `json:"id"`
-	Nombre              string                       `json:"nombre"`
-	Apellidos           string                       `json:"apellidos"`
-	Sexo                tipos.Sexo                   `json:"sexo"`
-	TipoDocumento       tipos.TipoDocumentoIdentidad `json:"tipo_documento"`
-	NroDocumento        string                       `json:"nro_documento"`
-	FechaNacimiento     string                       `json:"fecha_nacimiento"`
-	Telefono            string                       `json:"telefono"`
-	Pais                string                       `json:"pais"`
-	Provincia           string                       `json:"provincia"`
-	Distrito            string                       `json:"distrito"`
-	Direccion           string                       `json:"direccion"`
-	TipoVia             tipos.TipoVia                `json:"tipo_via"`
-	Referencia          utils.NullString             `json:"referencia"`
-	Ciudad              utils.NullString             `json:"ciudad"`
-	CodigoPostal        utils.NullString             `json:"codigo_postal"`
-	DocumentoIdentidad  utils.NullString             `json:"archivo_dni"`
-	CartaRecomendacion1 utils.NullString             `json:"carta_recomendacion"`
-	CartaRecomendacion2 utils.NullString             `json:"carta_recomendacion_2"`
+	Id                        int                          `json:"id"`
+	Nombre                    string                       `json:"nombre"`
+	Apellidos                 string                       `json:"apellidos"`
+	Sexo                      tipos.Sexo                   `json:"sexo"`
+	TipoDocumento             tipos.TipoDocumentoIdentidad `json:"tipo_documento"`
+	NroDocumento              string                       `json:"nro_documento"`
+	FechaNacimiento           string                       `json:"fecha_nacimiento"`
+	Telefono                  string                       `json:"telefono"`
+	Pais                      string                       `json:"pais"`
+	Provincia                 string                       `json:"provincia"`
+	Distrito                  string                       `json:"distrito"`
+	Direccion                 string                       `json:"direccion"`
+	TipoVia                   tipos.TipoVia                `json:"tipo_via"`
+	Referencia                utils.NullString             `json:"referencia"`
+	Ciudad                    utils.NullString             `json:"ciudad"`
+	CodigoPostal              utils.NullString             `json:"codigo_postal"`
+	DocumentoIdentidad        []byte                       `json:"archivo_dni"`
+	NombreDocumentoIdentidad  utils.NullString             `json:"nombre_archivo_dni"`
+	CartaRecomendacion1       []byte                       `json:"carta_recomendacion"`
+	NombreCartaRecomendacion1 utils.NullString             `json:"nombre_carta_recomendacion"`
+	CartaRecomendacion2       []byte                       `json:"carta_recomendacion_2"`
+	NombreCartaRecomendacion2 utils.NullString             `json:"nombre_carta_recomendacion_2"`
 }
