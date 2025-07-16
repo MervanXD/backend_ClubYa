@@ -39,5 +39,6 @@ func SetupApp() *fiber.App {
 	routes.RutasPrueba(api)
 	routes.RutasTarifas(api)
 	routes.RutasMoras(api)
+	routes.RutasTarifasMembresia(api)
 	return app
 }
