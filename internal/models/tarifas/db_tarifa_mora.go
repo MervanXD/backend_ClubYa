@@ -43,6 +43,18 @@ func (r *tarifaMoraRepositoryDB) InsertarTarifaMora(tarifa TarifaMora) error {
 	return nil
 }
 
+func (r *tarifaMoraRepositoryDB) ObtenerTarifaMoraPorId(id int64) (TarifaMora, error) {
+	query := "CALL ObtenerTarifaMoraPorId(?)"
+	row := database.DB.QueryRow(query, id)
+	var tarifa TarifaMora
+	if err := row.Scan(&tarifa.IdTarifaMora, &tarifa.FidTarifaMembresia, &tarifa.NombreMora,
+		&tarifa.CostoMora, &tarifa.Estado, &tarifa.FrecuenciaDias); err != nil {
+		logs.Logger.Println("Error al escanear la mora:", err)
+		return TarifaMora{}, err
+	}
+	return tarifa, nil
+}
+
 func (r *tarifaMoraRepositoryDB) ListarTarifaMora() ([]TarifaMora, error) {
 	query := "CALL ListarTarifasMora()"
 	rows, err := database.DB.Query(query)
