@@ -189,19 +189,26 @@ func (r *familiarRepositoryDB) ObtenerFamiliarPorIDPersona(idPersona int) (*Fami
 }
 
 func (r *familiarRepositoryDB) RegistrarFamiliarConSolicitud(f Familiar, idTitular int) error {
-	query := "call ingesoft.RegistrarFamiliarConSolicitud(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	query := "call ingesoft.RegistrarFamiliarConSolicitud(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	_, err := database.DB.Exec(query,
 		f.Nombre, f.Apellidos, f.Sexo.String(),
 		f.TipoDocumento.String(), f.NroDocumento, f.FechaNacimiento, f.Telefono,
 		f.Pais, f.Provincia, f.Distrito, f.TipoVia.String(), f.Direccion, f.Referencia,
 		f.EsConyuge, idTitular, f.MismaDireccionPostulante, f.Ciudad, f.CodigoPostal,
-		f.TipoFamiliar.String())
+		f.TipoFamiliar.String(),f.DocumentoIdentidad)
 	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			if mysqlErr.Number == 1062 && strings.Contains(mysqlErr.Message, "nroDocumento") {
+				return fmt.Errorf("el documento %s ya está registrado", f.NroDocumento)
+			}
+		}
+
 		logs.Logger.Println("Error al registrar Familiar con Solicitud: ", err)
 		return err
 	}
 	return nil
 }
+
 
 func (r *familiarRepositoryDB) CrearSolicitudRetiro(idFamiliar int, motivo string) error {
 	query := "CALL ingesoft.CrearSolicitudRetiro(?, ?)"
