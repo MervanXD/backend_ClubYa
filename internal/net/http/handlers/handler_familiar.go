@@ -81,11 +81,19 @@ func RegistrarFamiliarConSolicitud(c *fiber.Ctx) error {
 	err = repo.RegistrarFamiliarConSolicitud(familiar, idTitular)
 	if err != nil {
 		logs.Logger.Println("Error al registrar familiar con solicitud: ", err)
+
+		// si el mensaje del error ya está registrado
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "ya está registrado") {
+			return c.Status(fiber.StatusConflict).JSON(models.Error("El documento ya está registrado", nil))
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al registrar familiar con solicitud", nil))
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Familiar y solicitud registrados correctamente", nil))
 }
+
 
 func CrearSolicitudRetiro(c *fiber.Ctx) error {
 	idFamiliar, err := strconv.Atoi(c.Params("id"))
