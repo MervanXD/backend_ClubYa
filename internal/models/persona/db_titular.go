@@ -75,6 +75,7 @@ func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, err
 				return -1, fmt.Errorf("el número de documento ya está registrado")
 			}
 		}
+		
 		return -1, err
 	}
 
