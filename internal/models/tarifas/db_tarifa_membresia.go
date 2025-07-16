@@ -16,16 +16,12 @@ func NewTarifaMembresiaRespositoryDB() TarifaMembresiaRepository {
 }
 
 func (r *tarifaMembresiaRepositoryDB) ObtenerTarifasMembresiaPorId(id int64) (TarifaMembresia, error) {
-	query := "CALL ObtenerTarifasMembresiaPorId(?)"
-	rows, err := database.DB.Query(query, id)
-	if err != nil {
-		logs.Logger.Println("Error al obtener las tarifas de membresía:", err)
-		return TarifaMembresia{}, err
-	}
-	defer rows.Close()
+	query := "CALL ObtenerTarifaMembresiaPorId(?)"
+	row := database.DB.QueryRow(query, id)
 
 	var tarifa TarifaMembresia
-	err = rows.Scan(&tarifa.IdTarifaMembresia, &tarifa.FechaInicio, &tarifa.CuotaBase, &tarifa.DiasPlazoPago, &tarifa.MetodoPago, &tarifa.MontoPagoInicial)
+	err := row.Scan(&tarifa.IdTarifaMembresia, &tarifa.FechaInicio, &tarifa.FechaFin, &tarifa.CuotaBase, &tarifa.DiasPlazoPago, &tarifa.MetodoPago, &tarifa.MontoPagoInicial)
+
 	if err != nil {
 		logs.Logger.Println("Error al escanear la tarifa de membresía:", err)
 		return TarifaMembresia{}, err
