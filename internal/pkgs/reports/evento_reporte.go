@@ -16,7 +16,7 @@ func GeneraReporteEventos(eventos []evento.ReporteEventoDTO) ([]byte, error) {
 	}
 
 	// Título principal del reporte
-	m.AddRow(20, getTituloTabla("Reporte de Eventos Deportivos")...)
+	m.AddRow(25, getTituloTabla("Reporte de Eventos")...)
 
 	// Encabezados de la tabla
 	encabezados := []Encabezado{
