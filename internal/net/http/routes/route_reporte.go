@@ -8,4 +8,5 @@ import (
 func RutasReporte(api fiber.Router) {
 	api.Get("/reporte/membresias", handlers.GeneraReporteMembresias)
 	api.Post("/reporte/academias", handlers.GeneraReporteAcademias)
+	api.Post("/reporte/canchas", handlers.GeneraReporteCanchas)
 }
