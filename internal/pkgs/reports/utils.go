@@ -2,6 +2,7 @@ package reports
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/MervanXD/backend_ClubYa/logs"
 	"github.com/johnfercher/maroto/v2"
@@ -193,4 +194,55 @@ func FormatearMoneda(valor float64) string {
 // Función para formatear número con separadores
 func FormatearNumero(valor int) string {
 	return strconv.Itoa(valor)
+}
+
+func ConvertirHoraAMinutos(duracionHora string) string {
+	// Limpiar espacios y posibles sufijos
+	duracionHora = strings.TrimSpace(duracionHora)
+	duracionHora = strings.Replace(duracionHora, " hrs", "", -1)
+	duracionHora = strings.Replace(duracionHora, " hr", "", -1)
+
+	// Dividir por ":"
+	partes := strings.Split(duracionHora, ":")
+
+	if len(partes) >= 2 {
+		// Convertir horas y minutos
+		horas, errH := strconv.Atoi(partes[0])
+		minutos, errM := strconv.Atoi(partes[1])
+
+		if errH == nil && errM == nil {
+			totalMinutos := (horas * 60) + minutos
+			return strconv.Itoa(totalMinutos)
+		}
+	} else if len(partes) == 1 {
+		// Si solo viene un número, asumimos que son minutos
+		if minutos, err := strconv.Atoi(partes[0]); err == nil {
+			return strconv.Itoa(minutos)
+		}
+	}
+
+	// Si no se puede convertir, retornar el valor original
+	return duracionHora
+}
+
+func ConvertirHoraAHoras(duracionHora string) string {
+	// Limpiar espacios y posibles sufijos
+	duracionHora = strings.TrimSpace(duracionHora)
+	duracionHora = strings.Replace(duracionHora, " hrs", "", -1)
+	duracionHora = strings.Replace(duracionHora, " hr", "", -1)
+
+	// Dividir por ":"
+	partes := strings.Split(duracionHora, ":")
+
+	if len(partes) >= 1 {
+		// Solo nos interesa la primera parte (horas)
+		horas, errH := strconv.Atoi(partes[0])
+
+		if errH == nil {
+			return strconv.Itoa(horas) // Solo retornar las horas
+		}
+	}
+
+	// Si no se puede convertir, retornar el valor original
+	return duracionHora
 }

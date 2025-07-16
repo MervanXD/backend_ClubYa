@@ -47,11 +47,12 @@ func getDatosTablaEventos(eventos []evento.ReporteEventoDTO) []core.Row {
 	for i, evento := range eventos {
 		ingresoTotal := FormatearMoneda(evento.IngresoTotal)
 		nroInscritos := FormatearNumero(evento.NroInscritos)
+		duracionHoras := ConvertirHoraAHoras(evento.Duracion) + " hrs"
 
 		r := row.New(10).Add(
 			text.NewCol(3, evento.NombreEvento, props.Text{Size: 8, Align: align.Left}),
 			text.NewCol(2, evento.FechaEvento, props.Text{Size: 8, Align: align.Center}),
-			text.NewCol(2, evento.Duracion, props.Text{Size: 8, Align: align.Center}),
+			text.NewCol(2, duracionHoras, props.Text{Size: 8, Align: align.Center}),
 			text.NewCol(2, nroInscritos, props.Text{Size: 8, Align: align.Center, Color: getBlueColor()}),
 			text.NewCol(3, ingresoTotal, props.Text{Size: 8, Align: align.Right, Color: getBlueColor()}),
 		)
