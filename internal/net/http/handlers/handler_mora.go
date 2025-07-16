@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/MervanXD/backend_ClubYa/internal/api/models"
 	"github.com/MervanXD/backend_ClubYa/internal/models/tarifas"
 	"github.com/MervanXD/backend_ClubYa/logs"
@@ -16,6 +18,24 @@ func ListarTarifasMoras(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.Succes("Moras obtenidas con éxito", moras))
+}
+
+func ObtenerTarifaMoraPorMembresia(c *fiber.Ctx) error {
+	idParam := c.Params("id_tarifa_membresia")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		logs.Logger.Println("ID inválido: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(models.Error("ID inválido", nil))
+	}
+
+	repo := tarifas.NewTarifaMoraRespositoryDB()
+	mora, err := repo.ObtenerTarifaMoraPorMembresia(int64(id))
+	if err != nil {
+		logs.Logger.Println("Error al obtener la mora: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(models.Error("Error al obtener la mora", nil))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.Succes("Mora obtenida con éxito", mora))
 }
 
 func ModificarMora(c *fiber.Ctx) error {
