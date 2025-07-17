@@ -1,0 +1,78 @@
+package handlers
+
+import (
+	"net/http"
+
+	"github.com/MervanXD/backend_ClubYa/internal/api/models"
+	"github.com/MervanXD/backend_ClubYa/internal/models/academia"
+	"github.com/MervanXD/backend_ClubYa/logs"
+	"github.com/gofiber/fiber/v2"
+)
+
+func InsertarAcademia(c *fiber.Ctx) error {
+	var aca academia.Academia
+	if err := c.BodyParser(&aca); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(http.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := academia.NewAcademiaRepositoryDB()
+	err := repo.InsertarAcademia(&aca)
+	if err != nil {
+		logs.Logger.Println("Error al insertar la academia: ", err)
+		return c.Status(http.StatusInternalServerError).JSON(models.Error("Error al insertar la academia", nil))
+	}
+
+	return c.Status(http.StatusCreated).JSON(models.Succes("Academia creada con éxito", nil))
+}
+
+func ListarAcademiasGenerales(c *fiber.Ctx) error {
+	repo := academia.NewAcademiaRepositoryDB()
+	academias, err := repo.ListarAcademiasGenerales()
+	if err != nil {
+		logs.Logger.Println("Error al listar las academias: ", err)
+		return c.Status(http.StatusInternalServerError).JSON(models.Error("Error al listar las academias", nil))
+	}
+
+	return c.Status(http.StatusOK).JSON(models.Succes("Lista de academias obtenida con éxito", academias))
+}
+
+func ObtenerAcademiaPorId(c *fiber.Ctx) error {
+	idAcademia, err := c.ParamsInt("id")
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la academia: ", err)
+		return c.Status(http.StatusBadRequest).JSON(models.Error("ID de academia inválido", nil))
+	}
+
+	repo := academia.NewAcademiaRepositoryDB()
+	academia, err := repo.ObtenerAcademiaPorId(idAcademia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener la academia por ID: ", err)
+		return c.Status(http.StatusInternalServerError).JSON(models.Error("Error al obtener la academia", nil))
+	}
+
+	return c.Status(http.StatusOK).JSON(models.Succes("Academia obtenida con éxito", academia))
+}
+
+func ActualizarAcademia(c *fiber.Ctx) error {
+	idAcademia, err := c.ParamsInt("id")
+	if err != nil {
+		logs.Logger.Println("Error al obtener el ID de la academia: ", err)
+		return c.Status(http.StatusBadRequest).JSON(models.Error("ID de academia inválido", nil))
+	}
+
+	var dto academia.AcademiaUpdateDTO
+	if err := c.BodyParser(&dto); err != nil {
+		logs.Logger.Println("Error al parsear el cuerpo de la solicitud: ", err)
+		return c.Status(http.StatusBadRequest).JSON(models.Error("Error al parsear el cuerpo de la solicitud", nil))
+	}
+
+	repo := academia.NewAcademiaRepositoryDB()
+	err = repo.ActualizarParcialAcademia(idAcademia, dto)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar la academia: ", err)
+		return c.Status(http.StatusInternalServerError).JSON(models.Error("Error al actualizar la academia", nil))
+	}
+
+	return c.Status(http.StatusOK).JSON(models.Succes("Academia actualizada con éxito", nil))
+}

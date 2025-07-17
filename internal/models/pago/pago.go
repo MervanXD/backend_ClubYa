@@ -1,15 +1,15 @@
 package pago
 
-import(
+import (
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/internal/models/tipos"
 )
 
-type Pago struct{
-	IdPago		int 				`json:"id_pago"`
-	fecha 		time.Time 			`json:"fecha"`
-	concepto 	string 				`json:"concepto"`
-	metodo		tipos.MetodoPago	`json:"metodo"`
-	monto 		float64 			`json:"monto"`
+type Pago struct {
+	IdPago   int              `json:"id_pago"`
+	Fecha    time.Time        `json:"fecha"`
+	Concepto string           `json:"concepto"`
+	Metodo   tipos.MetodoPago `json:"metodo"`
+	Monto    float64          `json:"monto"`
 }

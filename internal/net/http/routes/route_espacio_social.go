@@ -5,11 +5,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasEspacioSocial(app *fiber.App) {
-	app.Post("/espacio-social", handlers.CrearEspacioSocial)
-	app.Get("/espacio-social", handlers.ListarEspaciosSociales)
-	app.Get("/espacio-social/:id", handlers.ObtenerEspacioSocialPorId)
-	app.Get("/espacio-social-horarios", handlers.ListarEspaciosSocialesHorarios)
-	//app.Put("/espacio-social/:id", handlers.ActualizarEspacioSocial)
+func RutasEspacioSocial(api fiber.Router) {
+	api.Post("/espacio-social", handlers.CrearEspacioSocial)
+	api.Get("/espacio-social", handlers.ListarEspaciosSociales)
+	api.Get("/espacio-social/:id", handlers.ObtenerEspacioSocialPorId)
+	api.Get("/espacio-social-horarios", handlers.ListarEspaciosSocialesHorarios)
+	api.Put("/espacio-social/:id", handlers.ActualizarEspacioSocial)
+	api.Get("/espacio-social-configuracion", handlers.ListarEspaciosSocialesConfiguracion)
+	api.Post("/espacio-social-disponibilidad-configuracion", handlers.ListarDisponibilidadEspacio)
+	api.Get("/espacio-social-admin", handlers.ListarEspaciosSocialesAdmin)
 	//app.Delete("/espacio-social/:id", handlers.EliminarEspacioSocial)
 }

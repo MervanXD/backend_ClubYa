@@ -2,7 +2,9 @@ package detalledisponibilidad
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/MervanXD/backend_ClubYa/database"
@@ -11,9 +13,21 @@ import (
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
-func ActualizarEstadoDetalleDisponibilidad(idHorarioDia int, idBloqueTiempo int, estado string) (err error) {
-	stmt := "call ActualizarEstadoDetalleDisponibilidad(?,?,?)"
-	result, err := database.DB.Exec(stmt, idHorarioDia, idBloqueTiempo, estado)
+type detalleDisponibilidadRepositoryDB struct{}
+
+func NewDetalleDisponibilidadRepositoryDB() DetalleDisponibilidadRepository {
+	return &detalleDisponibilidadRepositoryDB{}
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarEstadoDetalleDisponibilidad(detalle DetalleRequestActualizar) (err error) {
+	stmt := "call ActualizarEstadoDetalleDisponibilidad(?,?,?,?,?,?)"
+	result, err := database.DB.Exec(stmt,
+		detalle.IdHorarioDia,
+		detalle.IdBloqueTiempo,
+		detalle.EstadoDisponibilidad.String(),
+		detalle.Id_Espacio,
+		detalle.Fecha,
+		detalle.Dia.String())
 	if err != nil {
 		logs.Logger.Println("Error al ActualizarEstadoDetalleDisponibilidad: ", err)
 		return err
@@ -32,6 +46,19 @@ func ActualizarEstadoDetalleDisponibilidad(idHorarioDia int, idBloqueTiempo int,
 	return nil
 }
 
+// a esta funcion no le voy a poner test pq es lo mismo que hacer lo de arriba solo que varias veces
+func ActualizarDetalleGrupo(detalles []DetalleRequestActualizar) error {
+	repo := NewDetalleDisponibilidadRepositoryDB()
+	for _, detalle := range detalles {
+		err := repo.ActualizarEstadoDetalleDisponibilidad(detalle)
+		if err != nil {
+			logs.Logger.Println("Error al actualizar el detalle de disponibilidad: ", err)
+			return err
+		}
+	}
+	return nil
+}
+
 type DisponibilidadEspacioResponse struct {
 	Espacio        espacio.EspacioSocial      `json:"espacio"`
 	HoraInicio     string                     `json:"hora_inicio"`
@@ -40,7 +67,7 @@ type DisponibilidadEspacioResponse struct {
 	Disponibilidad tipos.EstadoDisponibilidad `json:"disponibilidad"`
 }
 
-func ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int, idHorarioDia int, idBloqueTiempo int) (*DisponibilidadEspacioResponse, error) {
+func (r *detalleDisponibilidadRepositoryDB) ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int, idHorarioDia int, idBloqueTiempo int) (*DisponibilidadEspacioResponse, error) {
 	query := "call ingesoft.ObtenerDetalleDisponibilidadEspacioSocial(?,?,?)"
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -54,4 +81,107 @@ func ObtenerDisponibilidadEspacioSocialPorId(ctx context.Context, idEspacio int,
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ObtenerDetalleDisponibilidadEspacioFechaId(idEspacio int, fecha string) ([]DetalleDisponibilidadDto, error) {
+	//aca el problema es que el anterior no trae los nombres de las personas, y este si, por eso se hace un procedimiento almacenado diferente
+	// de las nuevas reservas
+	// pero este nuevo no trae los nombres para las reservas antiguas D:
+	// de todoso modos si trae los ocupados
+	query := "call ingesoft.NewListarDetalleDisponibilidad(?,?)"
+	rows, err := database.DB.Query(query, idEspacio, fecha)
+	if err != nil {
+		logs.Logger.Println("Error al obtener los de detalles tiempo: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var detalles []DetalleDisponibilidadDto
+	for rows.Next() {
+		var dp DetalleDisponibilidadDto
+		if err := rows.Scan(&dp.IdHorarioDia, &dp.IdBloqueTiempo, &dp.EstadoDisponibilidad, &dp.IdPersona, &dp.NombrePersona); err != nil {
+			logs.Logger.Println("Error al escanear el detalle: ", err)
+			return nil, err
+		}
+
+		detalles = append(detalles, dp)
+	}
+
+	return detalles, nil
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ObtenerRangosInicioDisponibles(idEspacio int, fecha string) ([]string, error) {
+	query := "CALL ListarHorariosDisponiblesPorEspacioYFecha(?, ?)"
+	rows, err := database.DB.Query(query, idEspacio, fecha)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedimiento: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rangos []string
+
+	for rows.Next() {
+		var rango string
+		if err := rows.Scan(&rango); err != nil {
+			logs.Logger.Println("Error al escanear fila: ", err)
+			return nil, err
+		}
+		rangos = append(rangos, rango)
+	}
+
+	return rangos, nil
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadSegunReservaTx(
+	tx *sql.Tx,
+	detalle DetalleRequestActualizar,
+) (int, error) {
+
+	if tx == nil {
+		return -1, errors.New("transaction cannot be nil")
+	}
+
+	stmt := "CALL ActualizaDisponibilidadSegunReserva(?,?,?,?,?,?, @p_nuevoIdHorarioDia)"
+	_, err := tx.Exec(stmt,
+		detalle.IdHorarioDia,
+		detalle.IdBloqueTiempo,
+		detalle.EstadoDisponibilidad.String(),
+		detalle.Id_Espacio,
+		detalle.Fecha,
+		detalle.Dia.String(),
+	)
+	if err != nil {
+		logs.Logger.Println("Error al ActualizarEstadoSegunReserva: ", err)
+		return -1, fmt.Errorf("error al ActualizarEstadoSegunReserva: %w", err)
+	}
+
+	var nuevoIdHorarioDia int
+	err = tx.QueryRow("SELECT @p_nuevoIdHorarioDia").Scan(&nuevoIdHorarioDia)
+	if err != nil {
+		logs.Logger.Println("Error al obtener el nuevoIdHorarioDia: ", err)
+		return -1, fmt.Errorf("error al obtener el nuevoIdHorarioDia: %w", err)
+	}
+
+	if nuevoIdHorarioDia == -1 {
+		logs.Logger.Println("No se pudo obtener el nuevoIdHorarioDia")
+		return -1, errors.New("id de horario no válido devuelto por la base de datos")
+	}
+
+	return nuevoIdHorarioDia, nil
+}
+
+func (r *detalleDisponibilidadRepositoryDB) ActualizarDisponibilidadPorSesion(
+	sesionID int64,
+	dia string,
+	horaInicio string,
+	horaFin string,
+	idGrupo int,
+) error {
+	query := "CALL ActualizarDisponibilidadPorSesion(?,?,?,?,?)"
+	_, err := database.DB.Exec(query, sesionID, dia, horaInicio, horaFin, idGrupo)
+	if err != nil {
+		logs.Logger.Println("Error al actualizar la disponibilidad por sesión:", err)
+		return err
+	}
+	return nil
 }

@@ -1,8 +1,7 @@
 package tipos
 
 import (
-	"fmt"
-
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -14,72 +13,43 @@ const (
 	SalaDeFiestas
 )
 
-func (d Actividad) String() string {
-	return [...]string{"Sala de reuniones", "Parrilla", "Sala de fiestas"}[d]
+var actividadStr = [...]string{
+	"Sala de reuniones",
+	"Parrilla",
+	"Sala de fiestas",
 }
 
-func (d Actividad) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + d.String() + `"`), nil
+func (a Actividad) String() string {
+	if int(a) < 0 || int(a) >= len(actividadStr) {
+		logs.Logger.Println("Error: Actividad fuera de rango en String():", int(a))
+		return "Desconocido"
+	}
+	return actividadStr[a]
 }
 
-func (d *Actividad) UnmarshalJSON(data []byte) error {
-	switch string(data) {
-	case `"Sala de reuniones"`:
-		*d = SalaDeReuniones
-	case `"Parrilla"`:
-		*d = Parrilla
-	case `"Sala de fiestas"`:
-		*d = SalaDeFiestas
-	default:
-		*d = -1
+func (a Actividad) MarshalJSON() ([]byte, error) {
+	if int(a) < 0 || int(a) >= len(actividadStr) {
+		logs.Logger.Println("Error: Actividad fuera de rango en MarshalJSON():", int(a))
 	}
-	return nil
+	return utils.EnumMarshalJSON(int(a), actividadStr[:])
 }
 
-func (d Actividad) FromString(str string) (Actividad, error) {
-	switch str {
-	case "Sala de reuniones":
-		return SalaDeReuniones, nil
-	case "Parrilla":
-		return Parrilla, nil
-	case "Sala de fiestas":
-		return SalaDeFiestas, nil
-	default:
-		return -1, fmt.Errorf("actividad desconocida: %s", str)
+func (a *Actividad) UnmarshalJSON(data []byte) error {
+	idx, err := utils.EnumUnmarshalJSON(data, actividadStr[:])
+	*a = Actividad(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling Actividad:", err)
+		return err
 	}
+	return err
 }
 
-// Scan implementa la interfaz sql.Scanner para cada enum y asi funcione al momento de recibir de la bd.
-func (uc *Actividad) Scan(value interface{}) error {
-	if value == nil {
-		// Manejar el caso de NULL de la base de datos si es necesario
-		// *uc = 0 // o algún valor por defecto
-		return nil
+func (a *Actividad) Scan(value interface{}) error {
+	idx, err := utils.EnumScan(value, actividadStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning Actividad:", err)
+		return err
 	}
-
-	var strValue string
-	switch v := value.(type) {
-	case []byte:
-		strValue = string(v)
-	case string:
-		strValue = v
-	default:
-		// Manejar el caso de tipo de dato no soportado
-		logs.Logger.Fatalf("tipo de dato no soportado para Actividad: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para Actividad: %T", value)
-	}
-
-	// Aquí tu lógica para convertir strValue ("Puerta 1") a un int
-	// Aquí tu lógica para convertir strValue ("Puerta 1") a un enum Ubicacion
-	switch strValue {
-	case "Sala de reuniones":
-		*uc = SalaDeReuniones
-	case "Parrilla":
-		*uc = Parrilla
-	case "Sala de fiestas":
-		*uc = SalaDeFiestas
-	default:
-		return fmt.Errorf("Actividad desconocida: %s", strValue)
-	}
-	return nil
+	*a = Actividad(idx)
+	return err
 }

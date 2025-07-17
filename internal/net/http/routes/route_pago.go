@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasPago(app *fiber.App) {
-	app.Post("/pago/registrar", handlers.RegistrarPago)
+func RutasPago(api fiber.Router) {
+	api.Post("/pago/registrar", handlers.RegistrarPago)
+	api.Post("/pago/membresia/pagar-pendientes", handlers.PagarTodosPendientes)
 }

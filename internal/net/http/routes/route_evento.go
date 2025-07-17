@@ -5,10 +5,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasEvento(app *fiber.App) {
-	//app.Post("/evento", handlers.CrearEvento)
-	app.Get("/evento", handlers.ListarEventos)
-	app.Get("/eventos/:id", handlers.ObtenerEventoPorId)
-	//app.Put("/evento/:id", handlers.ActualizarEvento)
-	//app.Delete("/evento/:id", handlers.EliminarEvento)
+func RutasEvento(api fiber.Router) {
+	api.Post("/evento", handlers.CrearEvento)
+	api.Get("/eventos", handlers.ListarEventos)
+	api.Get("/eventos/:id", handlers.ObtenerEventoPorId)
+	api.Put("/eventos/:id", handlers.ModificarEvento)
+	api.Put("/evento/cancelar/:id", handlers.CancelarEvento)
+	api.Put("/evento/eliminar/:id", handlers.EliminarEvento)
+	api.Get("/eventos/participantes/:id/", handlers.ListarParticipantesEvento)
+	api.Get("/eventos/bloques/:id/:fecha", handlers.ListarBloquesBloqueados)
 }

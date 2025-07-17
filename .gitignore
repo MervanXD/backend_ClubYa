@@ -30,4 +30,7 @@ tmp/
 #en cuanto a los datos de la bd
 .env
 
+#para que ignore los scripts
+*.sh
+
 .DS_STORE

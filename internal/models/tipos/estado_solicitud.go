@@ -1,8 +1,7 @@
 package tipos
 
 import (
-	"fmt"
-
+	"github.com/MervanXD/backend_ClubYa/internal/pkgs/utils"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
 
@@ -12,59 +11,47 @@ const (
 	PendienteSolicitud EstadoSolicitud = iota
 	Aceptada
 	Rechazada
+	Pagada
 )
 
+var estadoSolicitudStr = [...]string{
+	"Pendiente",
+	"Aceptada",
+	"Rechazada",
+	"Pagada",
+}
+
 func (d EstadoSolicitud) String() string {
-	return [...]string{"Pendiente", "Aceptada", "Rechazada"}[d]
+	if int(d) < 0 || int(d) >= len(estadoSolicitudStr) {
+		logs.Logger.Println("Error: EstadoSolicitud fuera de rango en String():", int(d))
+		return "Desconocido"
+	}
+	return estadoSolicitudStr[d]
 }
 
 func (d EstadoSolicitud) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + d.String() + `"`), nil
+	if int(d) < 0 || int(d) >= len(estadoSolicitudStr) {
+		logs.Logger.Println("Error: EstadoSolicitud fuera de rango en MarshalJSON():", int(d))
+	}
+	return utils.EnumMarshalJSON(int(d), estadoSolicitudStr[:])
 }
 
 func (d *EstadoSolicitud) UnmarshalJSON(data []byte) error {
-	switch string(data) {
-	case `"Pendiente"`:
-		*d = PendienteSolicitud
-	case `"Aceptada"`:
-		*d = Aceptada
-	case `"Rechazada"`:
-		*d = Rechazada
-	default:
-		*d = -1
+	idx, err := utils.EnumUnmarshalJSON(data, estadoSolicitudStr[:])
+	*d = EstadoSolicitud(idx)
+	if err != nil {
+		logs.Logger.Println("Error unmarshaling EstadoSolicitud:", err)
+		return err
 	}
-	return nil
+	return err
 }
 
-// Scan implementa la interfaz sql.Scanner para cada enum y asi funcione al momento de recibir de la bd.
-func (uc *EstadoSolicitud) Scan(value interface{}) error {
-	if value == nil {
-		// Manejar el caso de NULL de la base de datos si es necesario
-		// *uc = 0 // o algún valor por defecto
-		return nil
+func (d *EstadoSolicitud) Scan(value interface{}) error {
+	idx, err := utils.EnumScan(value, estadoSolicitudStr[:])
+	if err != nil {
+		logs.Logger.Println("Error scanning EstadoSolicitud:", err)
+		return err
 	}
-
-	var strValue string
-	switch v := value.(type) {
-	case []byte:
-		strValue = string(v)
-	case string:
-		strValue = v
-	default:
-		// Manejar el caso de tipo de dato no soportado
-		logs.Logger.Fatalf("tipo de dato no soportado para EstadoSolicitud: %T", value)
-		return fmt.Errorf("tipo de dato no soportado para EstadoSolicitud: %T", value)
-	}
-
-	switch strValue {
-	case "Pendiente":
-		*uc = PendienteSolicitud
-	case "Aceptada":
-		*uc = Aceptada
-	case "Rechazada":
-		*uc = Rechazada
-	default:
-		return fmt.Errorf("EstadoSoliciutd desconocido: %s", strValue)
-	}
-	return nil
+	*d = EstadoSolicitud(idx)
+	return err
 }

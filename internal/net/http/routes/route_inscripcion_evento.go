@@ -5,6 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RutasInscripcionEvento(app *fiber.App) {
-    app.Post("/inscripciones", handlers.RegistrarInscripcionEvento)
+func RutasInscripcionEvento(api fiber.Router) {
+	api.Post("/evento/inscripcion", handlers.RegistrarInscripcionEvento)
+	api.Get("/inscripciones-eventos-socio/:id", handlers.ListarEventosSocioId)
+	api.Post("/evento/pagar-inscripcion", handlers.PagarInscripcionEvento)
+	api.Post("/evento/anular-inscripcion", handlers.AnularInscripcionEvento)
 }

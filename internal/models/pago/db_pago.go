@@ -1,6 +1,8 @@
 package pago
 
 import (
+	"fmt"
+
 	"github.com/MervanXD/backend_ClubYa/database"
 	"github.com/MervanXD/backend_ClubYa/logs"
 )
@@ -36,3 +38,42 @@ func InsertarPagoPorMembresia(idMembresia int, concepto, metodo string) (int, er
 	return idPago, nil
 }
 
+func PagarTodosPagosPendientes(idTitular int, metodoPago string) ([]int, error) {
+	var idsPagos []int
+
+	logs.Logger.Printf("Ejecutando CALL PagarTodosPendientesPorTitular con: idTitular=%d, metodoPago=%s", idTitular, metodoPago)
+
+	// Llamar al procedimiento almacenado que paga todos los pendientes
+	rows, err := database.DB.Query("CALL PagarTodosPendientesPorTitular(?, ?)", idTitular, metodoPago)
+	if err != nil {
+		logs.Logger.Println("Error al ejecutar el procedimiento PagarTodosPendientesPorTitular:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Recorrer los resultados para obtener todos los IDs de pagos procesados
+	for rows.Next() {
+		var idPago int
+		if err := rows.Scan(&idPago); err != nil {
+			logs.Logger.Println("Error al escanear ID de pago:", err)
+			return nil, err
+		}
+		if idPago > 0 {
+			idsPagos = append(idsPagos, idPago)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		logs.Logger.Println("Error al procesar resultados:", err)
+		return nil, err
+	}
+
+	logs.Logger.Printf("Pagos procesados exitosamente. IDs: %v", idsPagos)
+
+	if len(idsPagos) == 0 {
+		logs.Logger.Println("No se encontraron pagos pendientes para procesar")
+		return nil, fmt.Errorf("no se encontraron pagos pendientes para el titular con ID %d", idTitular)
+	}
+
+	return idsPagos, nil
+}
