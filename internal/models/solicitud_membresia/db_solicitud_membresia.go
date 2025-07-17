@@ -81,7 +81,7 @@ func (r *solicitudRepositoryDB) ObtenerFamiliaresPorIdSolicitud(idSolicitud int)
 	var familiares []persona.Familiar
 	for rows.Next() {
 		var familia persona.Familiar
-		if err := rows.Scan(&familia.Id, &familia.Nombre, &familia.Apellidos, &familia.TipoDocumento, &familia.NroDocumento, &familia.TipoFamiliar, &familia.FechaNacimiento); err != nil {
+		if err := rows.Scan(&familia.Id, &familia.Nombre, &familia.Apellidos, &familia.TipoDocumento, &familia.NroDocumento, &familia.TipoFamiliar, &familia.FechaNacimiento, &familia.DocumentoIdentidad); err != nil {
 			logs.Logger.Println("Error al escanear al familiar: ", err)
 			return nil, err
 		}
@@ -94,8 +94,8 @@ func (r *solicitudRepositoryDB) ObtenerDatosPersonaPorIdSolicitud(idSolicitud in
 	query := "CALL ObtenerDatosPersonaPorIdSolicitud(?)"
 	rows := database.DB.QueryRow(query, idSolicitud)
 	var persona persona.Titular
-	err := rows.Scan(&persona.Nombre, &persona.Apellidos, &persona.Sexo, &persona.TipoDocumento, &persona.NroDocumento, &persona.FechaNacimiento, &persona.TipoVia, &persona.Direccion, &persona.Distrito, &persona.Pais, &persona.Provincia, &persona.Telefono, &persona.Referencia, &persona.Ocupacion,
-		&persona.IngresoPromedio, &persona.NombreEmpresa, &persona.DireccionEmpresa)
+	err := rows.Scan(&persona.Nombre, &persona.Apellidos, &persona.Sexo, &persona.TipoDocumento, &persona.NroDocumento, &persona.FechaNacimiento, &persona.TipoVia, &persona.Direccion, &persona.Distrito, &persona.Pais, &persona.Provincia, &persona.Telefono, &persona.Referencia, &persona.Ocupacion, &persona.IngresoPromedio, &persona.NombreEmpresa, &persona.DireccionEmpresa,
+		&persona.DocumentoIdentidad, &persona.CartaRecomendacion1, &persona.CartaRecomendacion2)
 	if err != nil { //email lo estoy colocando en referencia , por ahora
 		logs.Logger.Println("Error al ejecutar el procedimiento:", err)
 		return nil, err
