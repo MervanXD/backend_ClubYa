@@ -21,16 +21,34 @@ func NewTitularRepositoryDB() TitularRepository {
 func (r *titularRepositoryDB) InsertarTitular(p Titular, idCuenta int) (int, error) {
 	var urlDocumentoIdentidad, urlCartaRecomendacion1, urlCartaRecomendacion2 string
 	if p.DocumentoIdentidad != nil {
-		urlDocumentoIdentidad, _ = awss3.UploadFromBytesAuto(p.DocumentoIdentidad, p.NombreDocumentoIdentidad.String)
+		var err error
+		urlDocumentoIdentidad, err = awss3.UploadFromBytesAuto(p.DocumentoIdentidad, p.NombreDocumentoIdentidad.String)
+		if err != nil {
+			logs.Logger.Printf(" Error al subir documento de identidad: %v", err)
+			return -1, fmt.Errorf("error al subir documento de identidad: %w", err)
+		}
+		logs.Logger.Printf("Documento identidad subido: %s", urlDocumentoIdentidad)
 	}
+
 	if p.CartaRecomendacion1 != nil {
-		urlCartaRecomendacion1, _ = awss3.UploadFromBytesAuto(p.CartaRecomendacion1, p.NombreCartaRecomendacion1.String)
+		var err error
+		urlCartaRecomendacion1, err = awss3.UploadFromBytesAuto(p.CartaRecomendacion1, p.NombreCartaRecomendacion1.String)
+		if err != nil {
+			logs.Logger.Printf("Error al subir carta recomendación 1: %v", err)
+			return -1, fmt.Errorf("error al subir carta recomendación 1: %w", err)
+		}
+		logs.Logger.Printf("Carta 1 subida: %s", urlCartaRecomendacion1)
 	}
+
 	if p.CartaRecomendacion2 != nil {
-		urlCartaRecomendacion2, _ = awss3.UploadFromBytesAuto(p.CartaRecomendacion2, p.NombreCartaRecomendacion2.String)
+		var err error
+		urlCartaRecomendacion2, err = awss3.UploadFromBytesAuto(p.CartaRecomendacion2, p.NombreCartaRecomendacion2.String)
+		if err != nil {
+			logs.Logger.Printf("Error al subir carta recomendación 2: %v", err)
+			return -1, fmt.Errorf("error al subir carta recomendación 2: %w", err)
+		}
+		logs.Logger.Printf("Carta 2 subida: %s", urlCartaRecomendacion2)
 	}
-
-
 
 	tx, err := database.DB.Begin()
 	if err != nil {
